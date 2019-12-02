@@ -66,10 +66,6 @@ pub fn p1() -> IoResult<()> {
 
     IntCode::alarm1202(&mut codes);
     IntCode::run(&mut codes);
-    // let s = f.lines()
-    //     .map(Result::unwrap)
-    //     .map(|x : String| fuel_required(x.parse::<u32>().expect("Valid int"))
-    //     ).sum::<u32>();
     println!("Day 2 P1: {}", codes[0]);
     Ok(())
 }
