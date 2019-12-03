@@ -2,7 +2,7 @@ mod day1;
 mod day2;
 mod day3;
 
-fn main() -> std::io::Result<()>{
+fn main() -> std::io::Result<()> {
     day1::p1()?;
     day1::p2()?;
 
