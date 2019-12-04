@@ -10,12 +10,6 @@ struct Point {
     y: i32,
 }
 
-#[derive(Eq, PartialEq, Copy, Clone)]
-enum Space {
-    Wire(usize),
-    Overlap,
-}
-
 impl Point {
     fn add(&self, pt: &Point) -> Point {
         Point {
@@ -29,8 +23,8 @@ impl Point {
             y: self.y * d,
         }
     }
-    fn dist(&self, pt2: &Point) -> i32 {
-        (self.x - pt2.x).abs() + (self.y - pt2.y).abs()
+    fn dist(&self, pt2: &Point) -> u32 {
+        u32::try_from((self.x - pt2.x).abs() + (self.y - pt2.y).abs()).unwrap()
     }
 }
 #[derive(Debug)]
@@ -77,7 +71,7 @@ pub fn p1() -> IoResult<()> {
         .iter()
         .enumerate()
         .for_each(|(i, w)| draw_wire(w, Space::Wire(i), &mut hm));
-    println!("Day 3 P1: {}", find_overlap(&hm));
+    println!("Day 3 P1: {}", find_dist(&hm));
     Ok(())
 }
 
@@ -87,15 +81,9 @@ pub fn p2() -> IoResult<()> {
     wires(&s)
         .iter()
         .enumerate()
-        .for_each(|(i, w)| draw_wire2(w, Space2::Wire(i), &mut hm));
-    println!("Day 3 P2: {}", find_overlap2(&hm));
+        .for_each(|(i, w)| draw_wire(w, Space::Wire(i), &mut hm));
+    println!("Day 3 P2: {}", find_potential(&hm));
     Ok(())
-    // let f = BufReader::new(File::open("input/day1.txt")?);
-    // let s = f.lines()
-    //     .map(Result::unwrap)
-    //     .map(|x : String| recursive_fuel_required(x.parse::<u32>().expect("Valid int"))
-    //     ).sum::<u32>();
-    // println!("Day 1 P2: {}", s);
 }
 
 fn wires(s: &str) -> Vec<Vec<Wire>> {
@@ -110,41 +98,11 @@ fn wires(s: &str) -> Vec<Vec<Wire>> {
 
 use std::collections::HashMap;
 
-fn draw_wire(w: &[Wire], space: Space, hm: &mut HashMap<Point, Space>) {
-    w.iter()
-        .scan(Point { x: 0, y: 0 }, |pt, Wire { dir, mag }| {
-            let dir_pt = match dir {
-                Dir::Up => Point { x: 0, y: 1 },
-                Dir::Down => Point { x: 0, y: -1 },
-                Dir::Left => Point { x: -1, y: 0 },
-                Dir::Right => Point { x: 1, y: 0 },
-            };
-            let mut iter_pt = *pt;
-            *pt = pt.add(&dir_pt.mul(*mag));
-            while iter_pt != *pt {
-                iter_pt = iter_pt.add(&dir_pt);
-                let e = hm.entry(iter_pt).or_insert(space.clone());
-                *e = match *e {
-                    Space::Overlap => Space::Overlap,
-                    a => {
-                        if space == a {
-                            a
-                        } else {
-                            Space::Overlap
-                        }
-                    }
-                }
-            }
-            Some(pt.clone())
-        })
-        .for_each(drop);
-}
-
 #[derive(Eq, PartialEq, Hash, Copy, Clone)]
-enum Space2 {
+enum Space {
     Wire(usize),
 }
-fn draw_wire2(w: &[Wire], space: Space2, hm: &mut HashMap<Point, HashMap<Space2, u32>>) {
+fn draw_wire(w: &[Wire], space: Space, hm: &mut HashMap<Point, HashMap<Space, u32>>) {
     w.iter()
         .scan((Point { x: 0, y: 0 }, 0), |pt, Wire { dir, mag }| {
             let dir_pt = match dir {
@@ -168,28 +126,28 @@ fn draw_wire2(w: &[Wire], space: Space2, hm: &mut HashMap<Point, HashMap<Space2,
         .for_each(drop);
 }
 
-fn find_overlap2(hm: &HashMap<Point, HashMap<Space2, u32>>) -> i32 {
-    let mut overlaps: Vec<u32> = hm
+fn find_potential(hm: &HashMap<Point, HashMap<Space, u32>>) -> i32 {
+    let mut overlaps = hm
         .iter()
-        .filter(|(k, v)| v.len() >= 2)
-        .map(|(k, v)| {
-            let mut entries: Vec<u32> = v.iter().map(|(k, v)| *v).collect::<Vec<_>>();
+        .filter(|(_k, v)| v.len() >= 2)
+        .map(|(_k, v)| {
+            let mut entries: Vec<u32> = v.iter().map(|(_k, v)| *v).collect::<Vec<_>>();
             entries.sort();
             entries.iter().take(2).sum()
         })
-        .collect::<Vec<_>>();
+        .collect::<Vec<u32>>();
     overlaps.sort();
     *overlaps.iter().take(1).next().unwrap() as i32
 }
-fn find_overlap(hm: &HashMap<Point, Space>) -> i32 {
+
+fn find_dist(hm: &HashMap<Point, HashMap<Space, u32>>) -> u32 {
     let mut overlaps = hm
         .iter()
-        .filter(|(k, v)| **v == Space::Overlap)
-        .map(|(k, v)| (k, Point { x: 0, y: 0 }.dist(k)))
-        .collect::<Vec<_>>();
-    overlaps.sort_by_key(|(pt, dist)| *dist);
-    let (v, dist) = overlaps.iter().take(1).next().unwrap();
-    dist.to_owned()
+        .filter(|(_k, v)| v.len() >= 2)
+        .map(|(k, _v)| Point { x: 0, y: 0 }.dist(k))
+        .collect::<Vec<u32>>();
+    overlaps.sort();
+    *overlaps.iter().take(1).next().unwrap()
 }
 
 #[cfg(test)]
@@ -203,7 +161,7 @@ mod test {
             .iter()
             .enumerate()
             .for_each(|(i, w)| draw_wire(w, Space::Wire(i), &mut hm));
-        assert_eq!(find_overlap(&hm), 6);
+        assert_eq!(find_dist(&hm), 6);
 
         let mut hm = HashMap::new();
         let s = concat!(
@@ -214,7 +172,7 @@ mod test {
             .iter()
             .enumerate()
             .for_each(|(i, w)| draw_wire(w, Space::Wire(i), &mut hm));
-        assert_eq!(find_overlap(&hm), 159);
+        assert_eq!(find_dist(&hm), 159);
 
         let mut hm = HashMap::new();
         let s = concat!(
@@ -225,7 +183,7 @@ mod test {
             .iter()
             .enumerate()
             .for_each(|(i, w)| draw_wire(w, Space::Wire(i), &mut hm));
-        assert_eq!(find_overlap(&hm), 135);
+        assert_eq!(find_dist(&hm), 135);
 
         let mut hm = HashMap::new();
         let s = concat!(
@@ -235,8 +193,8 @@ mod test {
         wires(s)
             .iter()
             .enumerate()
-            .for_each(|(i, w)| draw_wire2(w, Space2::Wire(i), &mut hm));
-        assert_eq!(find_overlap2(&hm), 610);
+            .for_each(|(i, w)| draw_wire(w, Space::Wire(i), &mut hm));
+        assert_eq!(find_potential(&hm), 610);
 
         let mut hm = HashMap::new();
         let s = concat!(
@@ -246,7 +204,7 @@ mod test {
         wires(s)
             .iter()
             .enumerate()
-            .for_each(|(i, w)| draw_wire2(w, Space2::Wire(i), &mut hm));
-        assert_eq!(find_overlap2(&hm), 410);
+            .for_each(|(i, w)| draw_wire(w, Space::Wire(i), &mut hm));
+        assert_eq!(find_potential(&hm), 410);
     }
 }

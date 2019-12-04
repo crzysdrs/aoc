@@ -78,7 +78,6 @@ pub fn p2() -> IoResult<()> {
             IntCode::inputs(&mut codes, noun, verb);
             IntCode::run(&mut codes);
             if codes[0] == 19690720 {
-                println!("noun {} verb {}", noun, verb);
                 println!("Day 2 P2: {}", 100 * noun + verb);
                 break;
             }
