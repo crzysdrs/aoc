@@ -10,24 +10,23 @@ fn validate(v: u32, p2: bool) -> bool {
         .map(|i| (v / 10_u32.pow(i)) % 10)
         .collect::<Vec<_>>();
 
-    let never_decrease = digits
+    digits
         .iter()
         .zip(digits[1..].iter())
         .map(|(prev, cur)| prev <= cur)
-        .all(|i| i);
-
-    let mut two_item_group = false;
-
-    for (key, group) in &digits.iter().group_by(|x| **x) {
-        two_item_group = two_item_group
-            || if p2 {
-                group.count() == 2
-            } else {
-                group.count() >= 2
-            };
-    }
-
-    never_decrease && two_item_group
+        .all(|i| i)
+        && digits
+            .iter()
+            .group_by(|x| **x)
+            .into_iter()
+            .map(|(key, group)| {
+                if p2 {
+                    group.count() == 2
+                } else {
+                    group.count() >= 2
+                }
+            })
+            .any(|i| i)
 }
 
 pub fn p1() -> IoResult<()> {
