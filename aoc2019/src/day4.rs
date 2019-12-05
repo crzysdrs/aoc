@@ -56,8 +56,8 @@ mod test {
     use super::*;
     #[test]
     fn tests() {
-        assert!(validate(111111));
-        assert!(!validate(223450));
-        assert!(!validate(123789));
+        assert!(validate(111111, false));
+        assert!(!validate(223450, false));
+        assert!(!validate(123789, false));
     }
 }
