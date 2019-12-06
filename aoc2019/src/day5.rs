@@ -61,7 +61,7 @@ struct IntCodeVal {
 }
 
 impl IntCodeVal {
-   fn read(&self, codes: &[isize]) -> isize {
+    fn read(&self, codes: &[isize]) -> isize {
         match self.mode {
             ParameterMode::Immediate => self.idx,
             ParameterMode::Position => codes[usize::try_from(self.idx).unwrap()],
@@ -92,36 +92,55 @@ enum ParameterMode {
     Immediate = 1,
 }
 
-
 impl IntCode {
     fn from(codes: &[isize]) -> IntCode {
         let opcode = codes[0] % 100;
         let remain = u32::try_from(codes[0] / 100).unwrap();
 
         //println!("Orig {}", codes[0]);
-        let mut vals = codes[1..].iter().zip(
-            (0..).map(|i| (remain / 10_u32.pow(i)) % 10)
-                .map(|d| match d {
-                    0 => ParameterMode::Position,
-                    1 => ParameterMode::Immediate,
-                    _ => panic!("Unhandled Mode"),
-                })
-        ).map(|(v, mode)| IntCodeVal { idx: *v, mode });
-        
+        let mut vals = codes[1..]
+            .iter()
+            .zip(
+                (0..)
+                    .map(|i| (remain / 10_u32.pow(i)) % 10)
+                    .map(|d| match d {
+                        0 => ParameterMode::Position,
+                        1 => ParameterMode::Immediate,
+                        _ => panic!("Unhandled Mode"),
+                    }),
+            )
+            .map(|(v, mode)| IntCodeVal { idx: *v, mode });
+
         match opcode {
-            1 => IntCode::Add(vals.next().unwrap(), vals.next().unwrap(), vals.next().unwrap()),
-            2 => IntCode::Multiply(vals.next().unwrap(), vals.next().unwrap(), vals.next().unwrap()),
+            1 => IntCode::Add(
+                vals.next().unwrap(),
+                vals.next().unwrap(),
+                vals.next().unwrap(),
+            ),
+            2 => IntCode::Multiply(
+                vals.next().unwrap(),
+                vals.next().unwrap(),
+                vals.next().unwrap(),
+            ),
             3 => IntCode::Save(vals.next().unwrap()),
             4 => IntCode::Output(vals.next().unwrap()),
             5 => IntCode::JumpIfTrue(vals.next().unwrap(), vals.next().unwrap()),
             6 => IntCode::JumpIfFalse(vals.next().unwrap(), vals.next().unwrap()),
-            7 => IntCode::LessThan(vals.next().unwrap(), vals.next().unwrap(), vals.next().unwrap()),
-            8 => IntCode::Equals(vals.next().unwrap(), vals.next().unwrap(), vals.next().unwrap()),
+            7 => IntCode::LessThan(
+                vals.next().unwrap(),
+                vals.next().unwrap(),
+                vals.next().unwrap(),
+            ),
+            8 => IntCode::Equals(
+                vals.next().unwrap(),
+                vals.next().unwrap(),
+                vals.next().unwrap(),
+            ),
             99 => IntCode::End,
             v => panic!("Unhandled IntCode {}", v),
         }
     }
- 
+
     fn exec(
         self,
         ip: &mut usize,
@@ -161,23 +180,25 @@ impl IntCode {
                 }
             }
             IntCode::LessThan(first, second, flag) => {
-                flag.write(codes,
-                           if first.read(codes) < second.read(codes) {
-                               1
-                           } else {
-                               0
-                           }
+                flag.write(
+                    codes,
+                    if first.read(codes) < second.read(codes) {
+                        1
+                    } else {
+                        0
+                    },
                 );
                 *ip += 4;
             }
             IntCode::Equals(first, second, flag) => {
-                flag.write(codes,
-                           if first.read(codes) == second.read(codes) {
-                               1
-                           } else {
-                               0
-                           }
-                );                
+                flag.write(
+                    codes,
+                    if first.read(codes) == second.read(codes) {
+                        1
+                    } else {
+                        0
+                    },
+                );
                 *ip += 4;
             }
             IntCode::End => {}
