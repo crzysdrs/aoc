@@ -10,7 +10,6 @@ struct IntCodeMachine {
     code: Vec<isize>,
     input: Vec<isize>,
     output: Vec<isize>,
-    halt_input: bool,
     ip: usize,
     halted: bool,
 }
@@ -20,15 +19,14 @@ impl IntCodeMachine {
         input.reverse();
         IntCodeMachine {
             ip: 0,
-            halt_input: false,
             halted: false,
             code,
             input,
             output: Vec::new(),
         }
     }
-    fn halt_input(&mut self) {
-        self.halt_input = true;
+    fn halted(&self) -> bool {
+        self.halted
     }
     fn feed_input(&mut self, v: isize) {
         self.input.reverse();
@@ -45,13 +43,6 @@ impl IntCodeMachine {
             v, self.input, self.output
         );
     }
-    fn alarm1202(&mut self) {
-        self.inputs(12, 2);
-    }
-    fn inputs(&mut self, noun: isize, verb: isize) {
-        self.code[1] = noun;
-        self.code[2] = verb;
-    }
     fn run(&mut self) -> bool {
         loop {
             match IntCode::from(&self.code[self.ip..]) {
@@ -60,7 +51,7 @@ impl IntCodeMachine {
                     break true;
                 }
                 i @ IntCode::Save(_) => {
-                    if self.halt_input && self.input.len() == 0 {
+                    if self.input.len() == 0 {
                         break false;
                     }
                     i.exec(
@@ -126,7 +117,6 @@ impl IntCode {
         let opcode = codes[0] % 100;
         let remain = u32::try_from(codes[0] / 100).unwrap();
 
-        //println!("Orig {}", codes[0]);
         let mut vals = codes[1..]
             .iter()
             .zip(
@@ -235,47 +225,9 @@ impl IntCode {
     }
 }
 
-pub fn p1() -> IoResult<()> {
-    let codes = std::fs::read_to_string("input/day7.txt")?
-        //"3,15,3,16,1002,16,10,16,1,16,15,15,4,15,99,0,0".to_string()
-        .trim()
-        .split(",")
-        .map(|x| x.parse::<isize>().expect("Valid usize"))
-        .collect::<Vec<_>>();
-    let result = (0..=4)
-        .permutations(5)
-        .map({
-            |phases| {
-                let p = phases.clone();
-                let v = std::iter::successors(Some((phases, 0isize)), |(phases, input)| {
-                    if let Some(phase) = phases.first() {
-                        let mut m = IntCodeMachine::new(codes.clone(), vec![*phase, *input]);
-                        m.run();
-                        Some((phases[1..].to_vec(), m.output[0]))
-                    } else {
-                        None
-                    }
-                })
-                .last()
-                .unwrap()
-                .1;
-                //println!("{:?} {}", p, v);
-                v
-            }
-        })
-        .max();
-
-    println!("Result {}", result.unwrap());
-    Ok(())
-}
-
-pub fn p2() -> IoResult<()> {
-    let codes = std::fs::read_to_string("input/day7.txt")?
-        .trim()
-        .split(",")
-        .map(|x| x.parse::<isize>().expect("Valid usize"))
-        .collect::<Vec<_>>();
-    let result = (5..=9)
+pub fn series_machine(codes: &[isize], feedback: bool) -> isize {
+    let starts = if feedback { 5..=9 } else { 0..=4 };
+    starts
         .permutations(5)
         .map({
             |phases| {
@@ -283,7 +235,7 @@ pub fn p2() -> IoResult<()> {
                 let mut machines = phases
                     .iter()
                     .enumerate()
-                    .map(|(i, phase)| (i, IntCodeMachine::new(codes.clone(), vec![*phase])))
+                    .map(|(i, phase)| (i, IntCodeMachine::new(codes.to_vec(), vec![*phase])))
                     .collect::<Vec<_>>();
 
                 let mut start_input = 0;
@@ -291,7 +243,6 @@ pub fn p2() -> IoResult<()> {
                     let v = machines
                         .iter_mut()
                         .scan(start_input, |input, (num, machine)| {
-                            machine.halt_input();
                             machine.feed_input(*input);
                             machine.run();
                             *input = machine.output.pop().unwrap();
@@ -307,9 +258,28 @@ pub fn p2() -> IoResult<()> {
                 }
             }
         })
-        .max();
+        .max()
+        .unwrap()
+}
+pub fn p1() -> IoResult<()> {
+    let codes = std::fs::read_to_string("input/day7.txt")?
+        .trim()
+        .split(",")
+        .map(|x| x.parse::<isize>().expect("Valid usize"))
+        .collect::<Vec<_>>();
+    let r = series_machine(&codes, false);
+    println!("Day 7 Part 1 {}", r);
+    Ok(())
+}
 
-    println!("Result {}", result.unwrap());
+pub fn p2() -> IoResult<()> {
+    let codes = std::fs::read_to_string("input/day7.txt")?
+        .trim()
+        .split(",")
+        .map(|x| x.parse::<isize>().expect("Valid usize"))
+        .collect::<Vec<_>>();
+    let r = series_machine(&codes, true);
+    println!("Day 7 Part 1 {}", r);
     Ok(())
 }
 
@@ -319,110 +289,53 @@ mod test {
     #[test]
     fn tests() {
         assert_eq!(
-            IntCodeMachine::new(vec![3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8], vec![8]).test(),
-            (&[][..], &[1][..])
+            series_machine(
+                &[3, 15, 3, 16, 1002, 16, 10, 16, 1, 16, 15, 15, 4, 15, 99, 0, 0],
+                false
+            ),
+            43210
         );
         assert_eq!(
-            IntCodeMachine::new(vec![3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8], vec![5]).test(),
-            (&[][..], &[0][..])
-        );
-
-        assert_eq!(
-            IntCodeMachine::new(vec![3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8], vec![5]).test(),
-            (&[][..], &[1][..])
-        );
-        assert_eq!(
-            IntCodeMachine::new(vec![3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8], vec![8]).test(),
-            (&[][..], &[0][..])
-        );
-
-        assert_eq!(
-            IntCodeMachine::new(vec![3, 3, 1108, -1, 8, 3, 4, 3, 99], vec![8]).test(),
-            (&[][..], &[1][..])
-        );
-        assert_eq!(
-            IntCodeMachine::new(vec![3, 3, 1108, -1, 8, 3, 4, 3, 99], vec![7]).test(),
-            (&[][..], &[0][..])
-        );
-
-        assert_eq!(
-            IntCodeMachine::new(vec![3, 3, 1107, -1, 8, 3, 4, 3, 99], vec![8]).test(),
-            (&[][..], &[0][..])
-        );
-        assert_eq!(
-            IntCodeMachine::new(vec![3, 3, 1107, -1, 8, 3, 4, 3, 99], vec![7]).test(),
-            (&[][..], &[1][..])
-        );
-
-        assert_eq!(
-            IntCodeMachine::new(
-                vec![3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9],
-                vec![0]
-            )
-            .test(),
-            (&[][..], &[0][..])
-        );
-        assert_eq!(
-            IntCodeMachine::new(
-                vec![3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9],
-                vec![1]
-            )
-            .test(),
-            (&[][..], &[1][..])
-        );
-
-        assert_eq!(
-            IntCodeMachine::new(
-                vec![3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1],
-                vec![0]
-            )
-            .test(),
-            (&[][..], &[0][..])
-        );
-        assert_eq!(
-            IntCodeMachine::new(
-                vec![3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1],
-                vec![1]
-            )
-            .test(),
-            (&[][..], &[1][..])
-        );
-
-        assert_eq!(
-            IntCodeMachine::new(
-                vec![
-                    3, 21, 1008, 21, 8, 20, 1005, 20, 22, 107, 8, 21, 20, 1006, 20, 31, 1106, 0,
-                    36, 98, 0, 0, 1002, 21, 125, 20, 4, 20, 1105, 1, 46, 104, 999, 1105, 1, 46,
-                    1101, 1000, 1, 20, 4, 20, 1105, 1, 46, 98, 99
+            series_machine(
+                &[
+                    3, 23, 3, 24, 1002, 24, 10, 24, 1002, 23, -1, 23, 101, 5, 23, 23, 1, 24, 23,
+                    23, 4, 23, 99, 0, 0
                 ],
-                vec![7]
-            )
-            .test(),
-            (&[][..], &[999][..])
+                false
+            ),
+            54321
         );
         assert_eq!(
-            IntCodeMachine::new(
-                vec![
-                    3, 21, 1008, 21, 8, 20, 1005, 20, 22, 107, 8, 21, 20, 1006, 20, 31, 1106, 0,
-                    36, 98, 0, 0, 1002, 21, 125, 20, 4, 20, 1105, 1, 46, 104, 999, 1105, 1, 46,
-                    1101, 1000, 1, 20, 4, 20, 1105, 1, 46, 98, 99
+            series_machine(
+                &[
+                    3, 31, 3, 32, 1002, 32, 10, 32, 1001, 31, -2, 31, 1007, 31, 0, 33, 1002, 33, 7,
+                    33, 1, 33, 31, 31, 1, 32, 31, 31, 4, 31, 99, 0, 0, 0
                 ],
-                vec![8]
-            )
-            .test(),
-            (&[][..], &[1000][..])
+                false
+            ),
+            65210
+        );
+
+        assert_eq!(
+            series_machine(
+                &[
+                    3, 26, 1001, 26, -4, 26, 3, 27, 1002, 27, 2, 27, 1, 27, 26, 27, 4, 27, 1001,
+                    28, -1, 28, 1005, 28, 6, 99, 0, 0, 5
+                ],
+                true
+            ),
+            139629729
         );
         assert_eq!(
-            IntCodeMachine::new(
-                vec![
-                    3, 21, 1008, 21, 8, 20, 1005, 20, 22, 107, 8, 21, 20, 1006, 20, 31, 1106, 0,
-                    36, 98, 0, 0, 1002, 21, 125, 20, 4, 20, 1105, 1, 46, 104, 999, 1105, 1, 46,
-                    1101, 1000, 1, 20, 4, 20, 1105, 1, 46, 98, 99
+            series_machine(
+                &[
+                    3, 52, 1001, 52, -5, 52, 3, 53, 1, 52, 56, 54, 1007, 54, 5, 55, 1005, 55, 26,
+                    1001, 54, -5, 54, 1105, 1, 12, 1, 53, 54, 53, 1008, 54, 0, 55, 1001, 55, 1, 55,
+                    2, 53, 55, 53, 4, 53, 1001, 56, -1, 56, 1005, 56, 6, 99, 0, 0, 0, 0, 10
                 ],
-                vec![9]
-            )
-            .test(),
-            (&[][..], &[1001][..])
+                true
+            ),
+            18216
         );
     }
 }
