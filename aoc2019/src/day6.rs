@@ -21,7 +21,7 @@ fn orbits(input_conns: &[(String, String)]) -> usize {
     let values = conns.values().flat_map(|v| v).collect::<HashSet<_>>();
     let mut roots = nodes.difference(&values);
 
-    let mut worklist = vec![(roots.clone().next().unwrap().to_string(), 0)];
+    let mut worklist = roots.map(|r| (r.to_string(), 0)).collect::<Vec<_>>();
     let mut sum = 0;
     while let Some((w, c)) = worklist.pop() {
         sum += c;
