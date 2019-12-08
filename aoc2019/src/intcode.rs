@@ -1,5 +1,5 @@
-use std::convert::TryFrom;
 use std::collections::VecDeque;
+use std::convert::TryFrom;
 
 #[derive(Debug)]
 pub struct IntCodeMachine {
@@ -43,8 +43,10 @@ impl IntCodeMachine {
     #[cfg(test)]
     pub fn test(&mut self) -> (Vec<isize>, Vec<isize>) {
         self.run();
-        (self.input.iter().cloned().collect::<Vec<_>>(),
-         self.output.iter().cloned().collect::<Vec<_>>(),)
+        (
+            self.input.iter().cloned().collect::<Vec<_>>(),
+            self.output.iter().cloned().collect::<Vec<_>>(),
+        )
     }
     pub fn done(&self, v: &str) {
         println!(

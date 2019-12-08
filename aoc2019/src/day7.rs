@@ -1,5 +1,5 @@
-use std::io::Result as IoResult;
 use crate::intcode::IntCodeMachine;
+use std::io::Result as IoResult;
 
 use itertools::Itertools;
 

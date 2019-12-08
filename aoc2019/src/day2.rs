@@ -1,5 +1,5 @@
-use std::io::Result as IoResult;
 use crate::intcode::IntCodeMachine;
+use std::io::Result as IoResult;
 
 pub fn p1() -> IoResult<()> {
     let codes = std::fs::read_to_string("input/day2.txt")?
@@ -55,8 +55,5 @@ mod test {
         let mut m = IntCodeMachine::new(vec![1, 1, 1, 4, 99, 5, 6, 0, 99], vec![]);
         m.run();
         assert_eq!(m.code(), &[30, 1, 1, 4, 2, 5, 6, 0, 99]);
-
-
-
     }
 }
