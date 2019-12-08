@@ -35,12 +35,8 @@ pub fn p1() -> IoResult<()> {
     Ok(())
 }
 
-pub fn p2() -> IoResult<()> {
-    let wide = 25;
-    let tall = 6;
-    let v = 
-        std::fs::read_to_string("input/day8.txt")?
-        .trim().chars().map(|c| c.to_digit(10).unwrap()).chunks(wide * tall).into_iter()        
+fn compute_image(wide: usize, tall : usize, s:&str) -> Vec<u32> {
+    s.trim().chars().map(|c| c.to_digit(10).unwrap()).chunks(wide * tall).into_iter()        
         .fold(None, |acc: Option<Vec<_>>, l| {
             if let Some(old) = acc {
                 Some(
@@ -55,9 +51,10 @@ pub fn p2() -> IoResult<()> {
                 Some(l.collect())
             }
         })
-        .unwrap();
+        .unwrap()
+}
 
-    println!("Part 2:");
+fn draw_image(wide: usize, tall : usize, v:&[u32]) {
     for y in 0..tall {
         for x in 0..wide {
             print!("{}", match v[y * wide + x] {
@@ -70,6 +67,14 @@ pub fn p2() -> IoResult<()> {
         println!();
     }
 
+}
+pub fn p2() -> IoResult<()> {
+    let wide = 25;
+    let tall = 6;
+    let v = compute_image(wide, tall, &std::fs::read_to_string("input/day8.txt")?);
+ 
+    println!("Part 2:");
+    draw_image(wide, tall, &v);
     Ok(())
 }
 
@@ -78,6 +83,6 @@ mod test {
     use super::*;
     #[test]
     fn tests() {
-        assert!(false);
+        assert_eq!(compute_image(2,2,"0222112222120000"), &[0,1,1,0]);
     }
 }
