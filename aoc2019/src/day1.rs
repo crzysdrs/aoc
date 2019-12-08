@@ -1,6 +1,4 @@
-use std::fs::File;
 use std::io::Result as IoResult;
-use std::io::{BufRead, BufReader, Read};
 
 fn fuel_required(mass: u32) -> u32 {
     (mass / 3).saturating_sub(2)
@@ -16,22 +14,18 @@ fn recursive_fuel_required(mass: u32) -> u32 {
 }
 
 pub fn p1() -> IoResult<()> {
-    let f = BufReader::new(File::open("input/day1.txt")?);
-    let s = f
+    let s = std::fs::read_to_string("input/day1.txt")?
         .lines()
-        .map(Result::unwrap)
-        .map(|x: String| fuel_required(x.parse::<u32>().expect("Valid int")))
+        .map(|x| fuel_required(x.parse::<u32>().expect("Valid int")))
         .sum::<u32>();
     println!("Day 1 P1: {}", s);
     Ok(())
 }
 
 pub fn p2() -> IoResult<()> {
-    let f = BufReader::new(File::open("input/day1.txt")?);
-    let s = f
+    let s = std::fs::read_to_string("input/day1.txt")?
         .lines()
-        .map(Result::unwrap)
-        .map(|x: String| recursive_fuel_required(x.parse::<u32>().expect("Valid int")))
+        .map(|x| recursive_fuel_required(x.parse::<u32>().expect("Valid int")))
         .sum::<u32>();
     println!("Day 1 P2: {}", s);
     Ok(())

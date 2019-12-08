@@ -1,6 +1,4 @@
-use std::fs::File;
 use std::io::Result as IoResult;
-use std::io::{BufRead, BufReader, Read};
 
 use itertools::Itertools;
 
@@ -19,7 +17,7 @@ fn validate(v: u32, p2: bool) -> bool {
             .iter()
             .group_by(|x| **x)
             .into_iter()
-            .map(|(key, group)| {
+            .map(|(_key, group)| {
                 if p2 {
                     group.count() == 2
                 } else {

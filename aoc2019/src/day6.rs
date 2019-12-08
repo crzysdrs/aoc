@@ -1,6 +1,4 @@
-use std::fs::File;
 use std::io::Result as IoResult;
-use std::io::{BufRead, BufReader, Read};
 
 use std::collections::{HashMap, HashSet};
 
@@ -19,7 +17,7 @@ fn orbits(input_conns: &[(String, String)]) -> usize {
         .collect::<HashSet<_>>();
 
     let values = conns.values().flat_map(|v| v).collect::<HashSet<_>>();
-    let mut roots = nodes.difference(&values);
+    let roots = nodes.difference(&values);
 
     let mut worklist = roots.map(|r| (r.to_string(), 0)).collect::<Vec<_>>();
     let mut sum = 0;
