@@ -7,6 +7,7 @@ mod day6;
 mod day7;
 mod day8;
 mod day9;
+mod day10;
 mod intcode;
 
 fn main() -> std::io::Result<()> {
@@ -34,11 +35,13 @@ fn main() -> std::io::Result<()> {
         
         day8::p1()?;
         day8::p2()?;
-
+        
+        day9::p1()?;
+        day9::p2()?;
     }
 
-    day9::p1()?;
-    day9::p2()?;
+    day10::p1()?;
+    day10::p2()?;
 
     Ok(())
 }
