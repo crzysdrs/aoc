@@ -8,7 +8,7 @@ pub struct IntCodeMachine {
     output: VecDeque<isize>,
     ip: usize,
     halted: bool,
-    rel : isize,
+    rel: isize,
 }
 
 impl IntCodeMachine {
@@ -19,7 +19,7 @@ impl IntCodeMachine {
             code,
             input: VecDeque::from(input),
             output: VecDeque::new(),
-            rel : 0,
+            rel: 0,
         }
     }
 
@@ -36,7 +36,7 @@ impl IntCodeMachine {
     pub fn next_output(&mut self) -> Option<isize> {
         self.output.pop_front()
     }
-    pub fn output(&self) -> impl Iterator<Item=&isize> {
+    pub fn output(&self) -> impl Iterator<Item = &isize> {
         self.output.iter()
     }
     pub fn halted(&self) -> bool {
@@ -66,7 +66,7 @@ impl IntCodeMachine {
                     self.halted = true;
                     break true;
                 }
-                i @ IntCode::Save(_) => {                    
+                i @ IntCode::Save(_) => {
                     if self.input.len() == 0 {
                         break false;
                     }
@@ -102,12 +102,11 @@ impl IntCodeVal {
     fn read(&self, codes: &[isize], rel: isize) -> isize {
         match self.mode {
             ParameterMode::Immediate => self.idx,
-            ParameterMode::Relative |
-            ParameterMode::Position => {
+            ParameterMode::Relative | ParameterMode::Position => {
                 let idx = match self.mode {
-                    ParameterMode::Relative => usize::try_from(self.idx + rel).unwrap(),                                        
+                    ParameterMode::Relative => usize::try_from(self.idx + rel).unwrap(),
                     ParameterMode::Position => usize::try_from(self.idx).unwrap(),
-                    _ => panic!("Unhandled mode")
+                    _ => panic!("Unhandled mode"),
                 };
                 if idx >= codes.len() {
                     0
@@ -121,7 +120,7 @@ impl IntCodeVal {
         let idx = match self.mode {
             ParameterMode::Immediate => panic!("Can't write literal {}", self.idx),
             ParameterMode::Relative => usize::try_from(self.idx + rel).unwrap(),
-            ParameterMode::Position =>usize::try_from(self.idx).unwrap(),
+            ParameterMode::Position => usize::try_from(self.idx).unwrap(),
         };
         if idx >= codes.len() {
             codes.resize(idx + 1, 0);
@@ -193,9 +192,7 @@ impl IntCode {
                 vals.next().unwrap(),
                 vals.next().unwrap(),
             ),
-            9 => IntCode::AdjustRel(
-                vals.next().unwrap()
-            ),
+            9 => IntCode::AdjustRel(vals.next().unwrap()),
             99 => IntCode::End,
             v => panic!("Unhandled IntCode {}", v),
         }
@@ -211,11 +208,19 @@ impl IntCode {
     ) {
         match self {
             IntCode::Add(from_a, from_b, to) => {
-                to.write(codes, *rel, from_a.read(codes, *rel) + from_b.read(codes, *rel));
+                to.write(
+                    codes,
+                    *rel,
+                    from_a.read(codes, *rel) + from_b.read(codes, *rel),
+                );
                 *ip += 4;
             }
             IntCode::Multiply(from_a, from_b, to) => {
-                to.write(codes, *rel, from_a.read(codes, *rel) * from_b.read(codes, *rel));
+                to.write(
+                    codes,
+                    *rel,
+                    from_a.read(codes, *rel) * from_b.read(codes, *rel),
+                );
                 *ip += 4;
             }
             IntCode::Output(to) => {
@@ -263,7 +268,7 @@ impl IntCode {
                     },
                 );
                 *ip += 4;
-            },
+            }
             IntCode::AdjustRel(new_rel) => {
                 *rel += new_rel.read(codes, *rel);
                 *ip += 2;
