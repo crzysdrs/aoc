@@ -1,7 +1,5 @@
 use std::convert::TryFrom;
-use std::fs::File;
 use std::io::Result as IoResult;
-use std::io::{BufRead, BufReader, Read};
 use std::ops::{Index, IndexMut};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -30,7 +28,7 @@ struct Grid {
 
 impl Grid {
     fn new(height: usize, width: usize) -> Grid {
-        println!("Height {} Width: {}", height, width);
+        //println!("Height {} Width: {}", height, width);
         Grid {
             grid: vec![vec![None; width]; height],
         }
@@ -186,7 +184,7 @@ fn destroy_asteroids(start: Point, s: &str) -> Vec<Point> {
     let mut ordered = vec![];
     loop {
         let asteroids = all_asteroids(&space);
-        println!("Asteroids {:?}", asteroids);
+        //println!("Asteroids {:?}", asteroids);
         let (_, vis) = visible_asteroids(space.len(), space[0].len(), start, &asteroids);
         let mut targets = vis
             .iter()
@@ -200,7 +198,7 @@ fn destroy_asteroids(start: Point, s: &str) -> Vec<Point> {
             })
             .collect::<Vec<_>>();
         targets.reverse();
-        println!("Targets len {}", targets.len());
+        //println!("Targets len {}", targets.len());
         if targets.len() == 0 {
             break;
         }
@@ -217,7 +215,7 @@ fn destroy_asteroids(start: Point, s: &str) -> Vec<Point> {
             );
 
         for t in targets.clone() {
-            println!("{:?}", t);
+            //println!("{:?}", t);
             assert_eq!(Space::Asteroid, space[t.0.y as usize][t.0.x as usize]);
             space[t.0.y as usize][t.0.x as usize] = Space::Empty;
         }
@@ -227,7 +225,6 @@ fn destroy_asteroids(start: Point, s: &str) -> Vec<Point> {
 }
 
 fn all_asteroids(space: &[Vec<Space>]) -> Vec<Point> {
-    let height = space.len();
     let width = space[0].len();
     space
         .to_vec()
@@ -287,7 +284,7 @@ pub fn p1() -> IoResult<()> {
 
 pub fn p2() -> IoResult<()> {
     let input = std::fs::read_to_string("input/day10.txt")?;
-    let (pt, count) = find_best_asteroid(&input);
+    let (pt, _count) = find_best_asteroid(&input);
     let order = destroy_asteroids(pt, &input);
 
     println!(
@@ -386,7 +383,7 @@ mod test {
         // ..#.....#...###..
         // ..#.#.....#....##";
 
-        let (pt, count) = find_best_asteroid(&input);
+        let (pt, _count) = find_best_asteroid(&input);
         let order = destroy_asteroids(pt, &input);
 
         let order = order.iter().map(|pt| (pt.x, pt.y)).collect::<Vec<_>>();
