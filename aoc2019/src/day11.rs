@@ -1,23 +1,23 @@
-use std::io::Result as IoResult;
 use crate::intcode::IntCodeMachine;
+use std::io::Result as IoResult;
 
 enum Color {
     Black,
-    White
+    White,
 }
 
-#[derive(Eq, PartialEq,Copy,Clone,Debug)]
+#[derive(Eq, PartialEq, Copy, Clone, Debug)]
 enum Dir {
     Up,
     Down,
     Left,
-    Right
+    Right,
 }
 
 impl Dir {
-    fn mv(&self, pos : (i32, i32)) -> (i32, i32) {
+    fn mv(&self, pos: (i32, i32)) -> (i32, i32) {
         let update = match self {
-            Dir:: Up => (0, 1),
+            Dir::Up => (0, 1),
             Dir::Down => (0, -1),
             Dir::Left => (-1, 0),
             Dir::Right => (1, 0),
@@ -26,12 +26,8 @@ impl Dir {
     }
     fn rotate(&mut self, left: bool) {
         let dirs = &[Dir::Up, Dir::Left, Dir::Down, Dir::Right];
-        let cur = dirs.iter().position(|x| *x ==*self).unwrap();
-        let next = if left {
-            cur + 1
-        } else {
-            dirs.len() + cur - 1
-        } % dirs.len();        
+        let cur = dirs.iter().position(|x| *x == *self).unwrap();
+        let next = if left { cur + 1 } else { dirs.len() + cur - 1 } % dirs.len();
         *self = dirs[next];
     }
 }
@@ -51,11 +47,10 @@ impl Color {
     }
 }
 
-
 pub fn p1() -> IoResult<()> {
     let mut panel = std::collections::HashMap::new();
     let codes = std::fs::read_to_string("input/day11.txt")?
-     .trim()
+        .trim()
         .split(",")
         .map(|x| x.parse::<isize>().expect("Valid usize"))
         .collect::<Vec<_>>();
@@ -84,7 +79,7 @@ pub fn p1() -> IoResult<()> {
 pub fn p2() -> IoResult<()> {
     let mut panel = std::collections::HashMap::new();
     let codes = std::fs::read_to_string("input/day11.txt")?
-     .trim()
+        .trim()
         .split(",")
         .map(|x| x.parse::<isize>().expect("Valid usize"))
         .collect::<Vec<_>>();
@@ -107,8 +102,8 @@ pub fn p2() -> IoResult<()> {
         }
         pos = dir.mv(pos);
     }
-    let tile_pos : Vec<_> = panel.iter().map(|(k, _v)| k).collect();
-    let min_x : (i32, i32) = **tile_pos.iter().min_by_key(|(x, _y)| x).unwrap();
+    let tile_pos: Vec<_> = panel.iter().map(|(k, _v)| k).collect();
+    let min_x: (i32, i32) = **tile_pos.iter().min_by_key(|(x, _y)| x).unwrap();
     let min_y = **tile_pos.iter().min_by_key(|(_x, y)| y).unwrap();
     let max_x = **tile_pos.iter().max_by_key(|(x, _y)| x).unwrap();
     let max_y = **tile_pos.iter().max_by_key(|(_x, y)| y).unwrap();
@@ -123,7 +118,7 @@ pub fn p2() -> IoResult<()> {
                     Color::Black => "▉",
                     Color::White => " ",
                 }
-            )                
+            )
         }
         println!();
     }
