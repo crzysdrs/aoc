@@ -1,9 +1,7 @@
 use std::cmp::Ordering;
 use std::convert::TryFrom;
 use std::fmt;
-use std::fs::File;
 use std::io::Result as IoResult;
-use std::io::{BufRead, BufReader, Read};
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 struct Moon {
@@ -110,7 +108,7 @@ fn read_input(s: &str) -> Vec<Moon> {
 }
 pub fn p1() -> IoResult<()> {
     let mut moons = read_input(&std::fs::read_to_string("input/day12.txt")?);
-    for time in 1..=1000 {
+    for _time in 1..=1000 {
         sim_moons(&mut moons);
     }
 
