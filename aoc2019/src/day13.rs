@@ -105,10 +105,10 @@ pub fn p2() -> IoResult<()> {
 
 #[allow(unused)]
 fn draw(grid: &HashMap<Point2<isize>, Tile>) {
-    let min_x = grid.iter().map(|(p, _)| p.x).min().unwrap();
-    let min_y = grid.iter().map(|(p, _)| p.y).min().unwrap();
-    let max_x = grid.iter().map(|(p, _)| p.x).max().unwrap();
-    let max_y = grid.iter().map(|(p, _)| p.y).max().unwrap();
+    let min_x = grid.keys().map(|p| p.x).min().unwrap();
+    let min_y = grid.keys().map(|p| p.y).min().unwrap();
+    let max_x = grid.keys().map(|p| p.x).max().unwrap();
+    let max_y = grid.keys().map(|p| p.y).max().unwrap();
 
     for y in (min_y..=max_y).rev() {
         for x in min_x..=max_x {
