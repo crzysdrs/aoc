@@ -36,8 +36,8 @@ impl IntCodeMachine {
     pub fn next_output(&mut self) -> Option<isize> {
         self.output.pop_front()
     }
-    pub fn output(&self) -> impl Iterator<Item = &isize> {
-        self.output.iter()
+    pub fn output(&mut self) -> Vec<isize> {
+        self.output.drain(0..).collect()
     }
     pub fn halted(&self) -> bool {
         self.halted

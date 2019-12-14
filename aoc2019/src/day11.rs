@@ -127,7 +127,6 @@ pub fn p2() -> IoResult<()> {
 
 #[cfg(test)]
 mod test {
-    use super::*;
     #[test]
     fn tests() {
         assert!(true);
