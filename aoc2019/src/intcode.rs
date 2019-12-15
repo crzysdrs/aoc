@@ -1,7 +1,7 @@
 use std::collections::VecDeque;
 use std::convert::TryFrom;
 
-#[derive(Debug,Clone)]
+#[derive(Debug, Clone)]
 pub struct IntCodeMachine {
     code: Vec<isize>,
     input: VecDeque<isize>,
@@ -209,26 +209,19 @@ impl IntCode {
     ) {
         match self {
             IntCode::Add(from_a, from_b, to) => {
-                to.write(
-                    codes,
-                    from_a.read(codes, ) + from_b.read(codes, ),
-                );
+                to.write(codes, from_a.read(codes) + from_b.read(codes));
                 *ip += 4;
             }
             IntCode::Multiply(from_a, from_b, to) => {
-                to.write(
-                    codes,
-                    
-                    from_a.read(codes, ) * from_b.read(codes, ),
-                );
+                to.write(codes, from_a.read(codes) * from_b.read(codes));
                 *ip += 4;
             }
             IntCode::Output(to) => {
-                output.push_back(to.read(codes, ));
+                output.push_back(to.read(codes));
                 *ip += 2;
             }
             IntCode::Save(to) => {
-                to.write(codes,  input.pop_front().expect("Need Some input"));
+                to.write(codes, input.pop_front().expect("Need Some input"));
                 *ip += 2;
             }
             IntCode::JumpIfTrue(test, new_ip) => {
@@ -248,8 +241,7 @@ impl IntCode {
             IntCode::LessThan(first, second, flag) => {
                 flag.write(
                     codes,
-                    
-                    if first.read(codes, ) < second.read(codes, ) {
+                    if first.read(codes) < second.read(codes) {
                         1
                     } else {
                         0
@@ -259,7 +251,7 @@ impl IntCode {
             }
             IntCode::Equals(first, second, flag) => {
                 flag.write(
-                    codes,                    
+                    codes,
                     if first.read(codes) == second.read(codes) {
                         1
                     } else {

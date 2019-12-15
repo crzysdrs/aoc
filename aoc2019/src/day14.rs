@@ -6,20 +6,24 @@ use std::collections::HashMap;
 
 #[derive(Debug)]
 struct Reaction {
-    inputs : Vec<(u64, String)>,
+    inputs: Vec<(u64, String)>,
     output: (u64, String),
 }
 
-
-fn how_much_ore(reactions: &Vec<Reaction>, extra: &mut HashMap<String, u64>, request: (u64, String)) -> u64 {
-   let search : HashMap<_, _>= reactions.iter().map(
-        |r| (r.output.1.to_string(), r)
-    ).collect();
+fn how_much_ore(
+    reactions: &Vec<Reaction>,
+    extra: &mut HashMap<String, u64>,
+    request: (u64, String),
+) -> u64 {
+    let search: HashMap<_, _> = reactions
+        .iter()
+        .map(|r| (r.output.1.to_string(), r))
+        .collect();
 
     let mut worklist = vec![request];
 
     let mut ore = 0;
-  
+
     while let Some((c, o)) = worklist.pop() {
         //println!("{} {} {:?}", c, o, worklist);
         if o == "ORE" {
@@ -35,15 +39,17 @@ fn how_much_ore(reactions: &Vec<Reaction>, extra: &mut HashMap<String, u64>, req
                 *avail -= c;
                 0
             };
-            
+
             let total = (required as f64 / r.output.0 as f64).ceil() as u64;
             let new_extra = total * r.output.0 - required;
-            
+
             if total > 0 {
-                worklist.extend(r.inputs.iter().map(|(new_c, i)| {                    
-                    (new_c * total, i.to_string())
-                }));
-            }            
+                worklist.extend(
+                    r.inputs
+                        .iter()
+                        .map(|(new_c, i)| (new_c * total, i.to_string())),
+                );
+            }
             if new_extra > 0 {
                 *extra.entry(o.to_string()).or_insert(0) += new_extra;
             }
@@ -53,57 +59,76 @@ fn how_much_ore(reactions: &Vec<Reaction>, extra: &mut HashMap<String, u64>, req
 }
 pub fn p1() -> IoResult<()> {
     let s = std::fs::read_to_string("input/day14.txt")?;
-    let reactions =
-        s.trim()
+    let reactions = s
+        .trim()
         .lines()
         .map(|s| {
             let reaction = s.split(" => ").collect::<Vec<_>>();
-            let inputs : Vec<_> = reaction[0].split(", ")
+            let inputs: Vec<_> = reaction[0]
+                .split(", ")
                 .map(|s| {
                     let mut items = s.split(' ');
-                    (items.next().unwrap().parse::<u64>().unwrap(), items.next().unwrap().to_string())
-                }
-                ).collect();
-            let outputs : Vec<_> = reaction[1].split(", ")
+                    (
+                        items.next().unwrap().parse::<u64>().unwrap(),
+                        items.next().unwrap().to_string(),
+                    )
+                })
+                .collect();
+            let outputs: Vec<_> = reaction[1]
+                .split(", ")
                 .map(|s| {
-                     let mut items = s.split(' ');
-                    (items.next().unwrap().parse::<u64>().unwrap(), items.next().unwrap().to_string())
-                }
-                ).collect();
+                    let mut items = s.split(' ');
+                    (
+                        items.next().unwrap().parse::<u64>().unwrap(),
+                        items.next().unwrap().to_string(),
+                    )
+                })
+                .collect();
             Reaction {
                 inputs,
-                output: outputs[0].clone()
+                output: outputs[0].clone(),
             }
         })
         .collect::<Vec<_>>();
- 
-    let mut extra :HashMap<String, u64> = HashMap::new();
-    println!("Part 1 {}", how_much_ore(&reactions, &mut extra, (1, "FUEL".to_string())));
+
+    let mut extra: HashMap<String, u64> = HashMap::new();
+    println!(
+        "Part 1 {}",
+        how_much_ore(&reactions, &mut extra, (1, "FUEL".to_string()))
+    );
     Ok(())
 }
 
 pub fn p2() -> IoResult<()> {
     let s = std::fs::read_to_string("input/day14.txt")?;
-    let reactions =
-        s.trim()
+    let reactions = s
+        .trim()
         .lines()
         .map(|s| {
             let reaction = s.split(" => ").collect::<Vec<_>>();
-            let inputs : Vec<_> = reaction[0].split(", ")
+            let inputs: Vec<_> = reaction[0]
+                .split(", ")
                 .map(|s| {
                     let mut items = s.split(' ');
-                    (items.next().unwrap().parse::<u64>().unwrap(), items.next().unwrap().to_string())
-                }
-                ).collect();
-            let outputs : Vec<_> = reaction[1].split(", ")
+                    (
+                        items.next().unwrap().parse::<u64>().unwrap(),
+                        items.next().unwrap().to_string(),
+                    )
+                })
+                .collect();
+            let outputs: Vec<_> = reaction[1]
+                .split(", ")
                 .map(|s| {
-                     let mut items = s.split(' ');
-                    (items.next().unwrap().parse::<u64>().unwrap(), items.next().unwrap().to_string())
-                }
-                ).collect();
+                    let mut items = s.split(' ');
+                    (
+                        items.next().unwrap().parse::<u64>().unwrap(),
+                        items.next().unwrap().to_string(),
+                    )
+                })
+                .collect();
             Reaction {
                 inputs,
-                output: outputs[0].clone()
+                output: outputs[0].clone(),
             }
         })
         .collect::<Vec<_>>();
@@ -120,15 +145,15 @@ pub fn p2() -> IoResult<()> {
                 lo = mid + 1;
             }
             Ordering::Greater => {
-                hi = mid -1;
+                hi = mid - 1;
             }
             Ordering::Equal => {
                 lo = mid;
                 hi = mid;
             }
-        }        
+        }
     }
-   
+
     println!("Part 2 {}", lo);
     Ok(())
 }

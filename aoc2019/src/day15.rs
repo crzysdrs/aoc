@@ -1,14 +1,14 @@
+use crate::intcode::IntCodeMachine;
+use cgmath::{Point2, Vector2};
+use num_derive::{FromPrimitive, ToPrimitive};
+use num_traits::{FromPrimitive, ToPrimitive};
 use std::fs::File;
 use std::io::Result as IoResult;
 use std::io::{BufRead, BufReader, Read};
-use crate::intcode::IntCodeMachine;
-use cgmath::{Vector2, Point2};
-use num_derive::{FromPrimitive,ToPrimitive};
-use num_traits::{FromPrimitive,ToPrimitive};
 
-use std::collections::{VecDeque, HashMap};
+use std::collections::{HashMap, VecDeque};
 
-#[derive(Debug,FromPrimitive,ToPrimitive)]
+#[derive(Debug, FromPrimitive, ToPrimitive)]
 enum Dir {
     North = 1,
     South = 2,
@@ -17,43 +17,43 @@ enum Dir {
 }
 
 impl Dir {
-    fn from_vec(v : Vector2<i32>) -> Dir {
+    fn from_vec(v: Vector2<i32>) -> Dir {
         match v {
-            Vector2 {x: 0, y: 1} => Dir::North,
-            Vector2 {x: 0, y: -1} => Dir::South,
-            Vector2 {x: 1, y: 0} => Dir::East,
-            Vector2 {x: -1, y: 0} => Dir::West,
+            Vector2 { x: 0, y: 1 } => Dir::North,
+            Vector2 { x: 0, y: -1 } => Dir::South,
+            Vector2 { x: 1, y: 0 } => Dir::East,
+            Vector2 { x: -1, y: 0 } => Dir::West,
             _ => panic!("Bad Direction"),
         }
     }
 }
 
-#[derive(Debug,FromPrimitive,ToPrimitive)]
+#[derive(Debug, FromPrimitive, ToPrimitive)]
 enum Status {
     HitWall = 0,
     Moved = 1,
     AtOxygen = 2,
 }
 
-#[derive(Debug, Eq, PartialEq,Copy,Clone)]
+#[derive(Debug, Eq, PartialEq, Copy, Clone)]
 enum Tile {
     Wall,
     Empty,
     Oxygen,
 }
 
-fn point_dir(p: &Point2<i32>, d : &Dir) -> Point2<i32> {
+fn point_dir(p: &Point2<i32>, d: &Dir) -> Point2<i32> {
     let mut p = p.clone();
     match d {
         Dir::North => {
             p.y += 1;
-        },
+        }
         Dir::South => {
             p.y -= 1;
-        },
+        }
         Dir::East => {
             p.x += 1;
-        },
+        }
         Dir::West => {
             p.x -= 1;
         }
@@ -61,7 +61,10 @@ fn point_dir(p: &Point2<i32>, d : &Dir) -> Point2<i32> {
     p
 }
 
-fn around<'a, T>(pt : &'a Point2<i32>, grid: &'a HashMap<Point2<i32>, T>) -> impl Iterator<Item=(Point2<i32>, &'a T)>  + 'a{
+fn around<'a, T>(
+    pt: &'a Point2<i32>,
+    grid: &'a HashMap<Point2<i32>, T>,
+) -> impl Iterator<Item = (Point2<i32>, &'a T)> + 'a {
     let dirs = vec![Dir::North, Dir::South, Dir::East, Dir::West];
     let pt = *pt;
     dirs.into_iter()
@@ -97,16 +100,23 @@ fn draw(grid: &HashMap<Point2<i32>, Tile>) {
 fn dijkstra(start: &Point2<i32>, grid: &HashMap<Point2<i32>, Tile>) -> HashMap<Point2<i32>, u32> {
     let mut dist = HashMap::<Point2<i32>, u32>::new();
     dist.insert(*start, 0);
-    let mut q : VecDeque<_> = grid.keys().collect();
+    let mut q: VecDeque<_> = grid.keys().collect();
 
     while !q.is_empty() {
-        let min = q.iter().enumerate().min_by_key(|(i, k)| *dist.entry(***k).or_insert(std::u32::MAX)).map(|(k, v)| (k, **v)).unwrap();
+        let min = q
+            .iter()
+            .enumerate()
+            .min_by_key(|(i, k)| *dist.entry(***k).or_insert(std::u32::MAX))
+            .map(|(k, v)| (k, **v))
+            .unwrap();
         let min_dist = *dist.entry(min.1).or_insert(std::u32::MAX);
         let v = q.remove(min.0);
         let dirs = [Dir::North, Dir::South, Dir::East, Dir::West];
         for d in dirs.iter() {
             if let Some(_) = grid.get(&point_dir(&min.1, &d)) {
-                let next = dist.entry(point_dir(&min.1, &d)).or_insert(min_dist.saturating_add(1));
+                let next = dist
+                    .entry(point_dir(&min.1, &d))
+                    .or_insert(min_dist.saturating_add(1));
                 *next = std::cmp::min(*next, min_dist.saturating_add(1));
             }
         }
@@ -114,17 +124,18 @@ fn dijkstra(start: &Point2<i32>, grid: &HashMap<Point2<i32>, Tile>) -> HashMap<P
     dist
 }
 
-fn bfs<T>(m : IntCodeMachine, start : Point2<i32>, mut visit: T) -> HashMap<Point2<i32>, Tile>
-where T: FnMut(u32, &Point2<i32>, &IntCodeMachine, Status)
+fn bfs<T>(m: IntCodeMachine, start: Point2<i32>, mut visit: T) -> HashMap<Point2<i32>, Tile>
+where
+    T: FnMut(u32, &Point2<i32>, &IntCodeMachine, Status),
 {
-    let mut grid = HashMap::new();    
+    let mut grid = HashMap::new();
     grid.insert(start, Tile::Empty);
     let mut worklist = VecDeque::from(vec![(0, m, start, start)]);
     while let Some((depth, mut m, mut pos, v)) = worklist.pop_front() {
         //println!("{:?} {:?}", pos, v);
         m.run();
         let moved = if pos != v {
-            let dir = Dir::from_vec(v - pos);            
+            let dir = Dir::from_vec(v - pos);
             m.feed_input(dir.to_isize().unwrap());
             m.run();
             let read_status = m.next_output().unwrap();
@@ -136,7 +147,7 @@ where T: FnMut(u32, &Point2<i32>, &IntCodeMachine, Status)
                 Status::HitWall => {
                     grid.insert(next_pos, Tile::Wall);
                     false
-                },
+                }
                 Status::AtOxygen => {
                     pos = next_pos;
                     grid.insert(pos, Tile::Oxygen);
@@ -164,7 +175,7 @@ where T: FnMut(u32, &Point2<i32>, &IntCodeMachine, Status)
                 }
             }
         }
-    };
+    }
     grid
 }
 pub fn p1() -> IoResult<()> {
@@ -176,17 +187,13 @@ pub fn p1() -> IoResult<()> {
     let m = IntCodeMachine::new(codes, vec![]);
 
     let mut min_d = std::u32::MAX;
-    let grid = bfs(m, Point2::new(0,0),
-                   |d, l, m, s| {
-                       match s {
-                           Status::AtOxygen => {
-                               min_d = std::cmp::min(d, min_d);
-                           }
-                           _ => {},
-                       }
-                   }
-    );
-    
+    let grid = bfs(m, Point2::new(0, 0), |d, l, m, s| match s {
+        Status::AtOxygen => {
+            min_d = std::cmp::min(d, min_d);
+        }
+        _ => {}
+    });
+
     draw(&grid);
     //    let dists = dijkstra(&Point2::new(0,0), &grid);
     //let oxygen = grid.iter().find(|(k, v)| **v == Tile::Oxygen).unwrap();
@@ -199,7 +206,7 @@ pub fn p1() -> IoResult<()> {
 }
 
 pub fn p2() -> IoResult<()> {
-        let codes = std::fs::read_to_string("input/day15.txt")?
+    let codes = std::fs::read_to_string("input/day15.txt")?
         .trim()
         .split(",")
         .map(|x| x.parse::<isize>().expect("Valid usize"))
@@ -208,25 +215,17 @@ pub fn p2() -> IoResult<()> {
 
     let mut fill_ox = None;
     let mut max_d = 0;
-    let grid = bfs(m, Point2::new(0,0),
-                   |d, l, m, s| {
-                       match s {
-                           Status::AtOxygen => {
-                               fill_ox = Some((l.clone(), m.clone()));
-                           },
-                           _ => {},
-                       }
-                   }
-    );
+    let grid = bfs(m, Point2::new(0, 0), |d, l, m, s| match s {
+        Status::AtOxygen => {
+            fill_ox = Some((l.clone(), m.clone()));
+        }
+        _ => {}
+    });
 
     let (l, m) = fill_ox.unwrap();
-    bfs(m, l, |d, l, m, s| {
-        match s {
-            Status::AtOxygen | Status::Moved => {
-                max_d = std::cmp::max(max_d, d)
-            }
-            _ => {},
-        }
+    bfs(m, l, |d, l, m, s| match s {
+        Status::AtOxygen | Status::Moved => max_d = std::cmp::max(max_d, d),
+        _ => {}
     });
     println!(
         "Part 2: {}",

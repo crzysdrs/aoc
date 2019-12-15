@@ -56,10 +56,9 @@ fn main() -> std::io::Result<()> {
 
         day13::p1()?;
         day13::p2()?;
-       
+
         day14::p1()?;
         day14::p2()?;
-
     }
     day15::p1()?;
     day15::p2()?;
