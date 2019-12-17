@@ -2,9 +2,7 @@ use crate::intcode::IntCodeMachine;
 use cgmath::{Point2, Vector2};
 use num_derive::{FromPrimitive, ToPrimitive};
 use num_traits::{FromPrimitive, ToPrimitive};
-use std::fs::File;
 use std::io::Result as IoResult;
-use std::io::{BufRead, BufReader, Read};
 
 use std::collections::{HashMap, VecDeque};
 
@@ -61,6 +59,7 @@ fn point_dir(p: &Point2<i32>, d: &Dir) -> Point2<i32> {
     p
 }
 
+#[allow(unused)]
 fn around<'a, T>(
     pt: &'a Point2<i32>,
     grid: &'a HashMap<Point2<i32>, T>,
@@ -97,6 +96,7 @@ fn draw(grid: &HashMap<Point2<i32>, Tile>) {
     }
 }
 
+#[allow(unused)]
 fn dijkstra(start: &Point2<i32>, grid: &HashMap<Point2<i32>, Tile>) -> HashMap<Point2<i32>, u32> {
     let mut dist = HashMap::<Point2<i32>, u32>::new();
     dist.insert(*start, 0);
@@ -106,11 +106,11 @@ fn dijkstra(start: &Point2<i32>, grid: &HashMap<Point2<i32>, Tile>) -> HashMap<P
         let min = q
             .iter()
             .enumerate()
-            .min_by_key(|(i, k)| *dist.entry(***k).or_insert(std::u32::MAX))
+            .min_by_key(|(_i, k)| *dist.entry(***k).or_insert(std::u32::MAX))
             .map(|(k, v)| (k, **v))
             .unwrap();
         let min_dist = *dist.entry(min.1).or_insert(std::u32::MAX);
-        let v = q.remove(min.0);
+        let _v = q.remove(min.0);
         let dirs = [Dir::North, Dir::South, Dir::East, Dir::West];
         for d in dirs.iter() {
             if let Some(_) = grid.get(&point_dir(&min.1, &d)) {
@@ -187,7 +187,7 @@ pub fn p1() -> IoResult<()> {
     let m = IntCodeMachine::new(codes, vec![]);
 
     let mut min_d = std::u32::MAX;
-    let grid = bfs(m, Point2::new(0, 0), |d, l, m, s| match s {
+    let grid = bfs(m, Point2::new(0, 0), |d, _l, _m, s| match s {
         Status::AtOxygen => {
             min_d = std::cmp::min(d, min_d);
         }
@@ -215,7 +215,7 @@ pub fn p2() -> IoResult<()> {
 
     let mut fill_ox = None;
     let mut max_d = 0;
-    let grid = bfs(m, Point2::new(0, 0), |d, l, m, s| match s {
+    let _grid = bfs(m, Point2::new(0, 0), |_d, l, m, s| match s {
         Status::AtOxygen => {
             fill_ox = Some((l.clone(), m.clone()));
         }
@@ -223,7 +223,7 @@ pub fn p2() -> IoResult<()> {
     });
 
     let (l, m) = fill_ox.unwrap();
-    bfs(m, l, |d, l, m, s| match s {
+    bfs(m, l, |d, _l, _m, s| match s {
         Status::AtOxygen | Status::Moved => max_d = std::cmp::max(max_d, d),
         _ => {}
     });

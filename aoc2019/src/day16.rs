@@ -1,6 +1,4 @@
-use std::fs::File;
 use std::io::Result as IoResult;
-use std::io::{BufRead, BufReader, Read};
 
 use itertools::Itertools;
 use std::collections::HashMap;
@@ -31,6 +29,8 @@ use std::collections::HashMap;
 //     v
 // }
 
+
+#[allow(unused)]
 fn compute_phase2(input: String, repeat: usize, count: usize, offset: usize) -> String {
     let mut input = input;
     for p in 0..count {
@@ -97,7 +97,7 @@ fn compute_phase2(input: String, repeat: usize, count: usize, offset: usize) -> 
 fn compute_phase(input: String, repeat: usize, count: usize, offset: usize) -> String {
     let base = [0, 1, 0, -1];
     let mut v = input;
-    for p in 0..count {
+    for _p in 0..count {
         let mut seen = HashMap::new();
         v = (1..=v.len())
             .map(|i| {
@@ -142,7 +142,7 @@ fn compute_phase(input: String, repeat: usize, count: usize, offset: usize) -> S
 }
 
 pub fn p1() -> IoResult<()> {
-    let mut v = "12345678".to_string();
+    let v = "12345678".to_string();
     //let mut v = std::fs::read_to_string("input/day16.txt")?.trim().to_string();
     //let mut v = "80871224585914546619083218645595".to_string();
     let len = v.len();
@@ -154,7 +154,7 @@ pub fn p1() -> IoResult<()> {
 }
 
 pub fn p2() -> IoResult<()> {
-    let mut v = std::fs::read_to_string("input/day16.txt")?
+    let v = std::fs::read_to_string("input/day16.txt")?
         .trim()
         .to_string();
     //let mut v = "03036732577212944063491565474664".to_string();
@@ -168,7 +168,7 @@ pub fn p2() -> IoResult<()> {
         .unwrap();
     println!("{}", offset);
     println!("{}", v.len() * 10_000);
-    let len = v.len();
+    let _len = v.len();
 
     assert!(v.len() / 2 <= offset);
     let mut s = v
