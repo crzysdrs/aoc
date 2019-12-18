@@ -1,10 +1,7 @@
 use crate::intcode::IntCodeMachine;
-use std::fs::File;
 use std::io::Result as IoResult;
-use std::io::{BufRead, BufReader, Read};
 use cgmath::{Point2, Vector2};
 use num_derive::{FromPrimitive, ToPrimitive};
-use num_traits::{FromPrimitive, ToPrimitive};
 use std::collections::{HashSet, HashMap};
 
 use itertools::Itertools;
@@ -38,6 +35,7 @@ impl std::fmt::Display for Movement {
 }
 
 impl Dir {
+    #[allow(unused)]
     fn from_vec(v: Vector2<i32>) -> Dir {
         match v {
             Vector2 { x: 0, y: 1 } => Dir::North,
@@ -106,7 +104,7 @@ pub fn p1() -> IoResult<()> {
 
     machine.run();
     
-    let mut grid = machine.output().iter()
+    let grid = machine.output().iter()
         .map(|x| char::from(*x as u8))
         .collect::<String>()
         .split("\n")
@@ -119,8 +117,8 @@ pub fn p1() -> IoResult<()> {
 
     draw(&grid);
     let scaffolds =
-        grid.iter().filter(|(p, c)| **c == '#')
-        .map(|(p, c)| p)
+        grid.iter().filter(|(_p, c)| **c == '#')
+        .map(|(p, _c)| p)
         .filter(|p| {
             let ps = [Point2::new(p.x + 1, p.y),
                       Point2::new(p.x - 1, p.y),
@@ -177,7 +175,7 @@ pub fn p2() -> IoResult<()> {
 
     machine.run();
     
-    let mut grid = machine.output().iter()
+    let grid = machine.output().iter()
         .map(|x| char::from(*x as u8))
         .collect::<String>()
         .split("\n")
@@ -189,8 +187,8 @@ pub fn p2() -> IoResult<()> {
         .collect::<HashMap<_,char>>();
 
    let scaffolds =
-        grid.iter().filter(|(p, c)| **c == '#')
-        .map(|(p, c)| p)
+        grid.iter().filter(|(_p, c)| **c == '#')
+        .map(|(p, _c)| p)
         .filter(|p| {
             let ps = [Point2::new(p.x + 1, p.y),
                       Point2::new(p.x - 1, p.y),
@@ -203,12 +201,12 @@ pub fn p2() -> IoResult<()> {
         .collect::<HashSet<_>>();
 
  
-    let start : Point2<_> = *grid.iter().find(|(x, y)| **y == '^').map(|(x, y)| x).unwrap();
+    let start : Point2<_> = *grid.iter().find(|(_x, y)| **y == '^').map(|(x, _y)| x).unwrap();
     let mut current = start;
     let mut dir = Dir::South;
     let movements = (0..).map(|_| {
         let next = point_dir(&current, &dir);
-        if let Some(n) = scaffolds.get(&current) {
+        if let Some(_) = scaffolds.get(&current) {
             current = next;
             Movement::Forward(1)
         } else if let Some('#') = grid.get(&next) {
@@ -254,7 +252,7 @@ pub fn p2() -> IoResult<()> {
         println!("");
     }
     println!("Main ish:");
-    while (i < movements.len()) {
+    while i < movements.len() {
         let mut seen = false;
         for (method, name) in methods.iter().zip(&['A', 'B', 'C']) {
             if movements[i..].starts_with(method) {
@@ -291,7 +289,9 @@ pub fn p2() -> IoResult<()> {
         machine.run();
         //println!("{:?}", machine.output().iter().collect::<Vec<_>>());
         print!("{}", machine.output().iter().map(|x| char::from(*x as u8)).collect::<String>());
-        assert!(!machine.halted());
+        if machine.halted() {
+            break;
+        }
     }
     Ok(())
 }
