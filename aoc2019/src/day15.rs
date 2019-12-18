@@ -26,19 +26,6 @@ impl Dir {
     }
 }
 
-#[derive(Debug, FromPrimitive, ToPrimitive)]
-enum Status {
-    HitWall = 0,
-    Moved = 1,
-    AtOxygen = 2,
-}
-
-#[derive(Debug, Eq, PartialEq, Copy, Clone)]
-enum Tile {
-    Wall,
-    Empty,
-    Oxygen,
-}
 
 fn point_dir(p: &Point2<i32>, d: &Dir) -> Point2<i32> {
     let mut p = p.clone();
@@ -57,6 +44,21 @@ fn point_dir(p: &Point2<i32>, d: &Dir) -> Point2<i32> {
         }
     }
     p
+}
+
+
+#[derive(Debug, FromPrimitive, ToPrimitive)]
+enum Status {
+    HitWall = 0,
+    Moved = 1,
+    AtOxygen = 2,
+}
+
+#[derive(Debug, Eq, PartialEq, Copy, Clone)]
+enum Tile {
+    Wall,
+    Empty,
+    Oxygen,
 }
 
 #[allow(unused)]
