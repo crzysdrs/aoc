@@ -17,3 +17,6 @@ enum-primitive-derive = "0.1.2"
 num-derive = "0.3.0"
 num-traits = "0.2.10"
 petgraph = "0.4.13"
+
+[profile.release]
+debug = true

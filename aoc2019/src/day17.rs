@@ -6,6 +6,7 @@ use std::collections::{HashSet, HashMap};
 
 use itertools::Itertools;
 
+
 #[derive(Debug, FromPrimitive, ToPrimitive, PartialEq, Eq, Copy, Clone)]
 enum Dir {
     North = 1,
