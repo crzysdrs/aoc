@@ -22,7 +22,9 @@ impl IntCodeMachine {
             rel: 0,
         }
     }
-
+    pub fn has_input(&self) -> bool {
+        !self.input.is_empty()
+    }
     pub fn code(&self) -> &[isize] {
         &self.code
     }
