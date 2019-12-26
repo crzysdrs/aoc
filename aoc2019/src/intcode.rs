@@ -9,6 +9,7 @@ pub struct IntCodeMachine {
     ip: usize,
     halted: bool,
     rel: isize,
+    interactive: bool,
 }
 
 impl IntCodeMachine {
@@ -20,6 +21,18 @@ impl IntCodeMachine {
             input: VecDeque::from(input),
             output: VecDeque::new(),
             rel: 0,
+            interactive : false,
+        }
+    }
+    pub fn new_console(code: Vec<isize>) -> IntCodeMachine {
+        IntCodeMachine {
+            ip: 0,
+            halted: false,
+            code,
+            input: VecDeque::new(),
+            output: VecDeque::new(),
+            rel: 0,
+            interactive : true,
         }
     }
     pub fn has_input(&self) -> bool {
@@ -68,9 +81,14 @@ impl IntCodeMachine {
                     self.halted = true;
                     break true;
                 }
-                i @ IntCode::Save(_) => {
+                i @ IntCode::Save(_) => {                    
                     if self.input.len() == 0 {
-                        break false;
+                        if self.interactive {
+                            use std::io::Read;
+                            self.input.push_back(std::io::stdin().lock().bytes().take(1).next().unwrap().unwrap() as isize);
+                        } else {
+                            break false;
+                        }
                     }
                     i.exec(
                         &mut self.ip,
@@ -88,6 +106,11 @@ impl IntCodeMachine {
                         &mut self.input,
                         &mut self.output,
                     );
+                }
+            }
+            if self.interactive {
+                for c in self.output.drain(..) {
+                    print!("{}", c as u8 as char);
                 }
             }
         }

@@ -14,6 +14,7 @@ mod day21;
 mod day22;
 mod day23;
 mod day24;
+mod day25;
 mod day2;
 mod day3;
 mod day4;
@@ -95,12 +96,18 @@ fn main() -> std::io::Result<()> {
 
         
     day23::p1()?;
-    day23::p2()?;
+        day23::p2()?;
+
+        
+    
+        day24::p1()?;
+        day24::p2()?;
+        
 
     }
     
-    day24::p1()?;
-    day24::p2()?;
+    day25::p1()?;
+    day25::p2()?;
 
     Ok(())
 }
