@@ -79,23 +79,23 @@ fn main() -> std::io::Result<()> {
         day17::p1()?;
         day17::p2()?;
 
-        //day18::p1()?;
+        day18::p1()?;
         day18::p2()?;
 
         day19::p1()?;
         day19::p2()?;
 
-            day20::p1()?;
-    day20::p2()?;
-    day21::p1()?;
+        day20::p1()?;
+        day20::p2()?;
+        day21::p1()?;
         day21::p2()?;
 
         
-    day22::p1()?;
-    day22::p2()?;
+        day22::p1()?;
+        day22::p2()?;
 
         
-    day23::p1()?;
+        day23::p1()?;
         day23::p2()?;
 
         
@@ -103,11 +103,12 @@ fn main() -> std::io::Result<()> {
         day24::p1()?;
         day24::p2()?;
         
-
+        day25::p1()?;
+        day25::p2()?;        
     }
     
-    day25::p1()?;
-    day25::p2()?;
+    //day18::p1()?;
+    day18::p2()?;
 
     Ok(())
 }

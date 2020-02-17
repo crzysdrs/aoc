@@ -97,44 +97,164 @@ fn dijkstra<T, C>(start: &Point2<i32>, grid: &HashMap<Point2<i32>, T>, traversab
 where C:  Fn(T) -> bool,
     T: Copy
 {
-    let mut q: VecDeque<_> = grid.iter().filter(|(p, x)| traversable(**x))
-        .enumerate().map(|(i, (p, x))| (i, p, x)).collect();
-    let lookup : HashMap<Point2<_>, usize> = q.iter().map(|(i, p, x)| (**p, *i)).collect::<HashMap<_,_>>();
-    let mut dist = vec![std::u32::MAX; q.len()];
+    let mut q = VecDeque::new();
+    let mut lookup : HashMap<Point2<_>, usize> = grid.iter()
+        .enumerate()
+        .map(|(i, (p, _))| (*p, i))
+        .collect::<HashMap<_,_>>();
+    let mut dist = vec![std::u32::MAX; grid.len()];
 
+    q.push_front((*lookup.get(start).unwrap(), *start));
     dist[*lookup.get(start).unwrap()] = 0;
+    let mut idx = 0;
     while !q.is_empty() {
-        let (q_idx, (dist_idx, &pt, _x)) = q
+        let (q_idx, _) = q
             .iter()
             .enumerate()
-            .min_by_key(|(_i, (idx, p, x))| dist[*idx])
-            .unwrap();
-        let min_dist = dist[*dist_idx];
-        let _v = q.remove(q_idx);
-        let dirs = [Dir::North, Dir::South, Dir::East, Dir::West];
-        for d in dirs.iter() {
-            let search = point_dir(&pt, &d);
-            if let Some(idx) = lookup.get(&search) {
-                let next = &mut dist[*idx];
-                *next = std::cmp::min(*next, min_dist.saturating_add(1));
-            }
+            .min_by_key(|(_i, (idx, p))| dist[*idx])
+            .unwrap();            
+        if let Some((dist_idx, pt)) = q.remove(q_idx) {
+            //            println!("{:?} {:?}", dist_idx, pt);
+            let min_dist = dist[dist_idx];
+            let dirs = [Dir::North, Dir::South, Dir::East, Dir::West];
+            for d in dirs.iter() {
+                let search = point_dir(&pt, &d);
+                grid.get(&search).map(
+                    |x|
+                    if !traversable(*x) {
+                        /* do nothing */
+                    } else if let Some(idx) = lookup.get(&search) {
+                        let next = &mut dist[*idx];
+                        if *next > min_dist.saturating_add(1) {
+                            q.push_back((*idx, search));
+                        }
+                        *next = std::cmp::min(*next, min_dist.saturating_add(1));
+                    }
+                );
         }
+    };
     }
 
     lookup.iter().map(|(p, x)| (*p, dist[*x])).filter(|(p, x)| *x != std::u32::MAX).collect()
 }
 
+fn min_dist(grid : &HashMap<Point2<i32>, char>) -> u32 {
+    fn keys(grid : &HashMap<Point2<i32>, char>) -> impl Iterator<Item=(&Point2<i32>, &char)> {
+        grid.iter().filter(|(p, x)| ('a'..='z').contains(*x))
+    }
+    fn doors(grid : &HashMap<Point2<i32>, char>) -> impl Iterator<Item=(&Point2<i32>, &char)> {
+        grid.iter().filter(|(p, x)| ('A'..='Z').contains(*x))
+    }
+
+    fn starts(grid : &HashMap<Point2<i32>, char>) -> Vec<Point2<i32>> {
+        grid.iter().filter(|(p, x)| **x == '@').map(|(p, x)| *p).collect()
+    }
+                        
+    fn traversable(x : char, keys: &HashSet<char>) -> bool {
+        match x {
+            '#' => false,
+            'a'..='z' |'.'| '@' =>  true,
+            _ =>  keys.contains(&x.to_ascii_lowercase())
+        }        
+    }
+    fn all_traversable(x : char, keys: &HashSet<char>) -> bool {
+        match x {
+            '#' => false,
+            'a'..='z' |'.'| '@' =>  true,
+            _ =>  true,
+        }        
+    }
+
+    let key_count = keys(&grid).count();
+    let key_pos = keys(&grid).map(|(p, v)| (*p, *v)).collect::<Vec<_>>();
+    let door_pos = doors(&grid).map(|(p, v)| (*p, *v)).collect::<Vec<_>>();
+    let key_lookup : HashMap<char, Point2<_>> = keys(&grid).map(|(p, v)| (*v, *p)).collect();
+    
+    println!("Count {} All Keys {:?}", key_count, keys(&grid).map(|(p, v)| (*p, *v)).collect::<Vec<_>>());
+             
+    let mut worklist = vec![(starts(&grid) , Vec::<char>::new(), HashSet::new(), 0)];
+
+    let mut min_dist = std::u32::MAX;
+    let mut seen : HashMap<(Vec<Point2<_>>, Vec<char>), u32> = HashMap::new();
+
+    let mut reachable : HashMap<Vec<char>, Vec<char>> = HashMap::new();
+    let mut dist : HashMap<(Vec<Point2<_>>, Vec<char>), HashMap<char, (usize, u32)> > = HashMap::new();
+    
+    while let Some((starts, path, keys_collected, total_steps)) = worklist.pop() {
+        if keys_collected.len() == key_count  {
+            println!("Path {:?} Dist {} Remain {}", path, total_steps, worklist.len());
+            min_dist = std::cmp::min(min_dist, total_steps);
+            continue;
+        }
+        let mut sorted_keys :Vec<_> = keys_collected.iter().cloned().collect();
+        sorted_keys.sort();
+        
+        let reach_keys = match reachable.get(&sorted_keys) {
+            None => {
+                let mut reach_keys = Vec::new();
+                for s in starts.iter() {
+                    let dijk = dijkstra(&s, &grid, |c| traversable(c, &keys_collected));
+                    reach_keys.extend(key_pos.iter().filter(|(p, c)| grid.get(p).unwrap() == c)
+                        .map(|(p, c)| (dijk.get(p), *p, *c)).filter(|(d, _, _)| d.is_some()).map(|(d, p, c)| c));
+                }
+                reachable.insert(sorted_keys.clone(), reach_keys);
+                reachable.get(&sorted_keys).unwrap()
+            },
+            Some(x) => x,
+        };
+        let dists = match dist.get(&(starts.clone(), sorted_keys.clone())) {
+            None => {
+                let mut key_dists = HashMap::new();
+                for (i, s) in starts.iter().enumerate() {
+                    let dijk = dijkstra(&s, &grid, |c| traversable(c, &keys_collected));
+                    key_dists.extend(key_pos.iter().filter(|(p, c)| grid.get(p).unwrap() == c)
+                                     .map(|(p, c)| (*c, dijk.get(p))).flat_map(|(c, d)| d.map(|d| (c, (i, *d)))));
+                }
+                //println!("Start: {:?} Dist {:?}", s, key_dists);
+                dist.insert((starts.clone(), sorted_keys.clone()), key_dists);
+                dist.get(&(starts.clone(), sorted_keys.clone())).unwrap()
+            },
+            Some(x) => x,
+        };
+        let mut reach_keys = reach_keys.iter()
+            .map(|x| {
+                let (i, d) = dists.get(x).unwrap();
+                (i, d, key_lookup.get(x).unwrap(), x)
+            })
+            .filter(|(_, _, _, c)| !keys_collected.contains(c))
+            .collect::<Vec<_>>();
+        reach_keys.sort_by_key(|(_, d, _, _)| *d);
+        reach_keys.reverse();
+
+        //println!("Reach Keys {:?}", reach_keys);
+        
+        for (i, d, p, c) in reach_keys {
+            
+            let mut new_keys = keys_collected.clone();
+            new_keys.insert(*c);
+            let mut path = path.clone();
+            path.extend(&[*c]);
+            let mut starts = starts.clone();
+            starts[*i] = *p;
+            let new_steps = total_steps + d;
+            {
+                let mut new_keys = new_keys.iter().cloned().collect::<Vec<_>>();
+                new_keys.sort();
+                let lookup = (starts.clone(), new_keys);
+                if new_steps >= min_dist
+                || *seen.get(&lookup).unwrap_or(&std::u32::MAX) <= new_steps
+                {
+                    continue;
+                }                
+                seen.insert(lookup, new_steps);
+            }
+            worklist.push((starts, path, new_keys, new_steps))
+        }
+    }
+    min_dist
+}
+
 pub fn p1() -> IoResult<()> {
-    let s = "#########
-#b.A.@.a#
-#########".to_string();
-
-    let s = "########################
-#f.D.E.e.C.b.A.@.a.B.c.#
-######################.#
-#d.....................#
-########################".to_string();
-
     let s = "########################
 #...............b.C.D.f#
 #.######################
@@ -157,7 +277,16 @@ pub fn p1() -> IoResult<()> {
 ###A#B#C################
 ###g#h#i################
 ########################".to_string();
+        let s = "#########
+#b.A.@.a#
+#########".to_string();
+
     
+    let s = "########################
+#f.D.E.e.C.b.A.@.a.B.c.#
+######################.#
+#d.....................#
+########################".to_string();
     let s = std::fs::read_to_string("input/day18.txt")?;
     let grid = s        
         .split("\n")
@@ -168,121 +297,38 @@ pub fn p1() -> IoResult<()> {
         )
         .collect::<HashMap<_,char>>();
 
-    fn keys(grid : &HashMap<Point2<i32>, char>) -> impl Iterator<Item=(&Point2<i32>, &char)> {
-        grid.iter().filter(|(p, x)| ('a'..='z').contains(*x))
-    }
-    fn doors(grid : &HashMap<Point2<i32>, char>) -> impl Iterator<Item=(&Point2<i32>, &char)> {
-        grid.iter().filter(|(p, x)| ('a'..='z').contains(*x))
-    }
-
-    fn start(grid : &HashMap<Point2<i32>, char>) -> Point2<i32> {
-        grid.iter().find(|(p, x)| **x == '@').map(|(p, x)| *p).unwrap()
-    }
-                        
-    fn traversable(x : char, keys: &[char]) -> bool {
-        match x {
-            '#' => false,
-            'a'..='z' |'.'| '@' =>  true,
-            _ => false,
-            //_ =>  keys.contains(&x.to_ascii_lowercase())
-        }        
-    }
-
-    let key_count = keys(&grid).count();
-    let key_pos = keys(&grid).map(|(p, v)| (*p, *v)).collect::<Vec<_>>();
-    
-    println!("Count {} All Keys {:?}", key_count, keys(&grid).map(|(p, v)| (*p, *v)).collect::<Vec<_>>());
-             
-    let mut worklist = vec![(grid, HashSet::new(), 0)];
-
-    let mut min_dist = std::u32::MAX;
-    let mut seen : HashMap<(Point2<_>, Vec<char>), u32> = HashMap::new();
-    
-    while let Some((grid, keys_collected, total_steps)) = worklist.pop() {
-   
-        let s = start(&grid);
-        let dist = dijkstra(&s, &grid, |c| traversable(c, &[]));
-
-        //println!("Start: {:?} Dist {:?}", s, dist.len());
-        let mut reach_keys = key_pos.iter().filter(|(p, c)| grid.get(p).unwrap() == c)
-            .map(|(p, c)| (dist.get(p), *p, *c)).filter(|(d, _, _)| d.is_some()).collect::<Vec<_>>();
-        reach_keys.sort_by_key(|(d, _, _)| *d.unwrap());
-        reach_keys.reverse();
-        
-        if keys_collected.len() == key_count - 1  && reach_keys.len() > 0 {
-            let (d, _, _) = reach_keys[0];
-            //println!("Found Key {}", c);
-            min_dist = std::cmp::min(min_dist, total_steps + d.unwrap());
-            println!("Dist {} Remain {}", min_dist, worklist.len());
-        } else if reach_keys.len() == 0 {
-            println!("Couldn't get all keys {:?}", keys_collected);
-            draw(&grid);
-            draw_dist(&dist);
-        } else {
-            for (d, p, c) in reach_keys {
-                let mut sorted_keys :Vec<_> = keys_collected.iter().cloned().collect();
-                sorted_keys.sort();
-                let lookup = (p.clone(), sorted_keys);
-                //println!("Lookup {:?}", lookup);
-                if total_steps + d.unwrap() >= min_dist || *seen.get(&lookup).unwrap_or(&std::u32::MAX) <= total_steps + d.unwrap() {
-                    continue;
-                }
-                seen.insert(lookup, total_steps + d.unwrap());
-                //println!("Seen {}", seen.len());
-                //println!("{}", c);
-                //draw(&grid);
-                let door = grid.iter().find(|(_, x)| **x == c.to_ascii_uppercase()).map(|(p, _)| *p);                
-                let mut grid = grid.clone();
-                if let Some(d) = door {
-                    *grid.entry(d).or_insert('.') = '.';
-                }
-                *grid.entry(s).or_insert('.') = '.';
-                *grid.entry(p).or_insert('@') = '@';
-                let mut new_keys = keys_collected.clone();
-                new_keys.insert(c);
-                worklist.push((grid.clone(), new_keys, total_steps + d.unwrap()))
-            }
-        }
-    }
-    println!("{:?}", min_dist);
+    println!("{:?}", min_dist(&grid));
     Ok(())
 }
 
 
 
 pub fn p2() -> IoResult<()> {
-    let s = "#########
-#b.A.@.a#
-#########".to_string();
+    let s = "###############
+#d.ABC.#.....a#
+######@#@######
+###############
+######@#@######
+#b.....#.....c#
+###############".to_string();
 
-    let s = "########################
-#f.D.E.e.C.b.A.@.a.B.c.#
-######################.#
-#d.....................#
-########################".to_string();
-
-    let s = "########################
-#...............b.C.D.f#
-#.######################
-#.....@.a.B.c.d.A.e.F.g#
-########################".to_string();
-
-    let s = "#################
-#i.G..c...e..H.p#
-########.########
-#j.A..b...f..D.o#
-########@########
-#k.E..a...g..B.n#
-########.########
-#l.F..d...h..C.m#
-#################".to_string();
-
-    let s = "########################
-#@..............ac.GI.b#
-###d#e#f################
-###A#B#C################
-###g#h#i################
-########################".to_string();
+    let s = "#############
+#DcBa.#.GhKl#
+#.###@#@#I###
+#e#d#####j#k#
+###C#@#@###J#
+#fEbA.#.FgHi#
+#############".to_string();
+    
+    let s = "#############
+#g#f.D#..h#l#
+#F###e#E###.#
+#dCba@#@BcIJ#
+#############
+#nK.L@#@G...#
+#M###N#H###.#
+#o#m..#i#jk.#
+#############".to_string();
     
     let s = std::fs::read_to_string("input/day18_2.txt")?;
     let grid = s        
@@ -294,120 +340,7 @@ pub fn p2() -> IoResult<()> {
         )
         .collect::<HashMap<_,char>>();
 
-    fn keys(grid : &HashMap<Point2<i32>, char>) -> impl Iterator<Item=(&Point2<i32>, &char)> {
-        grid.iter().filter(|(p, x)| ('a'..='z').contains(*x))
-    }
-    fn doors(grid : &HashMap<Point2<i32>, char>) -> impl Iterator<Item=(&Point2<i32>, &char)> {
-        grid.iter().filter(|(p, x)| ('a'..='z').contains(*x))
-    }
-
-    fn start(grid : &HashMap<Point2<i32>, char>) -> impl Iterator<Item=&Point2<i32>> {
-        grid.iter().filter(|(p, x)| **x == '@').map(|(p, x)| p)
-    }
-                        
-    fn traversable(x : char, keys: &[char]) -> bool {
-        match x {
-            '#' => false,
-            'a'..='z' |'.'| '@' =>  true,
-            _ => false,
-            //_ =>  keys.contains(&x.to_ascii_lowercase())
-        }        
-    }
-
-    fn all_traversable(x : char, keys: &[char]) -> bool {
-        match x {
-            '#' => false,
-            _ => true,
-        }
-    }
-
-    let key_count = keys(&grid).count();
-    let key_pos = keys(&grid).map(|(p, v)| (*v, *p)).collect::<HashMap<_,_>>();
-    
-    println!("Count {} All Keys {:?}", key_count, keys(&grid).map(|(p, v)| (*p, *v)).collect::<Vec<_>>());
-
-    let orig_grid = grid.clone();
-    let mut worklist = vec![(grid, HashSet::new(), 0)];
-
-    let mut min_dist = std::u32::MAX;
-    //let mut seen : HashMap<(Point2<_>, Vec<char>), u32> = HashMap::new();
-
-    let mut keys_available : HashMap<Vec<char>, HashSet<char>> = HashMap::new();
-    let mut key_dists : HashMap<Point2<_>, HashMap<char, u32>> = HashMap::new();
-                                     
-    while let Some((grid, keys_collected, total_steps)) = worklist.pop() {
-        if total_steps >= min_dist {
-            continue;
-        }
-        let starts = start(&grid).collect::<Vec<_>>();
-        let mut reach_keys : Vec<(u32, Point2<_>, char,  Point2<_>)>= vec![];       
-        //println!("Start: {:?} Dist {:?}", s, dist.len());
-        let mut sort_keys_collected :Vec<char>= keys_collected.iter().cloned().collect();
-        sort_keys_collected.sort();
-        if keys_available.get(&sort_keys_collected).is_none() {
-            let mut new_keys = HashSet::new();
-            for s in &starts {     
-                let dist = dijkstra(&s, &grid, |c| traversable(c, &[]));
-                let reach_keys_once = key_pos.iter().filter(|(c, p)| grid.get(p).unwrap() == *c).map(|(c, p)| *c).collect::<HashSet<_>>();
-                new_keys.extend(reach_keys_once);
-            }
-            //println!("{} {:?} {:?}", keys_available.len(), sort_keys_collected, new_keys);
-            keys_available.insert(sort_keys_collected.clone(), new_keys);
-        }
-        let available =  keys_available.get(&sort_keys_collected).unwrap();
-        for s in &starts {                                    
-            if key_dists.get(&s).is_none() {
-                let dist = dijkstra(&s, &orig_grid, |c| all_traversable(c, &[]));
-                let new_key_dists = key_pos.iter()
-                    .filter(|(c, p)| dist.get(p).is_some())
-                    .map(|(c, p)| (*c, *dist.get(p).expect("Dist in Result"))).collect::<HashMap<_,_>>();
-                //println!("{:?} {:?}", *s, new_key_dists);
-                key_dists.insert(**s, new_key_dists);
-            }
-            let dists = key_dists.get(&s).unwrap();
-
-            reach_keys.extend(available.iter().flat_map(|c| dists.get(c).map(|x| (c, x))).map(|(c, dist)| (*dist, *key_pos.get(c).unwrap(), *c, **s)));
-        }
-
-
-        //println!("{:?} Reach Keys", reach_keys);
-        
-        if keys_collected.len() == key_count - 1  && reach_keys.len() > 0 {
-            let (d, _, _, _) = reach_keys[0];
-            //println!("Found Key {}", c);
-            min_dist = std::cmp::min(min_dist, total_steps + d);
-            println!("Dist {} Remain {}", min_dist, worklist.len());
-        } else if reach_keys.len() == 0 {
-            println!("Couldn't get all keys {:?}", keys_collected);
-            draw(&grid);
-            //draw_dist(&dist);
-        } else {
-            for (d, p, c, s) in reach_keys {
-                // let mut sorted_keys :Vec<_> = keys_collected.iter().cloned().collect();
-                // sorted_keys.sort();
-                // let lookup = (p.clone(), sorted_keys);
-                // //println!("Lookup {:?}", lookup);
-                // if total_steps + d >= min_dist || *seen.get(&lookup).unwrap_or(&std::u32::MAX) <= total_steps + d {
-                //     continue;
-                // }
-                // seen.insert(lookup, total_steps + d);
-                //println!("Seen {}", seen.len());
-                //println!("{}", c);
-                //draw(&grid);
-                let door = grid.iter().find(|(_, x)| **x == c.to_ascii_uppercase()).map(|(p, _)| *p);                
-                let mut grid = grid.clone();
-                if let Some(d) = door {
-                    *grid.entry(d).or_insert('.') = '.';
-                }
-                *grid.entry(s).or_insert('.') = '.';
-                *grid.entry(p).or_insert('@') = '@';
-                let mut new_keys = keys_collected.clone();
-                new_keys.insert(c);
-                worklist.push((grid.clone(), new_keys, total_steps + d))
-            }
-        }
-    }
-    println!("{:?}", min_dist);
+    println!("{:?}", min_dist(&grid));
     Ok(())
 }
 
