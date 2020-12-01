@@ -4,7 +4,7 @@ use std::io::Result as IoResult;
 pub struct Solution {}
 
 fn find_pair(v: &[u32], sum: u32) -> Option<(u32, u32)> {
-    if v.len() == 0 {
+    if v.len() < 2 {
         return None;
     }
     let mut i = 0;
@@ -22,7 +22,7 @@ fn find_pair(v: &[u32], sum: u32) -> Option<(u32, u32)> {
 }
 
 fn find_triple(v: &[u32], sum: u32) -> Option<(u32, u32, u32)> {
-    if v.len() == 0 {
+    if v.len() < 3 {
         return None;
     }
     for i in 0..v.len() {
