@@ -12,8 +12,7 @@ struct Opts {
 trait Day {
     const DAY: u32;
     fn input() -> PathBuf {
-        PathBuf::from("input")
-            .join(format!("day{}.txt", Self::DAY))
+        PathBuf::from("input").join(format!("day{}.txt", Self::DAY))
     }
     fn p1() -> IoResult<()> {
         unimplemented!("Missing implementation of Day {} Part 1", Self::DAY)
@@ -24,7 +23,6 @@ trait Day {
 }
 
 mod day1;
-
 
 macro_rules! run_test {
     ($name:expr, $part:expr, $([$val:pat, $test:ident]),* ) => {
@@ -48,8 +46,5 @@ macro_rules! run_test {
 fn main() -> std::io::Result<()> {
     let opts: Opts = Opts::parse();
 
-    run_test!(
-        opts.test, opts.part,
-        [1, day1]
-    )
+    run_test!(opts.test, opts.part, [1, day1])
 }
