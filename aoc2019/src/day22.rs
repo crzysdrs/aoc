@@ -71,10 +71,20 @@ pub fn p1() -> IoResult<()> {
     Ok(())
 }
 
-fn find_pos(cmds: String, len:usize, pos: usize) -> usize {   
+use num_bigint::BigInt;
+use num_bigint::{ToBigInt};
+
+
+fn find_pos(cmds: String, shuffle:usize, len: usize) -> usize {   
     let inc = Regex::new(r#"deal with increment ([0-9]+)"#).unwrap();
     let new = Regex::new(r#"deal into new stack"#).unwrap();
     let cut = Regex::new(r#"cut (-?[0-9]+)"#).unwrap();
+
+    
+    let b_len = len.to_bigint().unwrap();
+    let b_shuffle = shuffle.to_bigint().unwrap();
+
+    
     let cmds = cmds.lines().map(
         |x| {
             
@@ -91,32 +101,71 @@ fn find_pos(cmds: String, len:usize, pos: usize) -> usize {
         }
     ).collect::<Vec<_>>();
 
-    let mut pos = pos;
-    for c in cmds.iter().rev() {
-            match c {
-                Cmd::Inc(i) => {
-                    unimplemented!("I don't know modular arithmetic");
-                },
-                Cmd::Reverse => {
-                    pos = len - pos;
-                },
-                Cmd::Cut(i) => {
-                    if *i > 0 {
-                        pos = (pos + *i as usize) % len;
-                    } else {
-                        pos = (pos - *i as usize) % len;
-                    }
-                }
+    let (a, b) = cmds.iter().map(|c| {
+        match c {
+            Cmd::Inc(i) => {
+                ((*i as i64), 0)
+            },
+            Cmd::Reverse => {
+                (-1, -1)
+            },
+            Cmd::Cut(i) => {
+                (1, -(*i as i64))
             }
+        }
+    })
+        .map(|(a,b)| (a.to_bigint().unwrap(), b.to_bigint().unwrap()))
+        .fold(None, |state, (c, d)| {
+        if let Some((a,b)) = state {
+            //println!("{:?} {:?}", (a, b), (c, d));
+            Some(
+                (
+                    a* &c % &b_len,
+                    b * &c + &d % &b_len,
+                )
+            )
+        } else {
+            Some((c, d))
+        }
+    }).unwrap();
+
+    fn exp(x: &BigInt, n: &BigInt) -> BigInt {
+        if *n == 0.to_bigint().unwrap() {
+            return 1.to_bigint().unwrap()
+        } else if *n == 1.to_bigint().unwrap() {
+            x.clone()
+        } else if n.clone() % 2 == 0.to_bigint().unwrap() {
+            exp(&(x * x), &(n / 2))
+        } else {
+            x * exp(&(x * x), &((n - 1) / 2))
+        }     
     }
-    pos
+
+    fn inv(a: &BigInt, n: &BigInt) -> BigInt {
+        a.modpow(&(n-2), n)
+    }
+    
+    // compute number of shuffles
+    let (a, b) = {
+        let a_k = a.modpow(&b_shuffle, &b_len);        
+        let b = (&b * (&a_k - 1) * inv(&(&a-1), &b_len)) % &b_len;
+        (a_k, b)
+    };
+    use std::convert::TryInto;
+
+    // compute inverse
+    let v = ((2020.to_bigint().unwrap() - &b) * inv(&a, &b_len)) % &b_len;
+    
+    //make it positive
+    let v : BigInt = (v + &b_len) % &b_len;
+    v.try_into().unwrap()
 }
 
 pub fn p2() -> IoResult<()> {
     let s = std::fs::read_to_string("input/day22.txt")?;
-    let v = find_pos(s, 119315717514047, 10_007);
+    let v = find_pos(s, 101741582076661, 119315717514047);
     
-    println!("Position of card 2019 : {:?}", v);
+    println!("Position of card 2020 : {:?}", v);
     Ok(())
 }
 

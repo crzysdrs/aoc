@@ -107,8 +107,8 @@ fn main() -> std::io::Result<()> {
         day25::p2()?;        
     }
     
-    //day18::p1()?;
-    day18::p2()?;
+    //day22::p1()?;
+    day22::p2()?;
 
     Ok(())
 }
