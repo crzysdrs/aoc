@@ -26,7 +26,9 @@ fn find_triple(v: &[u32], sum: u32) -> Option<(u32, u32, u32)> {
         return None;
     }
     for i in 0..v.len() {
-        if let Some((v2, v3)) = find_pair(&v[i + 1..], sum - v[i]) {
+        if v[i] >= sum {
+            return None;
+        } else if let Some((v2, v3)) = find_pair(&v[i + 1..], sum - v[i]) {
             return Some((v[i], v2, v3));
         }
     }
@@ -67,7 +69,7 @@ mod test {
     use super::*;
     const TEST: &[u32] = &[1721, 979, 366, 299, 675, 1456];
     #[test]
-    fn pair() {
+    fn test() {
         let mut test = TEST.to_vec();
         test.sort();
         assert_eq!(find_pair(&test, 2020), Some((299, 1721)));
