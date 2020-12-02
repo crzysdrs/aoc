@@ -23,6 +23,7 @@ trait Day {
 }
 
 mod day1;
+mod day2;
 
 macro_rules! run_test {
     ($name:expr, $part:expr, $([$val:pat, $test:ident]),* ) => {
@@ -46,5 +47,5 @@ macro_rules! run_test {
 fn main() -> std::io::Result<()> {
     let opts: Opts = Opts::parse();
 
-    run_test!(opts.test, opts.part, [1, day1])
+    run_test!(opts.test, opts.part, [1, day1], [2, day2])
 }
