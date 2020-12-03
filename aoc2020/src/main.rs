@@ -10,7 +10,9 @@ struct Opts {
     part: u32,
 }
 
-trait Day {
+trait Day
+where Self: 'static
+{
     const DAY: u32;
     type Input;
     type Sol1: std::fmt::Display;
@@ -41,33 +43,47 @@ trait Day {
     fn p2(_input: &[Self::Input]) -> Self::Sol2 {
         unimplemented!("Missing implementation of Day {} Part 2", Self::DAY)
     }
+    fn both() -> (Box<dyn Fn() -> IoResult<()>>, Box<dyn Fn() -> IoResult<()>>)
+    {
+        (Box::new(Self::run_p1), Box::new(Self::run_p2))
+    }
 }
 
 mod day1;
 mod day2;
 mod template;
 
-macro_rules! run_test {
-    ($name:expr, $part:expr, $([$val:pat, $test:ident]),* ) => {
-        match ($name, $part) {
+macro_rules! tests {
+    ($($name:ident),*) => {
+        [
             $(
-                ($val, 1) => {
-                    $test::Solution::run_p1()
-                }
-                ($val, 2) => {
-                    $test::Solution::run_p2()
-                }
-            )*,
-            _ => {
-                let err = format!("Unknown Test (Day {} Part {})", $name, $part);
-                Err(std::io::Error::new(std::io::ErrorKind::Other, err))
-            }
-        }
+                ($name::Solution::DAY, $name::Solution::both()),
+            )*
+        ]
     }
 }
 
 fn main() -> std::io::Result<()> {
     let opts: Opts = Opts::parse();
 
-    run_test!(opts.test, opts.part, [1, day1], [2, day2])
+    let sols = tests!(
+        day1,
+        day2
+    );
+    
+    if let Some(sol) = sols.iter().find(|s| s.0 == opts.test) {
+        match opts.part {
+            1 => (sol.1.0)()?,
+            2 => (sol.1.1)()?,
+            p => {
+                let err = format!("Unknown Test (Day {} Part {})", sol.0, p);
+                Err(std::io::Error::new(std::io::ErrorKind::Other, err))?
+            }
+        }
+    } else {
+        let err = format!("Unknown Test (Day {} Part {})", opts.test, opts.part);
+        Err(std::io::Error::new(std::io::ErrorKind::Other, err))?
+    }
+    
+    Ok(())
 }
