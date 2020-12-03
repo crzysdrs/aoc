@@ -11,7 +11,8 @@ struct Opts {
 }
 
 trait Day
-where Self: 'static
+where
+    Self: 'static,
 {
     const DAY: u32;
     type Input;
@@ -43,14 +44,14 @@ where Self: 'static
     fn p2(_input: &[Self::Input]) -> Self::Sol2 {
         unimplemented!("Missing implementation of Day {} Part 2", Self::DAY)
     }
-    fn both() -> (Box<dyn Fn() -> IoResult<()>>, Box<dyn Fn() -> IoResult<()>>)
-    {
+    fn both() -> (Box<dyn Fn() -> IoResult<()>>, Box<dyn Fn() -> IoResult<()>>) {
         (Box::new(Self::run_p1), Box::new(Self::run_p2))
     }
 }
 
 mod day1;
 mod day2;
+mod day3;
 mod template;
 
 macro_rules! tests {
@@ -66,15 +67,12 @@ macro_rules! tests {
 fn main() -> std::io::Result<()> {
     let opts: Opts = Opts::parse();
 
-    let sols = tests!(
-        day1,
-        day2
-    );
-    
+    let sols = tests!(day1, day2, day3);
+
     if let Some(sol) = sols.iter().find(|s| s.0 == opts.test) {
         match opts.part {
-            1 => (sol.1.0)()?,
-            2 => (sol.1.1)()?,
+            1 => (sol.1 .0)()?,
+            2 => (sol.1 .1)()?,
             p => {
                 let err = format!("Unknown Test (Day {} Part {})", sol.0, p);
                 Err(std::io::Error::new(std::io::ErrorKind::Other, err))?
@@ -84,6 +82,6 @@ fn main() -> std::io::Result<()> {
         let err = format!("Unknown Test (Day {} Part {})", opts.test, opts.part);
         Err(std::io::Error::new(std::io::ErrorKind::Other, err))?
     }
-    
+
     Ok(())
 }
