@@ -3,34 +3,30 @@ use std::io::Result as IoResult;
 
 pub struct Solution {}
 impl Day for Solution {
-    //const DAY: u32 = 1;
-    fn p1() -> IoResult<()> {
-        let mut v = std::fs::read_to_string(Self::input())?
-            .lines()
-            .map(|x| x.parse::<u32>().unwrap())
-            .collect::<Vec<_>>();
+    const DAY: u32 = 9999;
+    type Input = ();
+    type Sol1 = u32;
+    type Sol2 = u32;
 
-        unimplemented!();
-        println!("{:?}", v1 * v2);
-        Ok(())
+    fn process_input<R>(_r: R) -> IoResult<Vec<Self::Input>>
+    where
+        R: std::io::BufRead,
+    {
+        unimplemented!()
     }
-    fn p2() -> IoResult<()> {
-        let mut v = std::fs::read_to_string(Self::input())?
-            .lines()
-            .map(|x| x.parse::<u32>().unwrap())
-            .collect::<Vec<_>>();
-
-        unimplemented!();
-
-        Ok(())
+    fn p1(_v: &[Self::Input]) -> Self::Sol1 {
+        unimplemented!()
+    }
+    fn p2(_v: &[Self::Input]) -> Self::Sol2 {
+        unimplemented!()
     }
 }
 
 #[cfg(test)]
 mod test {
-    use super::*;
+    //use super::*;
     #[test]
     fn test() {
-        unimplemented!()
+        //unimplemented!()
     }
 }

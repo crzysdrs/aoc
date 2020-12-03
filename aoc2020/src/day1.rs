@@ -36,31 +36,31 @@ fn find_triple(v: &[u32], sum: u32) -> Option<(u32, u32, u32)> {
 }
 impl Day for Solution {
     const DAY: u32 = 1;
-    fn p1() -> IoResult<()> {
-        let mut v = std::fs::read_to_string(Self::input())?
-            .lines()
-            .map(|x| x.parse::<u32>().unwrap())
-            .collect::<Vec<_>>();
-
+    type Input = u32;
+    type Sol1 = u32;
+    type Sol2 = u32;
+    fn process_input<R>(r: R) -> IoResult<Vec<Self::Input>>
+    where
+        R: std::io::BufRead,
+    {
+        r.lines()
+            .map(|x| -> IoResult<Self::Input> { Ok(x?.parse::<u32>().unwrap()) })
+            .collect::<IoResult<Vec<_>>>()
+    }
+    fn p1(v: &[Self::Input]) -> Self::Sol1 {
+        let mut v = v.to_vec();
         v.sort();
 
         let (v1, v2) = find_pair(&v, 2020).unwrap();
-        println!("{:?}", v1 * v2);
-        Ok(())
+        v1 * v2
     }
-    fn p2() -> IoResult<()> {
-        let mut v = std::fs::read_to_string(Self::input())?
-            .lines()
-            .map(|x| x.parse::<u32>().unwrap())
-            .collect::<Vec<_>>();
-
+    fn p2(v: &[Self::Input]) -> Self::Sol2 {
+        let mut v = v.to_vec();
         v.sort();
 
         let (v1, v2, v3) = find_triple(&v, 2020).unwrap();
 
-        println!("{}", v1 * v2 * v3);
-
-        Ok(())
+        v1 * v2 * v3
     }
 }
 
