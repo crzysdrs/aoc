@@ -52,6 +52,7 @@ where
 mod day1;
 mod day2;
 mod day3;
+mod day4;
 mod template;
 
 macro_rules! tests {
@@ -67,7 +68,7 @@ macro_rules! tests {
 fn main() -> std::io::Result<()> {
     let opts: Opts = Opts::parse();
 
-    let sols = tests!(day1, day2, day3);
+    let sols = tests!(day1, day2, day3, day4);
 
     if let Some(sol) = sols.iter().find(|s| s.0 == opts.test) {
         match opts.part {
