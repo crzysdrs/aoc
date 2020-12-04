@@ -4,11 +4,12 @@ use std::io::Result as IoResult;
 pub struct Solution {}
 
 const FIELDS: [&'static str; 8] = ["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid", "cid"];
+use itertools::Itertools;
 use std::collections::*;
 
 impl Day for Solution {
     const DAY: u32 = 4;
-    type Input = Vec<(String, String)>;
+    type Input = HashMap<String, String>;
     type Sol1 = usize;
     type Sol2 = usize;
 
@@ -16,113 +17,97 @@ impl Day for Solution {
     where
         R: std::io::BufRead,
     {
-        r.lines()
+        let v = r
+            .lines()
             .map(|l| {
-                let l = l.unwrap();
                 let v = l
+                    .unwrap()
                     .split(' ')
-                    .flat_map(move |i| {
-                        let mut s = i.split(':');
-                        let k = s.next()?.to_string();
-                        let v = s.next()?.to_string();
-                        Some((k, v))
-                    })
+                    .flat_map(|i| i.split(':').map(|s| s.to_string()))
+                    .tuples()
                     .collect::<Vec<_>>();
                 Ok(v)
             })
-            .chain(std::iter::once(Ok(vec![])))
-            .collect()
+            .collect::<IoResult<Vec<_>>>()?;
+
+        let v = v
+            .into_iter()
+            .group_by(|e| e.len() > 0)
+            .into_iter()
+            .map(|(_k, v)| v.into_iter().flatten().collect::<HashMap<_, _>>())
+            .collect();
+
+        Ok(v)
     }
     fn p1(v: &[Self::Input]) -> Self::Sol1 {
         v.iter()
-            .scan(HashMap::new(), |state, item| {
-                if item.len() != 0 {
-                    state.extend(item.into_iter().cloned());
-                    Some(None)
-                } else {
-                    let valid = FIELDS
-                        .iter()
-                        .map(|f| state.get(*f).is_some() || *f == "cid")
-                        .all(|x| x);
-                    //println!("{:?} {}", state, valid);
-                    state.clear();
-                    Some(Some(valid))
-                }
+            .map(|state| {
+                FIELDS
+                    .iter()
+                    .map(|f| state.get(*f).is_some() || *f == "cid")
+                    .all(|x| x)
             })
-            .flatten()
             .filter(|v| *v)
             .count()
     }
     fn p2(v: &[Self::Input]) -> Self::Sol2 {
         v.iter()
-            .scan(HashMap::new(), |state, item| {
-                if item.len() != 0 {
-                    state.extend(item.into_iter().cloned());
-                    Some(None)
-                } else {
-                    let valid = FIELDS
-                        .iter()
-                        .map(|f| {
-                            let valid = *f == "cid"
-                                || match (*f, state.get(*f)) {
-                                    ("byr", Some(v)) => {
-                                        let v = v.parse::<u32>().unwrap();
-                                        (1920..=2002).contains(&v)
-                                    }
-                                    ("iyr", Some(v)) => {
-                                        let v = v.parse::<u32>().unwrap();
-                                        (2010..=2020).contains(&v)
-                                    }
-                                    ("eyr", Some(v)) => {
-                                        let v = v.parse::<u32>().unwrap();
-                                        (2020..=2030).contains(&v)
-                                    }
-                                    ("hgt", Some(v)) => {
-                                        if let Some(p) = v.strip_suffix("cm") {
-                                            let v = p.parse::<u32>().unwrap();
-                                            (150..=193).contains(&v)
-                                        } else if let Some(p) = v.strip_suffix("in") {
-                                            let v = p.parse::<u32>().unwrap();
-                                            (59..=76).contains(&v)
-                                        } else {
-                                            false
-                                        }
-                                    }
-                                    ("hcl", Some(v)) => {
-                                        if let Some(p) = v.strip_prefix("#") {
-                                            p.len() == 6
-                                                && p.chars()
-                                                    .map(|x| {
-                                                        ('a'..='f').contains(&x)
-                                                            || ('0'..='9').contains(&x)
-                                                    })
-                                                    .all(|x| x)
-                                        } else {
-                                            false
-                                        }
-                                    }
-                                    ("ecl", Some(v)) => {
-                                        let choices =
-                                            ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"];
-                                        choices.iter().find(|i| *i == v).is_some()
-                                    }
-                                    ("pid", Some(v)) => {
-                                        v.len() == 9
-                                            && v.chars()
-                                                .map(|x| ('0'..='9').contains(&x))
-                                                .all(|x| x)
-                                    }
-                                    ("cid", _) => true,
-                                    (_, _) => false,
-                                };
-                            valid
-                        })
-                        .all(|x| x);
-                    state.clear();
-                    Some(Some(valid))
-                }
+            .map(|state| {
+                let valid = FIELDS
+                    .iter()
+                    .map(|f| {
+                        let valid = match (*f, state.get(*f)) {
+                            ("byr", Some(v)) => {
+                                let v = v.parse::<u32>().unwrap();
+                                (1920..=2002).contains(&v)
+                            }
+                            ("iyr", Some(v)) => {
+                                let v = v.parse::<u32>().unwrap();
+                                (2010..=2020).contains(&v)
+                            }
+                            ("eyr", Some(v)) => {
+                                let v = v.parse::<u32>().unwrap();
+                                (2020..=2030).contains(&v)
+                            }
+                            ("hgt", Some(v)) => {
+                                if let Some(p) = v.strip_suffix("cm") {
+                                    let v = p.parse::<u32>().unwrap();
+                                    (150..=193).contains(&v)
+                                } else if let Some(p) = v.strip_suffix("in") {
+                                    let v = p.parse::<u32>().unwrap();
+                                    (59..=76).contains(&v)
+                                } else {
+                                    false
+                                }
+                            }
+                            ("hcl", Some(v)) => {
+                                if let Some(p) = v.strip_prefix("#") {
+                                    p.len() == 6
+                                        && p.chars()
+                                            .map(|x| {
+                                                ('a'..='f').contains(&x) || ('0'..='9').contains(&x)
+                                            })
+                                            .all(|x| x)
+                                } else {
+                                    false
+                                }
+                            }
+                            ("ecl", Some(v)) => {
+                                let choices = ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"];
+                                choices.contains(&v.as_str())
+                            }
+                            ("pid", Some(v)) => {
+                                v.len() == 9
+                                    && v.chars().map(|x| ('0'..='9').contains(&x)).all(|x| x)
+                            }
+                            ("cid", _) => true,
+                            (_, _) => false,
+                        };
+                        valid
+                    })
+                    .all(|x| x);
+                valid
             })
-            .flatten()
             .filter(|v| *v)
             .count()
     }
