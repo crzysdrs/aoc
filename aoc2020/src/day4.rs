@@ -23,7 +23,8 @@ impl Day for Solution {
                 let v = l
                     .unwrap()
                     .split(' ')
-                    .flat_map(|i| i.split(':').map(|s| s.to_string()))
+                    .flat_map(|i| i.split(':'))
+                    .map(|s| s.to_owned())
                     .tuples()
                     .collect::<Vec<_>>();
                 Ok(v)
