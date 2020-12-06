@@ -77,7 +77,7 @@ impl Day for Solution {
     }
     fn p2(v: &[Self::Input]) -> Self::Sol2 {
         let seats = build_seats(v).map(|s| s.id()).collect::<HashSet<_>>();
-        
+
         for r in 0..128 {
             for c in 0..8 {
                 let seat = r * 8 + c;
