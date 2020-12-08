@@ -143,9 +143,31 @@ impl Day for Solution {
 
 #[cfg(test)]
 mod test {
-    //use super::*;
+    use super::*;
     #[test]
     fn test() {
-        //unimplemented!()
+        let s = "nop +0
+acc +1
+jmp +4
+acc +3
+jmp -3
+acc -99
+acc +1
+jmp -4
+acc +6";
+        let v = Solution::process_input(std::io::BufReader::new(s.as_bytes())).unwrap();
+        assert_eq!(Solution::p1(&v), 5);
+
+        let s = "nop +0
+acc +1
+jmp +4
+acc +3
+jmp -3
+acc -99
+acc +1
+jmp -4
+acc +6";
+        let v = Solution::process_input(std::io::BufReader::new(s.as_bytes())).unwrap();
+        assert_eq!(Solution::p2(&v), 8);
     }
 }
