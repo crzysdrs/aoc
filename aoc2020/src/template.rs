@@ -1,12 +1,14 @@
 use crate::Day;
+#[allow(unused_imports)]
+use std::collections::*;
 use std::io::Result as IoResult;
 
 pub struct Solution {}
 impl Day for Solution {
     const DAY: u32 = 9999;
     type Input = ();
-    type Sol1 = u32;
-    type Sol2 = u32;
+    type Sol1 = usize;
+    type Sol2 = usize;
 
     fn process_input<R>(_r: R) -> IoResult<Vec<Self::Input>>
     where
