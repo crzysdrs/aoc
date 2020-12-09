@@ -26,20 +26,22 @@ pub struct Solution {}
 impl Solution {
     fn p1_preamble(v: &[u64], preamble_len: usize) -> u64 {
         let mut preamble: Vec<_> = v.iter().take(preamble_len).cloned().collect();
-
+        preamble.sort();
+        
         v.iter()
             .enumerate()
             .skip(preamble_len)
             .map(|(i, value)| {
-                preamble.sort();
+                /* This could be sped up by making 'preamble' a hashset, but it's fast enough */
                 let found = find_pair(&preamble, *value);
-                preamble.remove(
-                    preamble
-                        .iter()
-                        .position(|f| *f == v[i - preamble_len])
-                        .unwrap(),
-                );
-                preamble.push(*value);
+                let old = v[i - preamble_len];
+                let idx = preamble.binary_search(&old).unwrap();
+                preamble.remove(idx);
+                let new_idx = match preamble.binary_search(&value) {
+                    Ok(n) => n,
+                    Err(n) => n,
+                };
+                preamble.insert(new_idx, *value);
                 (i, value, found.is_some())
             })
             .filter(|(_, _, f)| *f == false)
