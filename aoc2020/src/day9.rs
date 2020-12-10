@@ -27,7 +27,7 @@ impl Solution {
     fn p1_preamble(v: &[u64], preamble_len: usize) -> u64 {
         let mut preamble: Vec<_> = v.iter().take(preamble_len).cloned().collect();
         preamble.sort();
-        
+
         v.iter()
             .enumerate()
             .skip(preamble_len)
