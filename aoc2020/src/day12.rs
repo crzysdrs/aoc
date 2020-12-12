@@ -93,13 +93,13 @@ impl ShipWaypoint {
                     Rotate::Right => -*count,
                 };
 
-                /* there has to be a smarter way to do this for the special cases of only 90 degree increments */
-                let rotation = std::f64::consts::PI / 180.0 *  f64::from(dir);
-                let oldx = f64::from(self.waypoint.x);
-                let oldy = f64::from(self.waypoint.y);
-                let x = oldx * rotation.cos() - oldy * rotation.sin();
-                let y = oldx * rotation.sin() + oldy * rotation.cos();
-                self.waypoint = Vector2::new(x.round() as i32, y.round() as i32);
+                self.waypoint = match (dir + 360) % 360{
+                    0 => self.waypoint,
+                    90 => Vector2::new(-self.waypoint.y, self.waypoint.x),
+                    180 => Vector2::new(-self.waypoint.x, -self.waypoint.y),
+                    270 => Vector2::new(self.waypoint.y, -self.waypoint.x),
+                    _ => panic!()
+                }
             }
             Instr::Move(dir, count) => {
                 self.waypoint += dir.vec2() * *count;
