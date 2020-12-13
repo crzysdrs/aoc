@@ -3,9 +3,9 @@ use crate::Day;
 use std::collections::*;
 use std::io::Result as IoResult;
 
-use cgmath::{Vector2, Point2};
+use cgmath::{Point2, Vector2};
 
-#[derive(PartialEq,Copy,Clone,Debug)]
+#[derive(PartialEq, Copy, Clone, Debug)]
 pub enum Dir {
     North,
     South,
@@ -13,7 +13,7 @@ pub enum Dir {
     West,
 }
 
-#[derive(PartialEq, Copy,Clone,Debug)]
+#[derive(PartialEq, Copy, Clone, Debug)]
 pub enum Rotate {
     Left,
     Right,
@@ -25,7 +25,7 @@ impl Dir {
             Dir::North => (0, 1),
             Dir::South => (0, -1),
             Dir::East => (1, 0),
-            Dir::West => (-1, 0)
+            Dir::West => (-1, 0),
         };
         Vector2::new(x, y)
     }
@@ -36,20 +36,20 @@ impl Dir {
         };
         let dirs = [Dir::North, Dir::East, Dir::South, Dir::West];
         let start = dirs.iter().position(|x| x == self).unwrap();
-        let count = (angle / 90 ) % 4;
+        let count = (angle / 90) % 4;
         dirs[((start as isize + count as isize + 4) % 4) as usize]
     }
 }
 
 struct Ship {
-    pos : Point2<i32>,
-    face: Dir,    
+    pos: Point2<i32>,
+    face: Dir,
 }
 
 impl Ship {
     fn new() -> Ship {
         Ship {
-            pos : Point2::new(0, 0),
+            pos: Point2::new(0, 0),
             face: Dir::East,
         }
     }
@@ -68,17 +68,16 @@ impl Ship {
     }
 }
 
-
 #[derive(Debug)]
 struct ShipWaypoint {
     waypoint: Vector2<i32>,
-    pos : Point2<i32>,
+    pos: Point2<i32>,
 }
 
 impl ShipWaypoint {
     fn new() -> ShipWaypoint {
         ShipWaypoint {
-            pos : Point2::new(0, 0),
+            pos: Point2::new(0, 0),
             waypoint: Vector2::new(10, 1),
         }
     }
@@ -93,12 +92,12 @@ impl ShipWaypoint {
                     Rotate::Right => -*count,
                 };
 
-                self.waypoint = match (dir + 360) % 360{
+                self.waypoint = match (dir + 360) % 360 {
                     0 => self.waypoint,
                     90 => Vector2::new(-self.waypoint.y, self.waypoint.x),
                     180 => Vector2::new(-self.waypoint.x, -self.waypoint.y),
                     270 => Vector2::new(self.waypoint.y, -self.waypoint.x),
-                    _ => panic!()
+                    _ => panic!(),
                 }
             }
             Instr::Move(dir, count) => {
@@ -110,7 +109,7 @@ impl ShipWaypoint {
 pub enum Instr {
     Move(Dir, i32),
     Turn(Rotate, i32),
-    Forward(i32)
+    Forward(i32),
 }
 
 pub struct Solution {}
@@ -127,51 +126,58 @@ impl Day for Solution {
         r.lines()
             .map(|l| {
                 let l = l?;
-                let c = l.chars().nth(0).unwrap();                
+                let c = l.chars().nth(0).unwrap();
                 let count = l[1..].parse::<i32>().unwrap();
                 let instr = match c {
                     'N' | 'S' | 'E' | 'W' => {
-                        let dir = match c { 
+                        let dir = match c {
                             'N' => Dir::North,
                             'S' => Dir::South,
                             'E' => Dir::East,
                             'W' => Dir::West,
-                            _ => panic!()
+                            _ => panic!(),
                         };
                         Instr::Move(dir, count)
                     }
-                    'L' | 'R'  => {
-                        let rot  = match c {
+                    'L' | 'R' => {
+                        let rot = match c {
                             'L' => Rotate::Left,
                             'R' => Rotate::Right,
-                            _ => panic!()
+                            _ => panic!(),
                         };
                         assert_eq!(count % 90, 0);
                         Instr::Turn(rot, count)
                     }
-                    'F' => {
-                        Instr::Forward(count)
-                    }
+                    'F' => Instr::Forward(count),
                     _ => {
                         panic!()
                     }
                 };
                 Ok(instr)
-            }).collect()
+            })
+            .collect()
     }
     fn p1(v: &[Self::Input]) -> Self::Sol1 {
-        let last = v.iter().scan(Ship::new(), |ship, instr| {
-            ship.run(&instr);
-            Some(ship.pos)
-        }).last().unwrap();
+        let last = v
+            .iter()
+            .scan(Ship::new(), |ship, instr| {
+                ship.run(&instr);
+                Some(ship.pos)
+            })
+            .last()
+            .unwrap();
 
         last.x.abs() + last.y.abs()
     }
     fn p2(v: &[Self::Input]) -> Self::Sol2 {
-        let last = v.iter().scan(ShipWaypoint::new(), |ship, instr| {
-            ship.run(&instr);
-            Some(ship.pos)
-        }).last().unwrap();
+        let last = v
+            .iter()
+            .scan(ShipWaypoint::new(), |ship, instr| {
+                ship.run(&instr);
+                Some(ship.pos)
+            })
+            .last()
+            .unwrap();
 
         last.x.abs() + last.y.abs()
     }
