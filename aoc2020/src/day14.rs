@@ -161,13 +161,13 @@ mem[7] = 101
 mem[8] = 0";
 
         let v = Solution::process_input(std::io::BufReader::new(s.as_bytes())).unwrap();
-        assert_eq!(Solution::p1(&v),165);
+        assert_eq!(Solution::p1(&v), 165);
 
         let s = "mask = 000000000000000000000000000000X1001X
 mem[42] = 100
 mask = 00000000000000000000000000000000X0XX
 mem[26] = 1";
-         let v = Solution::process_input(std::io::BufReader::new(s.as_bytes())).unwrap();
+        let v = Solution::process_input(std::io::BufReader::new(s.as_bytes())).unwrap();
         assert_eq!(Solution::p2(&v), 208);
     }
 }
