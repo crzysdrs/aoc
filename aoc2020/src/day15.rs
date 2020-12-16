@@ -77,6 +77,6 @@ mod test {
         let v = Solution::process_input(std::io::BufReader::new(s.as_bytes())).unwrap();
         assert_eq!(Solution::p1(&v), 436);
         #[cfg(release)]
-        assert_eq!(Solution::p2(&v),175594);
+        assert_eq!(Solution::p2(&v), 175594);
     }
 }
