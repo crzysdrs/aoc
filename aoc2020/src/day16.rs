@@ -169,7 +169,7 @@ mod test {
     use super::*;
     #[test]
     fn test() {
-        let s= "class: 1-3 or 5-7
+        let s = "class: 1-3 or 5-7
 row: 6-11 or 33-44
 seat: 13-40 or 45-50
 
@@ -182,6 +182,6 @@ nearby tickets:
 55,2,20
 38,6,12";
         let v = Solution::process_input(std::io::BufReader::new(s.as_bytes())).unwrap();
-        assert_eq!(Solution::p1(&v), 71); 
+        assert_eq!(Solution::p1(&v), 71);
     }
 }
