@@ -1,5 +1,4 @@
 use crate::Day;
-use regex::Regex;
 #[allow(unused_imports)]
 use std::collections::*;
 use std::io::Result as IoResult;
