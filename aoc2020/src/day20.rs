@@ -31,15 +31,6 @@ impl Side {
             Side::Left => p + Vector2::new(-1, 0),
         }
     }
-    fn adjacent(&self, s: Side) -> bool {
-        match (self, s) {
-            (Side::Bottom, Side::Top) => true,
-            (Side::Left, Side::Right) => true,
-            (Side::Right, Side::Left) => true,
-            (Side::Top, Side::Bottom) => true,
-            _ => false,
-        }
-    }
     fn opposite(&self) -> Side {
         match self {
             Side::Bottom => Side::Top,
@@ -48,19 +39,20 @@ impl Side {
             Side::Top => Side::Bottom,
         }
     }
-    fn rot_right(&self) -> Self {
-        let v = vec![Side::Top, Side::Right, Side::Bottom, Side::Left];
-        let pos = v.iter().cycle().position(|x| x == self).unwrap();
-        v[(pos + 1) % v.len()]
-    }
 }
 
+#[allow(unused)]
 fn print(grid: &Vec<Vec<bool>>) {
-    grid.iter().for_each(
-        |r|
-        println!("{}", r.iter().map(|x| if *x {'#'} else {'.'}).collect::<String>())
-    );    
+    grid.iter().for_each(|r| {
+        println!(
+            "{}",
+            r.iter()
+                .map(|x| if *x { '#' } else { '.' })
+                .collect::<String>()
+        )
+    });
 }
+
 impl Tile {
     fn top(&self) -> Vec<bool> {
         self.tile[0].clone()
@@ -96,25 +88,25 @@ impl Tile {
 
     fn border_id(&self, s: Side) -> usize {
         let x = self.side(s);
-        let bin = |mut state : usize, x : &bool| -> usize {
+        let bin = |mut state: usize, x: &bool| -> usize {
             state <<= 1;
             if *x {
                 state |= 1;
             }
             state
         };
-        let a = x.iter().fold(0,bin);
+        let a = x.iter().fold(0, bin);
         let b = x.iter().rev().fold(0, bin);
-        std::cmp::min(a,b)
+        std::cmp::min(a, b)
     }
-    fn border_ids(&self) -> Vec<(Side, usize)> {        
-        self.borders().into_iter().map(|(s, _)| (s, self.border_id(s))).collect()
+    fn border_ids(&self) -> Vec<(Side, usize)> {
+        self.borders()
+            .into_iter()
+            .map(|(s, _)| (s, self.border_id(s)))
+            .collect()
     }
     fn flipx(&mut self) {
-        self
-            .tile
-            .iter_mut()
-            .for_each(|r| r.reverse());
+        self.tile.iter_mut().for_each(|r| r.reverse());
     }
     fn flipy(&mut self) {
         self.tile.reverse();
@@ -211,71 +203,97 @@ impl Day for Solution {
             .product()
     }
     fn p2(v: &[Self::Input]) -> Self::Sol2 {
-        let mut tiles: HashMap<_, _> = v.iter().map(|t| (t.id, t.clone())).collect();
-
-        println!("VLen: {}", v.len());
         let border_ids = v
             .iter()
             .flat_map(|t| {
                 let id = t.id;
-                t.border_ids().into_iter().map(move |(s, bid)| (bid, id))
+                t.border_ids().into_iter().map(move |(_s, bid)| (bid, id))
             })
-            .fold(HashMap::<usize, Vec<usize>>::new(),
-                  |mut state, (bid, id)| {
-                      state.entry(bid).and_modify(|v| v.push(id)).or_insert(vec![id]);
-                      state
-                  }
+            .fold(
+                HashMap::<usize, Vec<usize>>::new(),
+                |mut state, (bid, id)| {
+                    state
+                        .entry(bid)
+                        .and_modify(|v| v.push(id))
+                        .or_insert(vec![id]);
+                    state
+                },
             );
-            
-        #[derive(Copy,Clone,Debug)]
+
+        #[derive(Copy, Clone, Debug)]
         enum SideMatch {
             Known(usize),
-            Unknown
+            Unknown,
         }
 
-        let mut grid : HashMap<Point2<i32>, Tile> = HashMap::new();
-        let grid_size = 12;
+        let mut grid: HashMap<Point2<i32>, Tile> = HashMap::new();
         let mut remaining_tiles = v.to_vec();
 
+        let mut count = 0i32;
+        let grid_size = loop {
+            count += 1;
+            if remaining_tiles.len() as i32 == count.pow(2) {
+                break count;
+            }
+        };
         //println!("{:?}", border_ids);
         for y in 0..grid_size {
             for x in 0..grid_size {
                 let pos = Point2::new(x, y);
-                let need = Side::sides().into_iter().map(|s| (s, s.offset(&pos)))
-                    .map(|(s, p)| if p.x < 0 || p.x >= grid_size || p.y < 0 || p.y >= grid_size {
-                        (p, s, None)
-                    } else if let Some(t) = grid.get(&p) {
-                        (p, s, Some(SideMatch::Known(t.border_id(s.opposite()))))
-                    } else {
-                        (p, s, Some(SideMatch::Unknown))
-                    }).collect::<Vec<_>>();
+                let need = Side::sides()
+                    .into_iter()
+                    .map(|s| (s, s.offset(&pos)))
+                    .map(|(s, p)| {
+                        if p.x < 0 || p.x >= grid_size || p.y < 0 || p.y >= grid_size {
+                            (p, s, None)
+                        } else if let Some(t) = grid.get(&p) {
+                            (p, s, Some(SideMatch::Known(t.border_id(s.opposite()))))
+                        } else {
+                            (p, s, Some(SideMatch::Unknown))
+                        }
+                    })
+                    .collect::<Vec<_>>();
 
                 //println!("{:?}", need);
-                let tile_pos = remaining_tiles.iter().position(
-                    |t| {
+                let tile_pos = remaining_tiles
+                    .iter()
+                    .position(|t| {
                         //println!("{:?}", t.border_ids());
-                        let knowns = need.iter().map(|(_, _, id)| match id {
-                            None => true,
-                            Some(SideMatch::Known(id)) => t.border_ids().iter().find(|(_, bid)| id == bid).is_some(),
-                            Some(SideMatch::Unknown) => true,
-                        }).all(|x| x);
-                        let unknowns_need_count = need.iter().filter(|(_, _, id)| id.is_none()).count();
-                        let unknowns_count = t.border_ids().iter().filter(|(s, id)| border_ids.get(id).map(|v| v.len()).unwrap_or(0) == 1).count();
+                        let knowns = need
+                            .iter()
+                            .map(|(_, _, id)| match id {
+                                None => true,
+                                Some(SideMatch::Known(id)) => {
+                                    t.border_ids().iter().find(|(_, bid)| id == bid).is_some()
+                                }
+                                Some(SideMatch::Unknown) => true,
+                            })
+                            .all(|x| x);
+                        let unknowns_need_count =
+                            need.iter().filter(|(_, _, id)| id.is_none()).count();
+                        let unknowns_count = t
+                            .border_ids()
+                            .iter()
+                            .filter(|(_s, id)| {
+                                border_ids.get(id).map(|v| v.len()).unwrap_or(0) == 1
+                            })
+                            .count();
                         //println!("{} {}", unknowns_need_count, unknowns_count);
                         let unknowns = unknowns_count == unknowns_need_count;
                         //println!("{} {}", knowns, unknowns);
                         knowns && unknowns
-                    }).unwrap();
+                    })
+                    .unwrap();
 
                 let (target_side, target_need) = need.iter().fold(
-                    (Side::Top, Some(SideMatch::Unknown)), |state, (_, side, id)| {
-                        match (state.1, id) {
-                            (_, Some(SideMatch::Known(id))) => (*side, Some(SideMatch::Known(*id))),
-                            (Some(SideMatch::Unknown), _) => (*side, *id),
-                            (s, _) => state,
-                        }
-                    });
-                
+                    (Side::Top, Some(SideMatch::Unknown)),
+                    |state, (_, side, id)| match (state.1, id) {
+                        (_, Some(SideMatch::Known(id))) => (*side, Some(SideMatch::Known(*id))),
+                        (Some(SideMatch::Unknown), _) => (*side, *id),
+                        (_s, _) => state,
+                    },
+                );
+
                 let mut tile = remaining_tiles.remove(tile_pos);
 
                 //println!("Target: {} {:?} {:?}", tile.id, target_side, target_need);
@@ -284,8 +302,14 @@ impl Day for Solution {
                 while match target_need {
                     Some(SideMatch::Known(id)) => tile.border_id(target_side) != id,
                     Some(SideMatch::Unknown) => unreachable!(),
-                    None => border_ids.get(&tile.border_id(target_side)).map(|v| v.len()).unwrap_or(0) != 1
-                } {                        
+                    None => {
+                        border_ids
+                            .get(&tile.border_id(target_side))
+                            .map(|v| v.len())
+                            .unwrap_or(0)
+                            != 1
+                    }
+                } {
                     tile.rot_right();
                 }
 
@@ -294,32 +318,35 @@ impl Day for Solution {
                     let (flip_tile, flip_side) = match typ {
                         Some(SideMatch::Known(id)) => {
                             let t2 = grid.get(&p).unwrap();
-                            let flip_tile = (tile.border_id(*s) != *id);
-                            let new_side = if flip_tile {
-                                s.opposite()
-                            } else {
-                                *s
-                            };
+                            let flip_tile = tile.border_id(*s) != *id;
+                            let new_side = if flip_tile { s.opposite() } else { *s };
                             (flip_tile, t2.side(s.opposite()) != tile.side(new_side))
                         }
                         Some(SideMatch::Unknown) => (false, false),
                         None => {
                             //println!("{:?}", border_ids.get(&tile.border_id(*s)));
-                            (border_ids.get(&tile.border_id(*s)).map(|v| v.len()).unwrap_or(0) != 1, false)
-                        }                        
+                            (
+                                border_ids
+                                    .get(&tile.border_id(*s))
+                                    .map(|v| v.len())
+                                    .unwrap_or(0)
+                                    != 1,
+                                false,
+                            )
+                        }
                     };
                     //println!("{:?} {:?} {} {}", s, typ, flip_tile, flip_side);
                     if flip_side {
                         match s {
                             Side::Top | Side::Bottom => tile.flipx(),
-                            Side::Left | Side::Right => tile.flipy(),    
-                        }                        
+                            Side::Left | Side::Right => tile.flipy(),
+                        }
                     }
                     if flip_tile {
                         match s {
                             Side::Top | Side::Bottom => tile.flipy(),
-                            Side::Left | Side::Right => tile.flipx(),    
-                        }                        
+                            Side::Left | Side::Right => tile.flipx(),
+                        }
                     }
                     //println!("{:?}", tile.border_ids().into_iter().map(|(s, bid)| (s, bid, border_ids.get(&bid))).collect::<Vec<_>>());
                 }
@@ -331,18 +358,22 @@ impl Day for Solution {
                             assert_eq!(t2.border_id(s.opposite()), *id);
                             assert_eq!(t2.side(s.opposite()), tile.side(*s));
                         }
-                        Some(SideMatch::Unknown) => {},
+                        Some(SideMatch::Unknown) => {}
                         None => {
-                            assert_eq!(border_ids.get(&tile.border_id(*s)).map(|v| v.len()).unwrap_or(0), 1)
+                            assert_eq!(
+                                border_ids
+                                    .get(&tile.border_id(*s))
+                                    .map(|v| v.len())
+                                    .unwrap_or(0),
+                                1
+                            )
                         }
-
                     }
                 }
                 //println!("Placed Tile: {:?} {} {:?}", pos, tile.id, tile.border_ids().into_iter().map(|(s, bid)| (s, bid, border_ids.get(&bid))).collect::<Vec<_>>());
                 grid.insert(pos, tile);
             }
         }
-
 
         grid.values_mut().for_each(|t| t.strip());
 
@@ -351,7 +382,7 @@ impl Day for Solution {
             let mut row = grid.iter().filter(|(p, _)| p.y == y).collect::<Vec<_>>();
             row.sort_by_key(|(p, _)| p.x);
             let tile_size = row[0].1.tile.len();
-            for i in (0..tile_size) {
+            for i in 0..tile_size {
                 let mut new_row = vec![];
                 for j in 0..row.len() {
                     new_row.extend(row[j].1.tile[i].clone());
@@ -359,44 +390,62 @@ impl Day for Solution {
                 big_tile.push(new_row);
             }
         }
-        let mut big_tile = Tile {id: 0, tile: big_tile };
+        let mut big_tile = Tile {
+            id: 0,
+            tile: big_tile,
+        };
         let monster = "                  # 
 #    ##    ##    ###
  #  #  #  #  #  #   ";
-        let monster = monster.split("\n").map(|l| l.chars().map(|c| c == '#').collect::<Vec<_>>()).collect::<Vec<_>>();
+        let monster = monster
+            .split("\n")
+            .map(|l| l.chars().map(|c| c == '#').collect::<Vec<_>>())
+            .collect::<Vec<_>>();
 
         for _ in 0..2 {
             for _ in 0..4 {
                 let search = big_tile.clone();
                 //print(&big_tile.tile);
                 let monster = &monster;
-                let found = search.tile.windows(monster.len())
+                let found = search
+                    .tile
+                    .windows(monster.len())
                     .enumerate()
                     .flat_map(|(start, win)| {
                         let mut mons = vec![];
                         for i in 0..(win[0].len() - monster[0].len()) {
-                            if (0..win.len()).map(|j| {
-                                win[j][i..].iter().zip(&monster[j]).all(|(sea, mon)| if *mon {*sea} else {true})
-                            })
-                            //.inspect(|x| println!("{:?}", x))
-                                .all(|x| x) {
-                                    mons.push((start, i))
-                                }
+                            if (0..win.len())
+                                .map(|j| {
+                                    win[j][i..].iter().zip(&monster[j]).all(|(sea, mon)| {
+                                        if *mon {
+                                            *sea
+                                        } else {
+                                            true
+                                        }
+                                    })
+                                })
+                                //.inspect(|x| println!("{:?}", x))
+                                .all(|x| x)
+                            {
+                                mons.push((start, i))
+                            }
                         }
                         mons.into_iter()
-                    }).collect::<Vec<_>>();
+                    })
+                    .collect::<Vec<_>>();
 
                 println!("Monsters found {:?}", found);
                 if found.len() > 0 {
                     for (start, i) in found {
                         for j in 0..monster.len() {
-                            big_tile.tile[start + j][i..].iter_mut().zip(&monster[j]).for_each(
-                                |(sea, mon)| {
+                            big_tile.tile[start + j][i..]
+                                .iter_mut()
+                                .zip(&monster[j])
+                                .for_each(|(sea, mon)| {
                                     if *mon {
                                         *sea = false
                                     }
-                                }
-                            )
+                                })
                         }
                     }
                     return big_tile.tile.iter().flat_map(|v| v).filter(|x| **x).count();
@@ -405,6 +454,7 @@ impl Day for Solution {
             }
             big_tile.flipx();
         }
+        panic!("NO solution")
     }
 }
 
@@ -523,8 +573,6 @@ Tile 3079:
         let v = Solution::process_input(std::io::BufReader::new(s.as_bytes())).unwrap();
         assert_eq!(Solution::p1(&v), 20899048083289);
 
-        //My solution does not currently work for the test input.
-        //assert_eq!(Solution::p2(&v), 273);
-
+        assert_eq!(Solution::p2(&v), 273);
     }
 }
