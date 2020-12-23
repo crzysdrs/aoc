@@ -12,7 +12,7 @@ pub struct Input {
 use std::cmp::Ordering;
 
 fn recursive_combat(game: u32, mut input: Input) -> (Input, Ordering) {
-    let mut state : HashSet<(Vec<usize>, Vec<usize>)> = HashSet::new();
+    let mut state: HashSet<(Vec<usize>, Vec<usize>)> = HashSet::new();
     //let mut round = 1;
     //println!(" === Game {} === ", game);
     let winner = loop {
@@ -29,25 +29,29 @@ fn recursive_combat(game: u32, mut input: Input) -> (Input, Ordering) {
         }
 
         state.insert((input.player1.clone(), input.player2.clone()));
-        
+
         let p1 = input.player1.remove(0);
         let p2 = input.player2.remove(0);
         //println!("Player 1 plays: {}", p1);
         //println!("Player 2 plays: {}", p2);
-        
+
         let order = if input.player1.len() >= p1 && input.player2.len() >= p2 {
             //println!("Playing a sub-game to determine the winnner... ");
-            let res = recursive_combat(game + 1, Input {
-                player1 : input.player1[..p1].to_vec(),
-                player2 : input.player2[..p2].to_vec()
-            }).1;
+            let res = recursive_combat(
+                game + 1,
+                Input {
+                    player1: input.player1[..p1].to_vec(),
+                    player2: input.player2[..p2].to_vec(),
+                },
+            )
+            .1;
             //println!("...anyway, back to game {}.", game);
             res
         } else {
             p1.cmp(&p2)
         };
-        
-        match order  {
+
+        match order {
             Ordering::Equal => {
                 unreachable!()
             }
@@ -72,7 +76,7 @@ fn recursive_combat(game: u32, mut input: Input) -> (Input, Ordering) {
         (_, Ordering::Less) => {
             //println!("The winner of game {} is player 2!", game);
         }
-        _ => unreachable!()
+        _ => unreachable!(),
     }
     winner
 }
@@ -90,18 +94,23 @@ impl Day for Solution {
     {
         let mut lines = r.lines();
 
-        let player1 = lines.by_ref().flatten().skip(1).take_while(|l| l != "")
+        let player1 = lines
+            .by_ref()
+            .flatten()
+            .skip(1)
+            .take_while(|l| l != "")
             .map(|n| n.parse().unwrap())
             .collect();
 
-        let player2 = lines.by_ref().flatten().skip(1).take_while(|l| l != "")
+        let player2 = lines
+            .by_ref()
+            .flatten()
+            .skip(1)
+            .take_while(|l| l != "")
             .map(|n| n.parse().unwrap())
             .collect();
 
-        Ok(vec![Input {
-            player1,
-            player2,
-        }])
+        Ok(vec![Input { player1, player2 }])
     }
     fn p1(v: &[Self::Input]) -> Self::Sol1 {
         let mut input = v[0].clone();
@@ -109,7 +118,7 @@ impl Day for Solution {
             if input.player1.len() == 0 || input.player2.len() == 0 {
                 break;
             }
-            
+
             let p1 = input.player1.remove(0);
             let p2 = input.player2.remove(0);
             match p1.cmp(&p2) {
@@ -125,20 +134,43 @@ impl Day for Solution {
                     input.player2.push(p2);
                     input.player2.push(p1);
                 }
-            }         
+            }
         }
 
-
-        let p1_score = input.player1.iter().rev().zip(1..).map(|(i, j)| i *j).sum();
-        let p2_score = input.player2.iter().rev().zip(1..).map(|(i, j)| i *j).sum();
+        let p1_score = input
+            .player1
+            .iter()
+            .rev()
+            .zip(1..)
+            .map(|(i, j)| i * j)
+            .sum();
+        let p2_score = input
+            .player2
+            .iter()
+            .rev()
+            .zip(1..)
+            .map(|(i, j)| i * j)
+            .sum();
 
         std::cmp::max(p1_score, p2_score)
     }
     fn p2(v: &[Self::Input]) -> Self::Sol2 {
         let (input, _) = recursive_combat(1, v[0].clone());
 
-        let p1_score = input.player1.iter().rev().zip(1..).map(|(i, j)| i *j).sum();
-        let p2_score = input.player2.iter().rev().zip(1..).map(|(i, j)| i *j).sum();
+        let p1_score = input
+            .player1
+            .iter()
+            .rev()
+            .zip(1..)
+            .map(|(i, j)| i * j)
+            .sum();
+        let p2_score = input
+            .player2
+            .iter()
+            .rev()
+            .zip(1..)
+            .map(|(i, j)| i * j)
+            .sum();
 
         std::cmp::max(p1_score, p2_score)
     }
