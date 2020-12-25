@@ -27,20 +27,20 @@ fn cups_arr(cups: &[usize]) -> Vec<usize> {
     new
 }
 
-fn cups_game(iterations: usize, v: &[usize]) -> Vec<usize> {    
+fn cups_game(iterations: usize, v: &[usize]) -> Vec<usize> {
     let mut cups = vec![];
     cups.push(0);
     cups.resize(v.len() + 1, 0);
-    
+
     v.windows(2).for_each(|win| {
         cups[win[0]] = win[1];
     });
     cups[*v.last().unwrap()] = v[0];
-    
+
     let max = *v.iter().max().unwrap();
     let mut cur = v[0];
 
-    for _m in  1..=iterations {
+    for _m in 1..=iterations {
         //println!("-- move {} --", m);
         //println!("cur: {}", cur);
         //println!("cups: {:?}", cups_arr(&cups));
@@ -49,7 +49,7 @@ fn cups_game(iterations: usize, v: &[usize]) -> Vec<usize> {
         let cup3 = cups[cup2];
 
         cups[cur] = cups[cup3];
-        
+
         //println!("pickup: {} {} {}", cup1, cup2, cup3);
         let mut label = cur - 1;
         if label == 0 {
@@ -61,11 +61,11 @@ fn cups_game(iterations: usize, v: &[usize]) -> Vec<usize> {
                 label = max;
             }
         }
-        
+
         let after_label = cups[label];
         cups[label] = cup1;
         cups[cup3] = after_label;
-        
+
         //println!("destination: {}", label);
 
         cur = cups[cur]
@@ -73,7 +73,7 @@ fn cups_game(iterations: usize, v: &[usize]) -> Vec<usize> {
 
     //println!("-- final --");
     //println!("cups: {:?}", cups);
-    cups    
+    cups
 }
 
 pub struct Solution {}
@@ -87,11 +87,11 @@ impl Day for Solution {
     where
         R: std::io::BufRead,
     {
-        let mut input : usize = r.lines().next().unwrap().unwrap().parse().unwrap();
+        let mut input: usize = r.lines().next().unwrap().unwrap().parse().unwrap();
         let mut cups = vec![];
 
         while input > 0 {
-            cups.push(input %10);
+            cups.push(input % 10);
             input /= 10;
         }
         cups.reverse();

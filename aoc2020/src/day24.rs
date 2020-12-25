@@ -12,12 +12,12 @@ pub enum Dir {
     SW,
     W,
     NW,
-    NE
+    NE,
 }
 
 enum Tile {
     White,
-    Black
+    Black,
 }
 
 impl Tile {
@@ -53,10 +53,11 @@ impl Day for Solution {
         R: std::io::BufRead,
     {
         let dir = Regex::new("e|se|sw|w|nw|ne").unwrap();
-        Ok(r.lines().flatten()
+        Ok(r.lines()
+            .flatten()
             .map(|l| {
-                dir.captures_iter(&l).map(|d| {
-                    match d.get(0).unwrap().as_str() {
+                dir.captures_iter(&l)
+                    .map(|d| match d.get(0).unwrap().as_str() {
                         "e" => Dir::E,
                         "se" => Dir::SE,
                         "sw" => Dir::SW,
@@ -64,41 +65,48 @@ impl Day for Solution {
                         "nw" => Dir::NW,
                         "ne" => Dir::NE,
                         _ => unreachable!(),
-                    }
-                }).collect()
-            }).collect())
+                    })
+                    .collect()
+            })
+            .collect())
     }
     fn p1(v: &[Self::Input]) -> Self::Sol1 {
         let mut grid = HashMap::<Point2<i32>, Tile>::new();
-        
+
         for dirs in v {
-            let last = dirs.iter().scan(Point2::new(0, 0), |pos, dir| {
-                *pos += dir.offset();
-                Some(*pos)
-            }).last().unwrap();
-            grid.entry(last).and_modify(|t| t.toggle()).or_insert(Tile::Black);
-        };
+            let last = dirs
+                .iter()
+                .scan(Point2::new(0, 0), |pos, dir| {
+                    *pos += dir.offset();
+                    Some(*pos)
+                })
+                .last()
+                .unwrap();
+            grid.entry(last)
+                .and_modify(|t| t.toggle())
+                .or_insert(Tile::Black);
+        }
 
         grid.values().filter(|x| matches!(x, Tile::Black)).count()
-            
     }
     fn p2(v: &[Self::Input]) -> Self::Sol2 {
-         let mut grid = HashMap::<Point2<i32>, Tile>::new();
-        
-        for dirs in v {
-            let last = dirs.iter().scan(Point2::new(0, 0), |pos, dir| {
-                *pos += dir.offset();
-                Some(*pos)
-            }).last().unwrap();
-            grid.entry(last).and_modify(|t| t.toggle()).or_insert(Tile::Black);
-        };
+        let mut grid = HashMap::<Point2<i32>, Tile>::new();
 
-        let dirs =  vec![Dir::E,
-                         Dir::SE,
-                         Dir::SW,
-                         Dir::W,
-                         Dir::NW,
-                         Dir::NE];
+        for dirs in v {
+            let last = dirs
+                .iter()
+                .scan(Point2::new(0, 0), |pos, dir| {
+                    *pos += dir.offset();
+                    Some(*pos)
+                })
+                .last()
+                .unwrap();
+            grid.entry(last)
+                .and_modify(|t| t.toggle())
+                .or_insert(Tile::Black);
+        }
+
+        let dirs = vec![Dir::E, Dir::SE, Dir::SW, Dir::W, Dir::NW, Dir::NE];
 
         let mut day = HashMap::<Point2<i32>, usize>::new();
         for _ in 0..100 {
@@ -109,15 +117,14 @@ impl Day for Solution {
                         day.entry(p + d.offset()).and_modify(|v| *v += 1).or_insert(1);
                     }
                     day.entry(*p).or_insert(0); /* black tile with no adjacent needs to be represented */
-                }            
+                }
                 );
-            day.iter().for_each(|(p, &v)| {
-                match grid.entry(*p).or_insert(Tile::White) {
+            day.iter()
+                .for_each(|(p, &v)| match grid.entry(*p).or_insert(Tile::White) {
                     t @ Tile::Black if v == 0 || v > 2 => *t = Tile::White,
                     t @ Tile::White if v == 2 => *t = Tile::Black,
-                    _ => {},
-                }
-            })
+                    _ => {}
+                })
         }
         grid.values().filter(|x| matches!(x, Tile::Black)).count()
     }
