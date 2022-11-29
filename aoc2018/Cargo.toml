@@ -5,8 +5,8 @@ authors = ["Mitch Souders <mitch.souders@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-itertools = ""
-serde_scan = ""
-serde = { version="", features = ["derive"]}
+itertools = "0.10.5"
+serde_scan = "0.4.1"
+serde = { version="1", features = ["derive"]}
 regex = "1"
 chrono = "0.4"

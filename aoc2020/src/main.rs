@@ -1,9 +1,9 @@
-use clap::Clap;
+use clap::Parser;
 use std::io::BufReader;
 use std::io::Result as IoResult;
 use std::path::PathBuf;
 
-#[derive(Clap)]
+#[derive(Parser)]
 #[clap(version = "1.0", author = "Mitch Souders <crzysdrs@gmail.com>")]
 struct Opts {
     test: u32,
