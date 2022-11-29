@@ -5,7 +5,6 @@ use petgraph::algo::dijkstra::dijkstra;
 use petgraph::graph::{NodeIndex, UnGraph};
 #[allow(unused_imports)]
 use std::collections::*;
-use std::fmt::Display;
 use std::io::Result as IoResult;
 use std::str::FromStr;
 
@@ -257,9 +256,9 @@ impl FromStr for Burrow {
             .collect::<Vec<_>>();
         rooms.sort_by_key(|p| (p.x, p.y));
 
-        let mut groups = rooms.iter().group_by(|p| p.x);
+        let groups = rooms.iter().group_by(|p| p.x);
 
-        let mut rooms = groups
+        let rooms = groups
             .into_iter()
             .map(|(_key, group)| group.cloned().collect::<Vec<_>>())
             .zip([Amp::Amber, Amp::Bronze, Amp::Copper, Amp::Desert].into_iter())
@@ -309,7 +308,7 @@ fn run(v: Burrow) -> usize {
             v.burrow
                 .get(p)
                 .filter(|b| b.stand())
-                .map(|b| (*p, dijkstra(&ungraph, *ni, None, |_| 1)))
+                .map(|_b| (*p, dijkstra(&ungraph, *ni, None, |_| 1)))
         })
         .collect::<HashMap<_, _>>();
 
@@ -357,8 +356,10 @@ fn run(v: Burrow) -> usize {
                     .iter()
                     .filter(|(p, _b)| burrow.can_move(amp, amp_pos, **p))
                     .collect();
-                legal_endpoint.sort_by_key(|(p, _)| dist.get(&amp_pos).unwrap().get(&node_indices[&p]).unwrap());
-                    
+                legal_endpoint.sort_by_key(|(p, _)| {
+                    dist.get(&amp_pos).unwrap().get(&node_indices[&p]).unwrap()
+                });
+
                 let mut reachable = HashSet::new();
 
                 petgraph::visit::depth_first_search(
@@ -390,7 +391,7 @@ fn run(v: Burrow) -> usize {
                     .filter(move |(p, _b)| reachable.contains(&node_indices[p]))
                     .map(move |(p, b)| (amp_pos, amp, p, b))
             })
-            .scan(best, move |mut best, (amp_pos, amp, p, b)| {
+            .scan(best, move |best, (amp_pos, amp, p, _b)| {
                 let mut burrow = burrow.clone();
                 burrow.move_amp(amp_pos, *p);
                 let found = dfs(
@@ -405,7 +406,7 @@ fn run(v: Burrow) -> usize {
                     *best,
                 );
                 match (found, &best) {
-                    (Some(f), None) => {
+                    (Some(_f), None) => {
                         *best = found;
                     }
                     (Some(f), Some(b)) if *b > f => {
@@ -451,7 +452,7 @@ impl Day for Solution {
     fn p1(v: &Self::Input) -> Self::Sol1 {
         run(v.clone())
     }
-    fn p2(v: &Self::Input) -> Self::Sol2 {
+    fn p2(_v: &Self::Input) -> Self::Sol2 {
         let input = std::fs::read_to_string("input/day23p2.txt").unwrap();
         let input = Solution::process_input(std::io::BufReader::new(input.as_bytes())).unwrap();
         run(input)
