@@ -151,12 +151,3 @@ pub fn p2() -> IoResult<()> {
     println!("{:?}", machine.output().into_iter().last().unwrap());
     Ok(())
 }
-
-#[cfg(test)]
-mod test {
-    use super::*;
-    #[test]
-    fn tests() {
-        assert!(true);
-    }
-}

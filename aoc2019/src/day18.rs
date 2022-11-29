@@ -28,12 +28,12 @@ impl Dir {
         let dirs = &[Dir::North, Dir::West, Dir::South, Dir::East];
         let cur = dirs.iter().position(|x| *x == *self).unwrap();
         let next = if left { cur + 1 } else { dirs.len() + cur - 1 } % dirs.len();
-        dirs[next].clone()
+        dirs[next]
     }
 }
 
 fn point_dir(p: &Point2<i32>, d: &Dir) -> Point2<i32> {
-    let mut p = p.clone();
+    let mut p = *p;
     match d {
         Dir::North => {
             p.y += 1;
@@ -115,8 +115,8 @@ where
             let min_dist = dist[dist_idx];
             let dirs = [Dir::North, Dir::South, Dir::East, Dir::West];
             for d in dirs.iter() {
-                let search = point_dir(&pt, &d);
-                grid.get(&search).map(|x| {
+                let search = point_dir(&pt, d);
+                if let Some(x) = grid.get(&search) {
                     if !traversable(*x) {
                         /* do nothing */
                     } else if let Some(idx) = lookup.get(&search) {
@@ -126,7 +126,7 @@ where
                         }
                         *next = std::cmp::min(*next, min_dist.saturating_add(1));
                     }
-                });
+                };
             }
         };
     }
@@ -169,23 +169,24 @@ fn min_dist(grid: &HashMap<Point2<i32>, char>) -> u32 {
         }
     }
 
-    let key_count = keys(&grid).count();
-    let key_pos = keys(&grid).map(|(p, v)| (*p, *v)).collect::<Vec<_>>();
-    let _door_pos = doors(&grid).map(|(p, v)| (*p, *v)).collect::<Vec<_>>();
-    let key_lookup: HashMap<char, Point2<_>> = keys(&grid).map(|(p, v)| (*v, *p)).collect();
+    let key_count = keys(grid).count();
+    let key_pos = keys(grid).map(|(p, v)| (*p, *v)).collect::<Vec<_>>();
+    let _door_pos = doors(grid).map(|(p, v)| (*p, *v)).collect::<Vec<_>>();
+    let key_lookup: HashMap<char, Point2<_>> = keys(grid).map(|(p, v)| (*v, *p)).collect();
 
     println!(
         "Count {} All Keys {:?}",
         key_count,
-        keys(&grid).map(|(p, v)| (*p, *v)).collect::<Vec<_>>()
+        keys(grid).map(|(p, v)| (*p, *v)).collect::<Vec<_>>()
     );
 
-    let mut worklist = vec![(starts(&grid), Vec::<char>::new(), HashSet::new(), 0)];
+    let mut worklist = vec![(starts(grid), Vec::<char>::new(), HashSet::new(), 0)];
 
     let mut min_dist = std::u32::MAX;
     let mut seen: HashMap<(Vec<Point2<_>>, Vec<char>), u32> = HashMap::new();
 
     let mut reachable: HashMap<Vec<char>, Vec<char>> = HashMap::new();
+    #[allow(clippy::type_complexity)]
     let mut dist: HashMap<(Vec<Point2<_>>, Vec<char>), HashMap<char, (usize, u32)>> =
         HashMap::new();
 
@@ -374,13 +375,4 @@ pub fn p2() -> IoResult<()> {
 
     println!("{:?}", min_dist(&grid));
     Ok(())
-}
-
-#[cfg(test)]
-mod test {
-    use super::*;
-    #[test]
-    fn tests() {
-        assert!(true);
-    }
 }

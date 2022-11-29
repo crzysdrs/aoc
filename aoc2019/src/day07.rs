@@ -42,7 +42,7 @@ pub fn series_machine(codes: &[isize], feedback: bool) -> isize {
 pub fn p1() -> IoResult<()> {
     let codes = std::fs::read_to_string("input/day7.txt")?
         .trim()
-        .split(",")
+        .split(',')
         .map(|x| x.parse::<isize>().expect("Valid usize"))
         .collect::<Vec<_>>();
     let r = series_machine(&codes, false);
@@ -53,7 +53,7 @@ pub fn p1() -> IoResult<()> {
 pub fn p2() -> IoResult<()> {
     let codes = std::fs::read_to_string("input/day7.txt")?
         .trim()
-        .split(",")
+        .split(',')
         .map(|x| x.parse::<isize>().expect("Valid usize"))
         .collect::<Vec<_>>();
     let r = series_machine(&codes, true);

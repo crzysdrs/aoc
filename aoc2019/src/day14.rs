@@ -8,7 +8,7 @@ struct Reaction {
 }
 
 fn how_much_ore(
-    reactions: &Vec<Reaction>,
+    reactions: &[Reaction],
     extra: &mut HashMap<String, u64>,
     request: (u64, String),
 ) -> u64 {
@@ -153,13 +153,4 @@ pub fn p2() -> IoResult<()> {
 
     println!("Part 2 {}", lo);
     Ok(())
-}
-
-#[cfg(test)]
-mod test {
-    use super::*;
-    #[test]
-    fn tests() {
-        assert!(true);
-    }
 }

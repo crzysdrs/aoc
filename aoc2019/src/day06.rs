@@ -3,11 +3,11 @@ use std::io::Result as IoResult;
 use std::collections::{HashMap, HashSet};
 
 fn orbits(input_conns: &[(String, String)]) -> usize {
-    let mut conns = HashMap::new();
+    let mut conns: HashMap<String, HashSet<String>> = HashMap::new();
     input_conns.iter().for_each(|(a, b)| {
         conns
             .entry(a.to_string())
-            .or_insert(HashSet::new())
+            .or_default()
             .insert(b.to_string());
     });
 
@@ -16,7 +16,7 @@ fn orbits(input_conns: &[(String, String)]) -> usize {
         .flat_map(|(k, v)| std::iter::once(k).chain(v.iter()))
         .collect::<HashSet<_>>();
 
-    let values = conns.values().flat_map(|v| v).collect::<HashSet<_>>();
+    let values = conns.values().flatten().collect::<HashSet<_>>();
     let roots = nodes.difference(&values);
 
     let mut worklist = roots.map(|r| (r.to_string(), 0)).collect::<Vec<_>>();
@@ -40,12 +40,12 @@ pub fn p1() -> IoResult<()> {
 fn shared_path(conns: &[(String, String)]) -> usize {
     let mut up = HashMap::new();
     conns.iter().for_each(|(a, b)| {
-        up.entry(b.clone()).or_insert(a.clone());
+        up.entry(b.clone()).or_insert_with(|| a.clone());
     });
 
-    let mut you = std::iter::successors(up.get(&"YOU".to_string()), |v| up.get(v.clone()))
+    let mut you = std::iter::successors(up.get(&"YOU".to_string()), |v| up.get(&(*v).clone()))
         .collect::<Vec<_>>();
-    let mut san = std::iter::successors(up.get(&"SAN".to_string()), |v| up.get(v.clone()))
+    let mut san = std::iter::successors(up.get(&"SAN".to_string()), |v| up.get(&(*v).clone()))
         .collect::<Vec<_>>();
 
     you.reverse();
@@ -63,7 +63,7 @@ fn text_to_conns(s: String) -> Vec<(String, String)> {
     s.trim()
         .lines()
         .map(|x| {
-            let mut s = x.split(")");
+            let mut s = x.split(')');
             let a = s.next().unwrap().to_string();
             let b = s.next().unwrap().to_string();
             (a, b)

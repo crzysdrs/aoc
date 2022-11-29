@@ -78,7 +78,7 @@ fn parse_room(room: String) -> Option<Room> {
             dirs = true;
         } else if l == "Items here:" {
             items = true;
-        } else if !l.is_empty() && l.chars().next().unwrap() == '-' {
+        } else if l.starts_with('-') {
             if dirs {
                 let d = match &l[2..] {
                     "north" => Direction::North,
@@ -277,13 +277,4 @@ pub fn p1() -> IoResult<()> {
 
 pub fn p2() -> IoResult<()> {
     unimplemented!("Part 2")
-}
-
-#[cfg(test)]
-mod test {
-    use super::*;
-    #[test]
-    fn tests() {
-        assert!(true);
-    }
 }

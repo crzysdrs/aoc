@@ -15,15 +15,15 @@ pub fn p1() -> IoResult<()> {
 
     let m = v
         .iter()
-        .map(|l| l.iter().map(|d| if *d == 0 { 1 } else { 0 }).sum::<u32>())
+        .map(|l| l.iter().map(|d| u32::from(*d == 0)).sum::<u32>())
         .enumerate()
         .min_by_key(|(_, v)| *v)
         .unwrap();
 
     let l = &v[m.0];
     let counts = (
-        l.iter().map(|d| (if *d == 1 { 1 } else { 0 })).sum::<u32>(),
-        l.iter().map(|d| if *d == 2 { 1 } else { 0 }).sum::<u32>(),
+        l.iter().map(|d| u32::from(*d == 1)).sum::<u32>(),
+        l.iter().map(|d| u32::from(*d == 2)).sum::<u32>(),
     );
     println!("Part 1: {}", counts.0 * counts.1);
     Ok(())

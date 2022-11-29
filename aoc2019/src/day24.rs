@@ -83,7 +83,7 @@ pub fn p1() -> IoResult<()> {
             }
         }
         if let Some(old) = gen_tiles.get(&next) {
-            println!("Bio {}", bio_rating(&old));
+            println!("Bio {}", bio_rating(old));
             break 'done;
         }
         gen_tiles.insert(next.clone());
@@ -286,13 +286,4 @@ pub fn p2() -> IoResult<()> {
     println!("{}", current.len());
 
     Ok(())
-}
-
-#[cfg(test)]
-mod test {
-    use super::*;
-    #[test]
-    fn tests() {
-        assert!(true);
-    }
 }

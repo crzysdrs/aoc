@@ -54,8 +54,8 @@ impl Scanner {
             }
         }
 
-        for i in 0..done.len() {
-            done[i].sort_by_key(|p| (p.x, p.y, p.z));
+        for d in &mut done {
+            d.sort_by_key(|p| (p.x, p.y, p.z));
         }
         done
     }
@@ -108,7 +108,8 @@ fn find_map(scanners: &[Scanner]) -> Vec<Scanner> {
                             }
                         };
                         found
-                    }).find(|x| x.is_some())
+                    })
+                    .find(|x| x.is_some())
                     .flatten()
             })
             .find_first(|x| x.is_some())
@@ -203,7 +204,6 @@ mod test {
     use super::*;
     #[test]
     fn test() {
-        
         let mut input = std::io::Cursor::new(std::fs::read("test/day19.txt").unwrap());
         let input = Solution::process_input(std::io::BufReader::new(&mut input)).unwrap();
         assert_eq!(Solution::p1(&input), 79);

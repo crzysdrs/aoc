@@ -55,7 +55,7 @@ impl Day for Solution {
 
         let max_y = y_vels.iter().copied().max();
         for vel_x in x_vels.iter().copied() {
-            for vel_y in max_y {
+            if let Some(vel_y) = max_y {
                 let init_v = (vel_x, vel_y);
                 let mut v = init_v;
                 let mut pos = (0, 0);
@@ -63,11 +63,15 @@ impl Day for Solution {
                     .map(|_s| {
                         pos.0 += v.0;
                         pos.1 += v.1;
-
-                        if v.0 > 0 {
-                            v.0 -= 1;
-                        } else if v.0 < 0 {
-                            v.0 += 1;
+                        use std::cmp::Ordering;
+                        match v.0.cmp(&0) {
+                            Ordering::Greater => {
+                                v.0 -= 1;
+                            }
+                            Ordering::Less => {
+                                v.0 += 1;
+                            }
+                            Ordering::Equal => {}
                         }
                         v.1 -= 1;
 
@@ -127,10 +131,15 @@ impl Day for Solution {
                         pos.0 += v.0;
                         pos.1 += v.1;
 
-                        if v.0 > 0 {
-                            v.0 -= 1;
-                        } else if v.0 < 0 {
-                            v.0 += 1;
+                        use std::cmp::Ordering;
+                        match v.0.cmp(&0) {
+                            Ordering::Greater => {
+                                v.0 -= 1;
+                            }
+                            Ordering::Less => {
+                                v.0 += 1;
+                            }
+                            Ordering::Equal => {}
                         }
                         v.1 -= 1;
 

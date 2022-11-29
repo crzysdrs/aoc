@@ -143,11 +143,11 @@ pub fn p2() -> IoResult<()> {
     let mut repeat: Vec<Option<(usize, usize)>> = vec![None; 3];
 
     for time in 0.. {
-        if repeat.iter().flat_map(|x| x).count() == 3 {
+        if repeat.iter().flatten().count() == 3 {
             break;
         }
         moon_state.iter_mut().enumerate().for_each(|(i, state)| {
-            if let None = repeat[i] {
+            if repeat[i].is_none() {
                 let search = moons
                     .iter()
                     .map(|m| match i {
@@ -169,18 +169,7 @@ pub fn p2() -> IoResult<()> {
 
     println!(
         "Part 2: {}",
-        repeat
-            .iter()
-            .map(|x| x.unwrap().0)
-            .fold(1, |a, b| lcm(a, b))
+        repeat.iter().map(|x| x.unwrap().0).fold(1, lcm)
     );
     Ok(())
-}
-
-#[cfg(test)]
-mod test {
-    #[test]
-    fn tests() {
-        assert!(true);
-    }
 }

@@ -60,27 +60,9 @@ impl Packet {
             2 => self.data.subs().iter().map(|s| s.value()).min().unwrap(),
             3 => self.data.subs().iter().map(|s| s.value()).max().unwrap(),
             4 => self.data.lit(),
-            5 => {
-                if self.data.subs()[0].value() > self.data.subs()[1].value() {
-                    1
-                } else {
-                    0
-                }
-            }
-            6 => {
-                if self.data.subs()[0].value() < self.data.subs()[1].value() {
-                    1
-                } else {
-                    0
-                }
-            }
-            7 => {
-                if self.data.subs()[0].value() == self.data.subs()[1].value() {
-                    1
-                } else {
-                    0
-                }
-            }
+            5 => usize::from(self.data.subs()[0].value() > self.data.subs()[1].value()),
+            6 => usize::from(self.data.subs()[0].value() < self.data.subs()[1].value()),
+            7 => usize::from(self.data.subs()[0].value() == self.data.subs()[1].value()),
             _ => panic!("Unknown typ"),
         }
     }

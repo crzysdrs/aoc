@@ -73,26 +73,20 @@ impl std::fmt::Display for Space {
 impl Space {
     fn walkable(&self) -> bool {
         // This is a path (even if it may currently be blocked)
-        match self {
-            Space::Wall => false,
-            _ => true,
-        }
+        !matches!(self, Space::Wall)
     }
 
     fn stand(&self) -> bool {
         // An amp can stand here
-        match self {
-            Space::Room(_) | Space::Floor(_) => true,
-            _ => false,
-        }
+        matches!(self, Space::Room(_) | Space::Floor(_))
     }
 
     fn blocked(&self) -> bool {
         // Indicates that pathfinding algorithm cannot pass through this square
-        match self {
-            Space::Room(Some(_)) | Space::Floor(Some(_)) | Space::Wall => true,
-            _ => false,
-        }
+        matches!(
+            self,
+            Space::Room(Some(_)) | Space::Floor(Some(_)) | Space::Wall
+        )
     }
 }
 
@@ -141,9 +135,10 @@ impl std::fmt::Display for Burrow {
 impl Burrow {
     fn all_good(&self) -> bool {
         self.rooms.iter().all(|(amp, rooms)| {
-            rooms.iter().all(|r| match self.burrow.get(r).unwrap() {
-                Space::Room(Some(room_amp)) if room_amp == amp => true,
-                _ => false,
+            rooms.iter().all(|r| {
+                matches!(self.burrow.get(r).unwrap(),
+                    Space::Room(Some(room_amp)) if room_amp == amp
+                )
             })
         })
     }
@@ -165,21 +160,16 @@ impl Burrow {
     }
     fn can_move(&self, amp: Amp, from: Point2<i32>, to: Point2<i32>) -> bool {
         let from_space = self.burrow.get(&from).unwrap();
-        let is_room = match from_space {
-            Space::Room(_) => true,
-            _ => false,
-        };
+        let is_room = matches!(from_space, Space::Room(_));
 
         if is_room {
             let your_rooms = self.rooms.get(&amp).unwrap();
             if *your_rooms.iter().last().unwrap() == from
                 || (your_rooms.contains(&from)
-                    && your_rooms
-                        .iter()
-                        .all(|rp| match self.burrow.get(rp).unwrap() {
-                            Space::Room(Some(a)) if *a == amp => true,
-                            _ => false,
-                        }))
+                    && your_rooms.iter().all(|rp| {
+                        matches!(self.burrow.get(rp).unwrap(),
+                            Space::Room(Some(a)) if *a == amp)
+                    }))
             {
                 return false;
             }
@@ -199,11 +189,10 @@ impl Burrow {
                         && rooms
                             .iter()
                             .rev()
-                            .filter(|rp| match self.burrow.get(rp).unwrap() {
+                            .find(|rp| match self.burrow.get(rp).unwrap() {
                                 Space::Room(a) => a.is_none(),
                                 _ => panic!(),
                             })
-                            .next()
                             .map(|rp| *rp == to)
                             .unwrap_or(false)
                 }
@@ -401,8 +390,7 @@ fn run(v: Burrow) -> usize {
                     graph,
                     dist,
                     energy
-                        + amp.energy()
-                            * dist.get(&amp_pos).unwrap().get(&node_indices[p]).unwrap(),
+                        + amp.energy() * dist.get(&amp_pos).unwrap().get(&node_indices[p]).unwrap(),
                     *best,
                 );
                 match (found, &best) {
@@ -421,16 +409,7 @@ fn run(v: Burrow) -> usize {
             .min()
     }
 
-    dfs(
-        &mut states,
-        v,
-        &node_indices,
-        &ungraph,
-        &dists,
-        0,
-        None,
-    )
-    .unwrap()
+    dfs(&mut states, v, &node_indices, &ungraph, &dists, 0, None).unwrap()
 }
 
 pub struct Solution {}

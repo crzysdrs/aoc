@@ -19,7 +19,7 @@ enum Tile {
 pub fn p1() -> IoResult<()> {
     let codes = std::fs::read_to_string("input/day13.txt")?
         .trim()
-        .split(",")
+        .split(',')
         .map(|x| x.parse::<isize>().expect("Valid usize"))
         .collect::<Vec<_>>();
     let mut m = IntCodeMachine::new(codes, vec![]);
@@ -51,7 +51,7 @@ enum JoyStick {
 pub fn p2() -> IoResult<()> {
     let mut codes = std::fs::read_to_string("input/day13.txt")?
         .trim()
-        .split(",")
+        .split(',')
         .map(|x| x.parse::<isize>().expect("Valid usize"))
         .collect::<Vec<_>>();
     codes[0] = 2;
@@ -125,12 +125,5 @@ fn draw(grid: &HashMap<Point2<isize>, Tile>) {
             )
         }
         println!();
-    }
-}
-#[cfg(test)]
-mod test {
-    #[test]
-    fn tests() {
-        assert!(true);
     }
 }

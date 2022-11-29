@@ -121,8 +121,10 @@ fn compute_phase(input: String, repeat: usize, count: usize, offset: usize) -> S
                     .map(|(i, c)| {
                         let key = (i * repeat % pattern_length, pattern_length);
                         let got = seen.get(&key);
+
+                        #[allow(clippy::unnecessary_unwrap)]
                         if i == 0 || got.is_none() {
-                            let v = c.map(|(x, b)| x * **b).sum::<i32>().abs() as u32 % 10;
+                            let v = c.map(|(x, b)| x * **b).sum::<i32>().unsigned_abs() % 10;
                             if i != 0 {
                                 seen.insert(key, v);
                             }
@@ -200,13 +202,4 @@ pub fn p2() -> IoResult<()> {
             .collect::<String>(),
     );
     Ok(())
-}
-
-#[cfg(test)]
-mod test {
-    use super::*;
-    #[test]
-    fn tests() {
-        assert!(true);
-    }
 }

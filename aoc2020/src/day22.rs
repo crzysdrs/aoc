@@ -22,9 +22,9 @@ fn recursive_combat(game: u32, mut input: Input) -> (Input, Ordering) {
 
         if input.player1.is_empty() {
             break (input, Ordering::Less);
-        } else if input.player2.is_empty() {
-            break (input, Ordering::Greater);
-        } else if state.contains(&(input.player1.clone(), input.player2.clone())) {
+        } else if input.player2.is_empty()
+            || state.contains(&(input.player1.clone(), input.player2.clone()))
+        {
             break (input, Ordering::Greater);
         }
 
@@ -37,7 +37,7 @@ fn recursive_combat(game: u32, mut input: Input) -> (Input, Ordering) {
 
         let order = if input.player1.len() >= p1 && input.player2.len() >= p2 {
             //println!("Playing a sub-game to determine the winnner... ");
-            
+
             //println!("...anyway, back to game {}.", game);
             recursive_combat(
                 game + 1,

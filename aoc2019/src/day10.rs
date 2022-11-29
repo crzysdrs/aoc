@@ -137,7 +137,7 @@ fn visible_asteroids(
                             Ok(())
                         }
                         grid[*target] = Some(Seen::Asteroid);
-                        let _ = update_grid(&mut grid, &start, &target);
+                        let _ = update_grid(&mut grid, start, target);
                     }
                 }
             }
@@ -148,7 +148,7 @@ fn visible_asteroids(
     //          .flat_map(|x| if *x == Seen::Asteroid { Some(0) } else {None})
     //          .count());
     (
-        start.clone(),
+        *start,
         grid.iter()
             .flatten()
             .enumerate()
@@ -199,7 +199,7 @@ fn destroy_asteroids(start: Point, s: &str) -> Vec<Point> {
             .collect::<Vec<_>>();
         targets.reverse();
         //println!("Targets len {}", targets.len());
-        if targets.len() == 0 {
+        if targets.is_empty() {
             break;
         }
         targets.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
@@ -300,7 +300,7 @@ mod test {
     #[test]
     fn tests() {
         assert_eq!(
-            find_best_asteroid(&concat!(
+            find_best_asteroid(concat!(
                 ".#..#\n", ".....\n", "#####\n", "....#\n", "...##\n"
             )),
             (Point { x: 3, y: 4 }, 8)
@@ -308,7 +308,7 @@ mod test {
 
         assert_eq!(
             find_best_asteroid(
-                &"......#.#.
+                "......#.#.
 #..#.#....
 ..#######.
 .#.#.###..
@@ -324,7 +324,7 @@ mod test {
 
         assert_eq!(
             find_best_asteroid(
-                &"#.#...#.#.
+                "#.#...#.#.
 .###....#.
 .#....#...
 ##.#.#.#.#
@@ -340,7 +340,7 @@ mod test {
 
         assert_eq!(
             find_best_asteroid(
-                &".#..#..###
+                ".#..#..###
 ####.###.#
 ....###.#.
 ..###.##.#
@@ -374,7 +374,7 @@ mod test {
 .#.#.###########.###
 #.#.#.#####.####.###
 ###.##.####.##.#..##";
-        assert_eq!(find_best_asteroid(&input,), (Point { x: 11, y: 13 }, 210));
+        assert_eq!(find_best_asteroid(input,), (Point { x: 11, y: 13 }, 210));
 
         //         let input =
         // ".#....#####...#..
@@ -383,8 +383,8 @@ mod test {
         // ..#.....#...###..
         // ..#.#.....#....##";
 
-        let (pt, _count) = find_best_asteroid(&input);
-        let order = destroy_asteroids(pt, &input);
+        let (pt, _count) = find_best_asteroid(input);
+        let order = destroy_asteroids(pt, input);
 
         let order = order.iter().map(|pt| (pt.x, pt.y)).collect::<Vec<_>>();
         assert_eq!(order[0], (11, 12));

@@ -87,7 +87,7 @@ pub fn p2() -> IoResult<()> {
 fn wires(s: &str) -> Vec<Vec<Wire>> {
     s.lines()
         .map(|l| {
-            l.split(",")
+            l.split(',')
                 .map(|x| Wire::try_from(x).unwrap())
                 .collect::<Vec<_>>()
         })
@@ -115,11 +115,11 @@ fn draw_wire(w: &[Wire], space: Space, hm: &mut HashMap<Point, HashMap<Space, u3
             while iter_pt != target {
                 c += 1;
                 iter_pt = iter_pt.add(&dir_pt);
-                let e = hm.entry(iter_pt).or_insert(HashMap::new());
-                e.entry(space.clone()).or_insert(c);
+                let e = hm.entry(iter_pt).or_insert_with(HashMap::new);
+                e.entry(space).or_insert(c);
             }
             *pt = (target, c);
-            Some(pt.clone())
+            Some(*pt)
         })
         .for_each(drop);
 }

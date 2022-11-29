@@ -170,12 +170,3 @@ pub fn p2() -> IoResult<()> {
 
     Ok(())
 }
-
-#[cfg(test)]
-mod test {
-    use super::*;
-    #[test]
-    fn tests() {
-        assert!(true);
-    }
-}

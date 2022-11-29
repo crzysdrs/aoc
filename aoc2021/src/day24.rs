@@ -86,7 +86,7 @@ impl Instr {
             Instr::Add(l, r) => *alu.reg_mut(l) = alu.reg(l) + r.val(alu),
             Instr::Div(l, r) => *alu.reg_mut(l) = alu.reg(l) / r.val(alu),
             Instr::Mod(l, r) => *alu.reg_mut(l) = alu.reg(l) % r.val(alu),
-            Instr::Eq(l, r) => *alu.reg_mut(l) = if *alu.reg(l) == r.val(alu) { 1 } else { 0 },
+            Instr::Eq(l, r) => *alu.reg_mut(l) = i32::from(*alu.reg(l) == r.val(alu)),
             Instr::Inp(d) => {
                 *alu.reg_mut(d) = if let Some(i) = input.next() {
                     i
@@ -148,23 +148,12 @@ impl FromStr for Instr {
     }
 }
 
-#[derive(Hash, PartialEq, Eq, Clone)]
+#[derive(Hash, PartialEq, Eq, Clone, Default)]
 struct Alu {
     x: i32,
     y: i32,
     z: i32,
     w: i32,
-}
-
-impl Default for Alu {
-    fn default() -> Alu {
-        Alu {
-            x: 0,
-            y: 0,
-            z: 0,
-            w: 0,
-        }
-    }
 }
 
 impl Alu {

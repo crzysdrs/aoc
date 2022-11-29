@@ -52,12 +52,12 @@ impl Dir {
         let dirs = &[Dir::North, Dir::West, Dir::South, Dir::East];
         let cur = dirs.iter().position(|x| *x == *self).unwrap();
         let next = if left { cur + 1 } else { dirs.len() + cur - 1 } % dirs.len();
-        dirs[next].clone()
+        dirs[next]
     }
 }
 
 fn point_dir(p: &Point2<i32>, d: &Dir) -> Point2<i32> {
-    let mut p = p.clone();
+    let mut p = *p;
     match d {
         Dir::North => {
             p.y += 1;
@@ -94,7 +94,7 @@ fn draw(grid: &HashMap<Point2<i32>, char>) {
 pub fn p1() -> IoResult<()> {
     let codes = std::fs::read_to_string("input/day17.txt")?
         .trim()
-        .split(",")
+        .split(',')
         .map(|x| x.parse::<isize>().expect("Valid usize"))
         .collect::<Vec<_>>();
 
@@ -107,7 +107,7 @@ pub fn p1() -> IoResult<()> {
         .iter()
         .map(|x| char::from(*x as u8))
         .collect::<String>()
-        .split("\n")
+        .split('\n')
         .enumerate()
         .flat_map(move |(y, l)| {
             l.chars()
@@ -137,7 +137,7 @@ pub fn p1() -> IoResult<()> {
     Ok(())
 }
 
-fn repeated_substring<'a, T>(s: &'a [T]) -> Option<&'a [T]>
+fn repeated_substring<T>(s: &[T]) -> Option<&[T]>
 where
     T: PartialEq,
 {
@@ -168,7 +168,7 @@ where
 pub fn p2() -> IoResult<()> {
     let mut codes = std::fs::read_to_string("input/day17.txt")?
         .trim()
-        .split(",")
+        .split(',')
         .map(|x| x.parse::<isize>().expect("Valid usize"))
         .collect::<Vec<_>>();
 
@@ -181,7 +181,7 @@ pub fn p2() -> IoResult<()> {
         .iter()
         .map(|x| char::from(*x as u8))
         .collect::<String>()
-        .split("\n")
+        .split('\n')
         .enumerate()
         .flat_map(move |(y, l)| {
             l.chars()
@@ -215,7 +215,7 @@ pub fn p2() -> IoResult<()> {
     let movements = (0..)
         .map(|_| {
             let next = point_dir(&current, &dir);
-            if let Some(_) = scaffolds.get(&current) {
+            if scaffolds.get(&current).is_some() {
                 current = next;
                 Movement::Forward(1)
             } else if let Some('#') = grid.get(&next) {
@@ -240,7 +240,7 @@ pub fn p2() -> IoResult<()> {
 
     println!("{:?}", movements);
 
-    let substring = repeated_substring(&movements).unwrap().clone();
+    let substring = repeated_substring(&movements).unwrap();
     let mut i = 0;
     println!("Unmodified Main:");
     for i in &movements {
@@ -312,13 +312,4 @@ pub fn p2() -> IoResult<()> {
         }
     }
     Ok(())
-}
-
-#[cfg(test)]
-mod test {
-    use super::*;
-    #[test]
-    fn tests() {
-        assert!(true);
-    }
 }

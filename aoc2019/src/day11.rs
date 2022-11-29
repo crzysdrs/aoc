@@ -51,7 +51,7 @@ pub fn p1() -> IoResult<()> {
     let mut panel = std::collections::HashMap::new();
     let codes = std::fs::read_to_string("input/day11.txt")?
         .trim()
-        .split(",")
+        .split(',')
         .map(|x| x.parse::<isize>().expect("Valid usize"))
         .collect::<Vec<_>>();
     let mut m = IntCodeMachine::new(codes, vec![]);
@@ -80,7 +80,7 @@ pub fn p2() -> IoResult<()> {
     let mut panel = std::collections::HashMap::new();
     let codes = std::fs::read_to_string("input/day11.txt")?
         .trim()
-        .split(",")
+        .split(',')
         .map(|x| x.parse::<isize>().expect("Valid usize"))
         .collect::<Vec<_>>();
     let mut m = IntCodeMachine::new(codes, vec![]);
@@ -123,12 +123,4 @@ pub fn p2() -> IoResult<()> {
         println!();
     }
     Ok(())
-}
-
-#[cfg(test)]
-mod test {
-    #[test]
-    fn tests() {
-        assert!(true);
-    }
 }

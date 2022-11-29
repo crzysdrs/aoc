@@ -27,7 +27,7 @@ impl Dir {
 }
 
 fn point_dir(p: &Point2<i32>, d: &Dir) -> Point2<i32> {
-    let mut p = p.clone();
+    let mut p = *p;
     match d {
         Dir::North => {
             p.y += 1;
@@ -113,10 +113,10 @@ fn dijkstra(start: &Point2<i32>, grid: &HashMap<Point2<i32>, Tile>) -> HashMap<P
         let _v = q.remove(min.0);
         let dirs = [Dir::North, Dir::South, Dir::East, Dir::West];
         for d in dirs.iter() {
-            if let Some(_) = grid.get(&point_dir(&min.1, &d)) {
+            if grid.get(&point_dir(&min.1, d)).is_some() {
                 let next = dist
-                    .entry(point_dir(&min.1, &d))
-                    .or_insert(min_dist.saturating_add(1));
+                    .entry(point_dir(&min.1, d))
+                    .or_insert_with(|| min_dist.saturating_add(1));
                 *next = std::cmp::min(*next, min_dist.saturating_add(1));
             }
         }
@@ -169,7 +169,7 @@ where
         if moved {
             let dirs = [Dir::North, Dir::South, Dir::East, Dir::West];
             for d in dirs.iter() {
-                let new_pt = point_dir(&pos, &d);
+                let new_pt = point_dir(&pos, d);
                 if grid.get(&new_pt).is_none() {
                     worklist.push_back((depth + 1, m.clone(), pos, new_pt));
                 }
@@ -181,17 +181,16 @@ where
 pub fn p1() -> IoResult<()> {
     let codes = std::fs::read_to_string("input/day15.txt")?
         .trim()
-        .split(",")
+        .split(',')
         .map(|x| x.parse::<isize>().expect("Valid usize"))
         .collect::<Vec<_>>();
     let m = IntCodeMachine::new(codes, vec![]);
 
     let mut min_d = std::u32::MAX;
-    let grid = bfs(m, Point2::new(0, 0), |d, _l, _m, s| match s {
-        Status::AtOxygen => {
+    let grid = bfs(m, Point2::new(0, 0), |d, _l, _m, s| {
+        if let Status::AtOxygen = s {
             min_d = std::cmp::min(d, min_d);
         }
-        _ => {}
     });
 
     draw(&grid);
@@ -208,18 +207,17 @@ pub fn p1() -> IoResult<()> {
 pub fn p2() -> IoResult<()> {
     let codes = std::fs::read_to_string("input/day15.txt")?
         .trim()
-        .split(",")
+        .split(',')
         .map(|x| x.parse::<isize>().expect("Valid usize"))
         .collect::<Vec<_>>();
     let m = IntCodeMachine::new(codes, vec![]);
 
     let mut fill_ox = None;
     let mut max_d = 0;
-    let _grid = bfs(m, Point2::new(0, 0), |_d, l, m, s| match s {
-        Status::AtOxygen => {
-            fill_ox = Some((l.clone(), m.clone()));
+    let _grid = bfs(m, Point2::new(0, 0), |_d, l, m, s| {
+        if let Status::AtOxygen = s {
+            fill_ox = Some((*l, m.clone()));
         }
-        _ => {}
     });
 
     let (l, m) = fill_ox.unwrap();
@@ -233,13 +231,4 @@ pub fn p2() -> IoResult<()> {
         max_d
     );
     Ok(())
-}
-
-#[cfg(test)]
-mod test {
-    use super::*;
-    #[test]
-    fn tests() {
-        assert!(true);
-    }
 }

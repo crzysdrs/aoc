@@ -31,9 +31,7 @@ pub fn p1() -> IoResult<()> {
     let v = 372304..=847060;
     println!(
         "Day 4 Part 1 {}",
-        v.map(|v| validate(v, false))
-            .map(|b| if b { 1 } else { 0 })
-            .sum::<u32>()
+        v.map(|v| validate(v, false)).map(u32::from).sum::<u32>()
     );
     Ok(())
 }
@@ -42,9 +40,7 @@ pub fn p2() -> IoResult<()> {
     let v = 372304..=847060;
     println!(
         "Day 4 Part 2 {}",
-        v.map(|v| validate(v, true))
-            .map(|b| if b { 1 } else { 0 })
-            .sum::<u32>()
+        v.map(|v| validate(v, true)).map(u32::from).sum::<u32>()
     );
     Ok(())
 }

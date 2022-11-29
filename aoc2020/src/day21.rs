@@ -20,7 +20,7 @@ fn find_allergens(v: &[Food]) -> Vec<(String, String)> {
                 .and_modify(|v| {
                     *v = v.intersection(&ingred).cloned().collect();
                 })
-                .or_insert(ingred.clone());
+                .or_insert_with(|| ingred.clone());
         });
     });
 

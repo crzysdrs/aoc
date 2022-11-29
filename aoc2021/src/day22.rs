@@ -188,10 +188,7 @@ impl Day for Solution {
             } else {
                 let mut cast = vec![c];
                 while let Some(c) = cast.pop() {
-                    let found = map
-                        .iter()
-                        .find_map(|x| if c.intersect(x) { Some(x) } else { None })
-                        .cloned();
+                    let found = map.iter().find(|x| c.intersect(x)).cloned();
                     if let Some(f) = found {
                         //println!("Found Intersection");
                         map.retain(|c| !(c.x == f.x && c.y == f.y && c.z == f.z));

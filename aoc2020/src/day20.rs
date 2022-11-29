@@ -42,7 +42,7 @@ impl Side {
 }
 
 #[allow(unused)]
-fn print(grid: &Vec<Vec<bool>>) {
+fn print(grid: &[Vec<bool>]) {
     grid.iter().for_each(|r| {
         println!(
             "{}",
@@ -215,7 +215,7 @@ impl Day for Solution {
                     state
                         .entry(bid)
                         .and_modify(|v| v.push(id))
-                        .or_insert(vec![id]);
+                        .or_insert_with(|| vec![id]);
                     state
                 },
             );
@@ -384,8 +384,8 @@ impl Day for Solution {
             let tile_size = row[0].1.tile.len();
             for i in 0..tile_size {
                 let mut new_row = vec![];
-                for j in 0..row.len() {
-                    new_row.extend(row[j].1.tile[i].clone());
+                for r in &row {
+                    new_row.extend(r.1.tile[i].clone());
                 }
                 big_tile.push(new_row);
             }
@@ -437,10 +437,10 @@ impl Day for Solution {
                 println!("Monsters found {:?}", found);
                 if !found.is_empty() {
                     for (start, i) in found {
-                        for j in 0..monster.len() {
+                        for (j, m) in monster.iter().enumerate() {
                             big_tile.tile[start + j][i..]
                                 .iter_mut()
-                                .zip(&monster[j])
+                                .zip(m.iter())
                                 .for_each(|(sea, mon)| {
                                     if *mon {
                                         *sea = false
