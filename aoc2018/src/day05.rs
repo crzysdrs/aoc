@@ -1,12 +1,12 @@
-use std::io::BufRead;
-use std::fs::File;
-
 pub fn p1() -> std::io::Result<()> {
     use regex::Regex;
     let mut f = std::fs::read_to_string("input/day5.txt")?;
     //let mut f = "dabAcCaCBAcCcaDA".to_string();
     let mut v = Vec::new();
-    for (c, c2) in (b'a'..=b'z').zip(b'A'..=b'Z').map(|(x,y)| (char::from(x), char::from(y))) {
+    for (c, c2) in (b'a'..=b'z')
+        .zip(b'A'..=b'Z')
+        .map(|(x, y)| (char::from(x), char::from(y)))
+    {
         v.push(format!("{}{}", c, c2));
         v.push(format!("{}{}", c2, c));
     }
@@ -25,11 +25,14 @@ pub fn p1() -> std::io::Result<()> {
 }
 
 pub fn p2() -> std::io::Result<()> {
-use regex::Regex;
+    use regex::Regex;
     let f = std::fs::read_to_string("input/day5.txt")?;
     //let mut f = "dabAcCaCBAcCcaDA".to_string();
     let mut v = Vec::new();
-    for (c, c2) in (b'a'..=b'z').zip(b'A'..=b'Z').map(|(x,y)| (char::from(x), char::from(y))) {
+    for (c, c2) in (b'a'..=b'z')
+        .zip(b'A'..=b'Z')
+        .map(|(x, y)| (char::from(x), char::from(y)))
+    {
         v.push(format!("{}{}", c, c2));
         v.push(format!("{}{}", c2, c));
     }
@@ -37,9 +40,10 @@ use regex::Regex;
     println!("{}", s);
     let re = Regex::new(&s).unwrap();
 
-    let m = (b'a'..=b'z').zip(b'A'..=b'Z').map(|(x,y)| (char::from(x), char::from(y)))
-        .map(
-        |(c, c2)| {
+    let m = (b'a'..=b'z')
+        .zip(b'A'..=b'Z')
+        .map(|(x, y)| (char::from(x), char::from(y)))
+        .map(|(c, c2)| {
             let mut f = f.clone();
             let s_re = format!("{}|{}", c, c2);
             let strip = Regex::new(&s_re).unwrap();
@@ -50,8 +54,9 @@ use regex::Regex;
                 f = re.replace_all(&f, "").to_string();
             }
             f.len()
-        }
-    ).min().unwrap();
+        })
+        .min()
+        .unwrap();
 
     println!("{:?}", m - 1); //Stupid newline char
     Ok(())
