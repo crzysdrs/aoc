@@ -1,12 +1,5 @@
 use std::fs::File;
 use std::io::BufRead;
-fn bool2int(b: bool) -> u32 {
-    if b {
-        1
-    } else {
-        0
-    }
-}
 
 pub fn p1() -> std::io::Result<()> {
     let f = std::io::BufReader::new(File::open("input/day2.txt")?);
@@ -20,7 +13,7 @@ pub fn p1() -> std::io::Result<()> {
             });
             v
         })
-        .map(|v| (bool2int(v.contains(&2)), bool2int(v.contains(&3))))
+        .map(|v| (u32::from(v.contains(&2)), u32::from(v.contains(&3))))
         .fold((0, 0), |acc, x| (acc.0 + x.0, acc.1 + x.1));
     println!("{}", r.0 * r.1);
     Ok(())
@@ -37,7 +30,7 @@ pub fn p2() -> std::io::Result<()> {
             if hm.contains_key(&new_s) {
                 return Err(new_s);
             }
-            hm.entry(new_s).or_insert(s.clone());
+            hm.entry(new_s).or_insert_with(|| s.clone());
         }
         Ok(())
     });
