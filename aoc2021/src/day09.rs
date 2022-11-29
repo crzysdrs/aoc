@@ -3,7 +3,7 @@ use crate::Day;
 use std::collections::*;
 use std::io::Result as IoResult;
 
-fn get_val(arr: &Vec<Vec<usize>>, x: i32, y: i32) -> Option<&usize> {
+fn get_val(arr: &[Vec<usize>], x: i32, y: i32) -> Option<&usize> {
     if x < 0 || y < 0 {
         None
     } else {

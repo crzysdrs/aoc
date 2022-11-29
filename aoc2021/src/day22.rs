@@ -168,8 +168,8 @@ impl Day for Solution {
         // map.values().filter(|x| **x).count()
 
         let v = v
-            .to_vec()
-            .into_iter()
+            .iter()
+            .cloned()
             .filter(|c| {
                 [c.x.clone(), c.y.clone(), c.z.clone()]
                     .into_iter()

@@ -263,11 +263,11 @@ impl Day for Solution {
             .collect::<Vec<_>>();
 
         // Useless instructions
-        instr.retain(|i| match i {
-            Instr::Div(_, Op::Imm(1)) | Instr::Mul(_, Op::Imm(1)) | Instr::Add(_, Op::Imm(0)) => {
-                false
-            }
-            _ => true,
+        instr.retain(|i| {
+            !matches!(
+                i,
+                Instr::Div(_, Op::Imm(1)) | Instr::Mul(_, Op::Imm(1)) | Instr::Add(_, Op::Imm(0))
+            )
         });
 
         // Hoist instructions
@@ -325,7 +325,7 @@ mod test {
             for y in 1..100 {
                 let mut alu = Alu::default();
                 assert_eq!(alu.run(&input, [x, y].into_iter()), Ok(()));
-                assert_eq!(alu.z, if 3 * x == y { 1 } else { 0 });
+                assert_eq!(alu.z, i32::from(3 * x == y));
             }
         }
 

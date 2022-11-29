@@ -3,7 +3,7 @@ use crate::Day;
 use std::collections::*;
 use std::io::Result as IoResult;
 
-fn get_val(arr: &Vec<Vec<u32>>, x: i32, y: i32) -> Option<&u32> {
+fn get_val(arr: &[Vec<u32>], x: i32, y: i32) -> Option<&u32> {
     if x < 0 || y < 0 {
         None
     } else {
@@ -22,7 +22,7 @@ fn print(arr: &Vec<Vec<u32>>) {
     }
 }
 
-fn octo_step(_n: usize, width: usize, v: &mut Vec<Vec<u32>>) -> usize {
+fn octo_step(_n: usize, width: usize, v: &mut [Vec<u32>]) -> usize {
     //println!("Step {}", n);
     //print(&v);
     v.iter_mut()

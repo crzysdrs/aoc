@@ -101,8 +101,12 @@ impl Day for Solution {
         let nodes = v.iter().fold(
             HashMap::new(),
             |mut hm: HashMap<&Node, Vec<&Node>>, (n1, n2)| {
-                hm.entry(n1).and_modify(|e| e.push(n2)).or_insert(vec![n2]);
-                hm.entry(n2).and_modify(|e| e.push(n1)).or_insert(vec![n1]);
+                hm.entry(n1)
+                    .and_modify(|e| e.push(n2))
+                    .or_insert_with(|| vec![n2]);
+                hm.entry(n2)
+                    .and_modify(|e| e.push(n1))
+                    .or_insert_with(|| vec![n1]);
                 hm
             },
         );
@@ -117,8 +121,12 @@ impl Day for Solution {
         let nodes = v.iter().fold(
             HashMap::new(),
             |mut hm: HashMap<&Node, Vec<&Node>>, (n1, n2)| {
-                hm.entry(n1).and_modify(|e| e.push(n2)).or_insert(vec![n2]);
-                hm.entry(n2).and_modify(|e| e.push(n1)).or_insert(vec![n1]);
+                hm.entry(n1)
+                    .and_modify(|e| e.push(n2))
+                    .or_insert_with(|| vec![n2]);
+                hm.entry(n2)
+                    .and_modify(|e| e.push(n1))
+                    .or_insert_with(|| vec![n1]);
                 hm
             },
         );

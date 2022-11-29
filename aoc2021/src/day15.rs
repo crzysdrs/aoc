@@ -27,8 +27,8 @@ impl Day for Solution {
         let mut q: HashSet<(usize, usize)> = HashSet::new();
         let mut dist: HashMap<(usize, usize), usize> = HashMap::new();
         let mut prev: HashMap<(usize, usize), (usize, usize)> = HashMap::new();
-        for y in 0..input.len() {
-            for x in 0..input[y].len() {
+        for (y, input) in input.iter().enumerate() {
+            for x in 0..input.len() {
                 q.insert((x, y));
             }
         }
@@ -125,8 +125,8 @@ impl Day for Solution {
         let mut q: HashSet<(usize, usize)> = HashSet::new();
         let mut dist: HashMap<(usize, usize), usize> = HashMap::new();
         let mut prev: HashMap<(usize, usize), (usize, usize)> = HashMap::new();
-        for y in 0..input.len() {
-            for x in 0..input[y].len() {
+        for (y, input) in input.iter().enumerate() {
+            for x in 0..input.len() {
                 q.insert((x, y));
             }
         }

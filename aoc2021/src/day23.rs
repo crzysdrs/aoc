@@ -213,10 +213,11 @@ impl FromStr for Burrow {
                     .chars()
                     .enumerate()
                     .filter(|(_, c)| *c != ' ')
-                    .map(|(x, c)| (Point2::new(x as i32, y), String::from(c).parse().unwrap()))
-                    .collect::<Vec<_>>();
+                    .map(move |(x, c)| {
+                        (Point2::new(x as i32, y), String::from(c).parse().unwrap())
+                    });
                 y += 1;
-                iter.into_iter()
+                iter
             })
             .collect::<HashMap<_, _>>();
 

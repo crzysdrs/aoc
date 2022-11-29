@@ -16,6 +16,7 @@ fn run(v: &Polymer, steps: usize) -> usize {
             *dst.entry(*k).or_insert(0) += v;
         });
     }
+    #[allow(clippy::type_complexity)]
     fn dp(
         computed: &mut HashMap<((char, char), usize), HashMap<char, usize>>,
         lookup: (char, char),

@@ -39,8 +39,8 @@ impl Day for Solution {
         epsilon * gamma
     }
     fn p2(v: &Self::Input) -> Self::Sol2 {
-        fn filter_common(v: &Vec<String>, bits: usize, most: bool) -> usize {
-            let mut v = v.clone();
+        fn filter_common(v: &[String], bits: usize, most: bool) -> usize {
+            let mut v = v.to_owned();
             for i in 0..bits {
                 let count = v
                     .iter()
