@@ -63,7 +63,7 @@ impl Day for Solution {
         let dots = lines
             .by_ref()
             .map(|l| l.unwrap())
-            .take_while(|l| l != "")
+            .take_while(|l| !l.is_empty())
             .map(|l| {
                 let (a, b) = l.split_once(',').unwrap();
                 (a.parse::<usize>().unwrap(), b.parse::<usize>().unwrap())
@@ -74,7 +74,7 @@ impl Day for Solution {
             .map(|l| l.unwrap())
             .map(|l| {
                 let suffix = l.strip_prefix("fold along ").unwrap();
-                let (axis, value) = suffix.split_once("=").unwrap();
+                let (axis, value) = suffix.split_once('=').unwrap();
                 let value = value.parse::<usize>().unwrap();
                 match axis {
                     "x" => Fold::X(value),
@@ -88,7 +88,7 @@ impl Day for Solution {
     }
     fn p1(manual: &Self::Input) -> Self::Sol1 {
         let paper = manual.folds(0..1);
-        paper.iter().count()
+        paper.len()
     }
     fn p2(manual: &Self::Input) -> Self::Sol2 {
         let paper = manual.folds(0..manual.folds.len());

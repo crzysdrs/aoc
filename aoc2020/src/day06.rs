@@ -15,15 +15,14 @@ impl Day for Solution {
         R: std::io::BufRead,
     {
         Ok(r.lines()
-            .map(|l| Result::<_, std::io::Error>::Ok(l?.chars().collect()))
-            .flatten()
-            .group_by(|h: &HashSet<_>| h.len() > 0)
+            .flat_map(|l| Result::<_, std::io::Error>::Ok(l?.chars().collect()))
+            .group_by(|h: &HashSet<_>| !h.is_empty())
             .into_iter()
             .filter(|(k, _v)| *k)
             .map(|(_k, v)| {
                 v.into_iter().fold((0, HashMap::new()), |mut state, x| {
                     for i in x.iter() {
-                        state.1.entry(*i).and_modify(|x| *x = *x + 1).or_insert(1);
+                        state.1.entry(*i).and_modify(|x| *x += 1).or_insert(1);
                     }
                     state.0 += 1;
                     state

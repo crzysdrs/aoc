@@ -26,10 +26,10 @@ impl Day for Solution {
 
 #[cfg(test)]
 mod test {
-    use super::*;
+    
     #[test]
     fn test() {
-        let input = "";
+        let _input = "";
         //let input = Solution::process_input(std::io::BufReader::new(input.as_bytes())).unwrap();
         //assert_eq!(Solution::p1(&input), 5934);
         //assert_eq!(Solution::p2(&input), 26984457539);

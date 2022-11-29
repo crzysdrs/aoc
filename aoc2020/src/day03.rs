@@ -2,7 +2,7 @@ use crate::Day;
 use cgmath::{Point2, Vector2};
 use std::io::Result as IoResult;
 
-#[derive(Debug, PartialEq, Copy, Clone)]
+#[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub enum Space {
     Open,
     Tree,
@@ -87,7 +87,7 @@ mod test {
             .iter()
             .map(|(x, y)| Vector2::new(*x, *y))
             .collect::<Vec<_>>();
-        let tree_count = slopes.iter().map(|s| trees(&v, &s)).collect::<Vec<_>>();
+        let tree_count = slopes.iter().map(|s| trees(&v, s)).collect::<Vec<_>>();
         assert_eq!(&tree_count, &[2, 7, 3, 4, 2]);
     }
 }

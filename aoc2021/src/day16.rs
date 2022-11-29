@@ -24,7 +24,7 @@ enum PacketData {
 impl PacketData {
     fn subs(&self) -> &[Packet] {
         match self {
-            Self::SubPackets(v) => &v,
+            Self::SubPackets(v) => v,
             _ => panic!(),
         }
     }
@@ -184,7 +184,7 @@ impl Day for Solution {
     where
         R: std::io::BufRead,
     {
-        Ok(r.lines().next().unwrap().unwrap().to_string())
+        Ok(r.lines().next().unwrap().unwrap())
     }
     fn p1(v: &Self::Input) -> Self::Sol1 {
         let bits = get_bits(v);

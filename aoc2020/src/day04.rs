@@ -3,7 +3,7 @@ use std::io::Result as IoResult;
 
 pub struct Solution {}
 
-const FIELDS: [&'static str; 8] = ["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid", "cid"];
+const FIELDS: [&str; 8] = ["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid", "cid"];
 use itertools::Itertools;
 use std::collections::*;
 
@@ -33,7 +33,7 @@ impl Day for Solution {
 
         let v = v
             .into_iter()
-            .group_by(|e| e.len() > 0)
+            .group_by(|e| !e.is_empty())
             .into_iter()
             .map(|(_k, v)| v.into_iter().flatten().collect::<HashMap<_, _>>())
             .collect();
@@ -82,7 +82,7 @@ impl Day for Solution {
                                 }
                             }
                             ("hcl", Some(v)) => {
-                                if let Some(p) = v.strip_prefix("#") {
+                                if let Some(p) = v.strip_prefix('#') {
                                     p.len() == 6
                                         && p.chars()
                                             .map(|x| {

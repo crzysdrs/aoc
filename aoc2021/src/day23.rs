@@ -176,7 +176,7 @@ impl Burrow {
                 || (your_rooms.contains(&from)
                     && your_rooms
                         .iter()
-                        .all(|rp| match self.burrow.get(&rp).unwrap() {
+                        .all(|rp| match self.burrow.get(rp).unwrap() {
                             Space::Room(Some(a)) if *a == amp => true,
                             _ => false,
                         }))
@@ -281,7 +281,7 @@ fn run(v: Burrow) -> usize {
         .collect::<HashMap<_, _>>();
 
     node_indices.iter().for_each(|(p, n1)| {
-        let b = v.burrow.get(&p).unwrap();
+        let b = v.burrow.get(p).unwrap();
         if b.walkable() {
             let dirs = [
                 Vector2::new(1, 0),
@@ -357,7 +357,7 @@ fn run(v: Burrow) -> usize {
                     .filter(|(p, _b)| burrow.can_move(amp, amp_pos, **p))
                     .collect();
                 legal_endpoint.sort_by_key(|(p, _)| {
-                    dist.get(&amp_pos).unwrap().get(&node_indices[&p]).unwrap()
+                    dist.get(&amp_pos).unwrap().get(&node_indices[p]).unwrap()
                 });
 
                 let mut reachable = HashSet::new();
@@ -402,7 +402,7 @@ fn run(v: Burrow) -> usize {
                     dist,
                     energy
                         + amp.energy()
-                            * dist.get(&amp_pos).unwrap().get(&node_indices[&p]).unwrap(),
+                            * dist.get(&amp_pos).unwrap().get(&node_indices[p]).unwrap(),
                     *best,
                 );
                 match (found, &best) {
@@ -423,7 +423,7 @@ fn run(v: Burrow) -> usize {
 
     dfs(
         &mut states,
-        v.clone(),
+        v,
         &node_indices,
         &ungraph,
         &dists,

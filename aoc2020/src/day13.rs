@@ -73,7 +73,7 @@ impl Day for Solution {
             .flat_map(|(i, b)| b.map(|b| (i, b)))
             .collect::<Vec<_>>();
 
-        let mut sort_buses = buses.clone();
+        let mut sort_buses = buses;
         /* arrange busses by modulo, descending */
         sort_buses.sort_by_key(|(_, b)| b.0);
         sort_buses.reverse();
@@ -93,8 +93,7 @@ impl Day for Solution {
                     } else {
                         None
                     }
-                })
-                .nth(0)
+                }).next()
                 .unwrap();
             (x_n, Bus(b0.1 .0 * b1.1 .0))
         });

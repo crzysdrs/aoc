@@ -148,7 +148,7 @@ impl Day for Solution {
 
         let mut tiles = vec![];
         loop {
-            let mut tile = lines.by_ref().flat_map(|x| x).take_while(|x| x != "");
+            let mut tile = lines.by_ref().flatten().take_while(|x| !x.is_empty());
 
             if let Some(name) = tile.next() {
                 let m = tile_name.captures(&name).unwrap();
@@ -264,7 +264,7 @@ impl Day for Solution {
                             .map(|(_, _, id)| match id {
                                 None => true,
                                 Some(SideMatch::Known(id)) => {
-                                    t.border_ids().iter().find(|(_, bid)| id == bid).is_some()
+                                    t.border_ids().iter().any(|(_, bid)| id == bid)
                                 }
                                 Some(SideMatch::Unknown) => true,
                             })
@@ -317,7 +317,7 @@ impl Day for Solution {
                 for (p, s, typ) in &need {
                     let (flip_tile, flip_side) = match typ {
                         Some(SideMatch::Known(id)) => {
-                            let t2 = grid.get(&p).unwrap();
+                            let t2 = grid.get(p).unwrap();
                             let flip_tile = tile.border_id(*s) != *id;
                             let new_side = if flip_tile { s.opposite() } else { *s };
                             (flip_tile, t2.side(s.opposite()) != tile.side(new_side))
@@ -354,7 +354,7 @@ impl Day for Solution {
                 for (p, s, typ) in &need {
                     match typ {
                         Some(SideMatch::Known(id)) => {
-                            let t2 = grid.get(&p).unwrap();
+                            let t2 = grid.get(p).unwrap();
                             assert_eq!(t2.border_id(s.opposite()), *id);
                             assert_eq!(t2.side(s.opposite()), tile.side(*s));
                         }
@@ -398,7 +398,7 @@ impl Day for Solution {
 #    ##    ##    ###
  #  #  #  #  #  #   ";
         let monster = monster
-            .split("\n")
+            .split('\n')
             .map(|l| l.chars().map(|c| c == '#').collect::<Vec<_>>())
             .collect::<Vec<_>>();
 
@@ -435,7 +435,7 @@ impl Day for Solution {
                     .collect::<Vec<_>>();
 
                 println!("Monsters found {:?}", found);
-                if found.len() > 0 {
+                if !found.is_empty() {
                     for (start, i) in found {
                         for j in 0..monster.len() {
                             big_tile.tile[start + j][i..]
@@ -448,7 +448,7 @@ impl Day for Solution {
                                 })
                         }
                     }
-                    return big_tile.tile.iter().flat_map(|v| v).filter(|x| **x).count();
+                    return big_tile.tile.iter().flatten().filter(|x| **x).count();
                 }
                 big_tile.rot_right();
             }

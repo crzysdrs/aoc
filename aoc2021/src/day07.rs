@@ -17,7 +17,7 @@ impl Day for Solution {
         Ok(r.lines()
             .next()
             .unwrap()?
-            .split(",")
+            .split(',')
             .map(|x| x.parse::<i32>().unwrap())
             .collect())
     }

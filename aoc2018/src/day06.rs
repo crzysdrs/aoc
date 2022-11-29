@@ -23,7 +23,7 @@ fn convex_hull(pts: &[Point]) -> Vec<Point> {
         let mut endpoint = pts[0];
         for search in pts[1..].iter() {
             if endpoint == hull
-                || orientation(&hull, &endpoint, &search) == Orient::CounterClockwise
+                || orientation(&hull, &endpoint, search) == Orient::CounterClockwise
             /* include collinear */
             {
                 endpoint = *search;
@@ -40,7 +40,7 @@ fn convex_hull(pts: &[Point]) -> Vec<Point> {
 fn inside_hull(pt: Point, pts: &[Point]) -> bool {
     pts.iter()
         .zip(pts[1..].iter())
-        .all(|(p1, p2)| orientation(&p1, &p2, &pt) == Orient::Clockwise)
+        .all(|(p1, p2)| orientation(p1, p2, &pt) == Orient::Clockwise)
 }
 
 #[allow(unused)]
@@ -48,7 +48,7 @@ fn colinear_points(pts: &[Point]) -> Vec<Point> {
     let mut v = Vec::new();
     for (p1, p2) in pts.iter().zip(pts[1..].iter().chain(pts[0..].iter())) {
         for p in pts {
-            if p != p1 && p != p2 && orientation(&p1, &p2, &p) == Orient::CoLinear {
+            if p != p1 && p != p2 && orientation(p1, p2, p) == Orient::CoLinear {
                 v.push(*p);
             }
         }
@@ -144,11 +144,9 @@ pub fn p1() -> std::io::Result<()> {
                 .or_insert(Some(p.start));
 
             if updated {
-                if !inside_hull(p.next, &hull) {
-                    if !exclude.contains(&p.start) {
-                        println!("Exclude {:?} {:?}", p.start, p.next);
-                        exclude.insert(p.start);
-                    }
+                if !inside_hull(p.next, &hull) && !exclude.contains(&p.start) {
+                    println!("Exclude {:?} {:?}", p.start, p.next);
+                    exclude.insert(p.start);
                 }
 
                 for x in &[-1, 1] {

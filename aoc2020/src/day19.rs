@@ -101,17 +101,17 @@ impl Day for Solution {
         let rules = lines
             .by_ref()
             .map(|x| x.unwrap())
-            .take_while(|x| x != "")
+            .take_while(|x| !x.is_empty())
             .map(|x| {
                 let v = if let Some(cap) = rule_num.captures(&x) {
                     let rule_num = cap.get(1).unwrap().as_str().parse().unwrap();
                     let rest = cap.get(2).unwrap().as_str();
 
-                    if let Some(s) = string.captures(&rest) {
+                    if let Some(s) = string.captures(rest) {
                         Rule::Unary(rule_num, s.get(1).unwrap().as_str().to_string())
                     } else {
                         let rules = rest
-                            .split("|")
+                            .split('|')
                             .map(|r| {
                                 r.trim()
                                     .split(' ')
@@ -138,7 +138,7 @@ impl Day for Solution {
     fn p2(v: &[Self::Input]) -> Self::Sol2 {
         let input = &v[0];
 
-        build_re(&input, true)
+        build_re(input, true)
     }
 }
 

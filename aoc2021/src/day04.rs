@@ -19,7 +19,7 @@ impl Board {
         let any_row = self
             .squares
             .iter()
-            .any(|v| v.iter().all(|v| input.contains(&v)));
+            .any(|v| v.iter().all(|v| input.contains(v)));
         let any_col =
             (0..5).any(|col| (0..5).all(|col_i| input.contains(&self.squares[col_i][col])));
         any_row || any_col
@@ -28,7 +28,7 @@ impl Board {
         self.squares
             .iter()
             .flat_map(|v| v.iter())
-            .filter(|x| !input.contains(&x))
+            .filter(|x| !input.contains(x))
             .sum()
     }
 }
@@ -89,10 +89,10 @@ impl Day for Solution {
         let mut boards = bingo.boards.clone();
         for i in 0..bingo.input.len() {
             let input = &bingo.input[..i];
-            if boards.len() == 1 && boards[0].is_bingo(&input) {
+            if boards.len() == 1 && boards[0].is_bingo(input) {
                 return boards[0].unmarked(input) * input.iter().last().unwrap();
             }
-            boards.retain(|b| !b.is_bingo(&input));
+            boards.retain(|b| !b.is_bingo(input));
         }
         panic!("No last board found")
     }

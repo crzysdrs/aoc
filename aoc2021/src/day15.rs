@@ -15,7 +15,7 @@ impl Day for Solution {
         R: std::io::BufRead,
     {
         Ok(r.lines()
-            .flat_map(|l| l)
+            .flatten()
             .map(|l| {
                 l.chars()
                     .map(|c| c.to_digit(10).unwrap() as usize)
@@ -42,7 +42,7 @@ impl Day for Solution {
                 .filter(|k| dist.get(k).is_some())
                 .min_by_key(|k| *dist.get(k).unwrap())
                 .unwrap();
-            let u = u.clone();
+            let u = *u;
             q.remove(&u);
 
             let offsets = &[
@@ -145,7 +145,7 @@ impl Day for Solution {
                 break;
             };
             let u = u.unwrap();
-            let u = u.clone();
+            let u = *u;
 
             q.remove(&u);
 

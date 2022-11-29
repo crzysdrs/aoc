@@ -29,7 +29,7 @@ impl Day for Solution {
         r.lines()
             .map(|l| {
                 let l = l?;
-                let sides = l.split("|").collect::<Vec<_>>();
+                let sides = l.split('|').collect::<Vec<_>>();
                 let seven_seg = SevenSeg {
                     signals: sides[0]
                         .split_whitespace()
@@ -39,7 +39,7 @@ impl Day for Solution {
                         .unwrap(),
                     output: sides[1]
                         .split_whitespace()
-                        .map(|x| sort_string(x))
+                        .map(sort_string)
                         .collect::<Vec<_>>()
                         .try_into()
                         .unwrap(),
@@ -83,7 +83,7 @@ impl Day for Solution {
                 // We know that the segments for 7 minus 1 are going to uniquely identify 'A'
                 let is_seg_a = found[7].unwrap() - found[1].unwrap();
                 assert_eq!(is_seg_a.len(), 1);
-                let seg_a = is_seg_a.into_iter().nth(0).unwrap();
+                let seg_a = is_seg_a.into_iter().next().unwrap();
 
                 // Compute the frequencies of segments within the input to uniquely identify several segments.
                 let segs_seen = ('a'..='g')
@@ -99,15 +99,15 @@ impl Day for Solution {
                 // we do know and the segments we've determined.
                 let is_seg_b = found[1].unwrap() - &HashSet::from([seg_c]);
                 assert_eq!(is_seg_b.len(), 1);
-                let seg_b = is_seg_b.into_iter().nth(0).unwrap();
+                let seg_b = is_seg_b.into_iter().next().unwrap();
 
                 let is_seg_g = found[4].unwrap() - &HashSet::from([seg_f, seg_b, seg_c]);
                 assert_eq!(is_seg_g.len(), 1);
-                let seg_g = is_seg_g.into_iter().nth(0).unwrap();
+                let seg_g = is_seg_g.into_iter().next().unwrap();
                 let is_seg_d =
                     found[8].unwrap() - &HashSet::from([seg_a, seg_b, seg_c, seg_e, seg_f, seg_g]);
                 assert_eq!(is_seg_d.len(), 1);
-                let seg_d = is_seg_d.into_iter().nth(0).unwrap();
+                let seg_d = is_seg_d.into_iter().next().unwrap();
 
                 // Build the mapping from our segment names to the target segment names
                 let seg_map = HashMap::from([

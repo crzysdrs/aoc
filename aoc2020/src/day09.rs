@@ -37,15 +37,13 @@ impl Solution {
                 let old = v[i - preamble_len];
                 let idx = preamble.binary_search(&old).unwrap();
                 preamble.remove(idx);
-                let new_idx = match preamble.binary_search(&value) {
+                let new_idx = match preamble.binary_search(value) {
                     Ok(n) => n,
                     Err(n) => n,
                 };
                 preamble.insert(new_idx, *value);
                 (i, value, found.is_some())
-            })
-            .filter(|(_, _, f)| *f == false)
-            .nth(0)
+            }).find(|(_, _, f)| !(*f))
             .map(|(_, v, _)| *v)
             .unwrap()
     }
@@ -66,7 +64,7 @@ impl Solution {
                 _ => break,
             }
         }
-        v[range.clone()].iter().min().unwrap() + v[range.clone()].iter().max().unwrap()
+        v[range.clone()].iter().min().unwrap() + v[range].iter().max().unwrap()
     }
 }
 impl Day for Solution {

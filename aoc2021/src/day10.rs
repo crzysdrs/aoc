@@ -34,7 +34,7 @@ where
         }
     }
 
-    if stack.len() > 0 {
+    if !stack.is_empty() {
         stack.reverse();
         Chunk::Incomplete(stack)
     } else {
@@ -53,7 +53,7 @@ impl Day for Solution {
     where
         R: std::io::BufRead,
     {
-        r.lines().map(|l| Ok(l?.to_string())).collect()
+        r.lines().collect()
     }
     fn p1(v: &Self::Input) -> Self::Sol1 {
         v.iter()

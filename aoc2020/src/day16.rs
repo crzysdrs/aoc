@@ -29,7 +29,7 @@ impl Day for Solution {
         let field = regex::Regex::new(r"([^:]+): ([0-9]+)-([0-9]+) or ([0-9]+)-([0-9]+)").unwrap();
         let mut lines = r.lines();
 
-        let fields = lines.by_ref().flatten().take_while(|x| x.len() > 0).fold(
+        let fields = lines.by_ref().flatten().take_while(|x| !x.is_empty()).fold(
             HashMap::new(),
             |mut m, l| {
                 if let Some(cap) = field.captures(&l) {
@@ -54,14 +54,14 @@ impl Day for Solution {
             .flatten()
             .nth(1)
             .unwrap()
-            .split(",")
+            .split(',')
             .map(|x| x.parse::<usize>().unwrap())
             .collect();
 
         let nearby: Vec<Vec<usize>> = lines
             .flatten()
             .skip(2)
-            .map(|l| l.split(",").map(|x| x.parse::<usize>().unwrap()).collect())
+            .map(|l| l.split(',').map(|x| x.parse::<usize>().unwrap()).collect())
             .collect();
 
         let input = Input {
@@ -83,7 +83,7 @@ impl Day for Solution {
                     .ticket
                     .fields
                     .iter()
-                    .any(|(_, ranges)| ranges.iter().any(|val| val.contains(&data)))
+                    .any(|(_, ranges)| ranges.iter().any(|val| val.contains(data)))
                 {
                     Some(data)
                 } else {
@@ -105,7 +105,7 @@ impl Day for Solution {
                         .ticket
                         .fields
                         .iter()
-                        .any(|(_, ranges)| ranges.iter().any(|val| val.contains(&data)))
+                        .any(|(_, ranges)| ranges.iter().any(|val| val.contains(data)))
                 }) {
                     Some(ticket)
                 } else {
@@ -131,7 +131,7 @@ impl Day for Solution {
                         (
                             f,
                             row.iter()
-                                .all(|data| ranges.iter().any(|val| val.contains(&data))),
+                                .all(|data| ranges.iter().any(|val| val.contains(data))),
                         )
                     })
                     .filter(|(_, all)| *all)
@@ -142,12 +142,12 @@ impl Day for Solution {
             .collect::<Vec<_>>();
 
         let mut real_fields = HashMap::new();
-        while guessed.len() > 0 {
+        while !guessed.is_empty() {
             guessed.sort_by_key(|(_, s)| s.len());
             guessed.reverse();
             while let Some((i, fields)) = guessed.pop() {
                 assert_eq!(fields.len(), 1);
-                let field = fields.iter().nth(0).unwrap().to_string();
+                let field = fields.iter().next().unwrap().to_string();
                 guessed.iter_mut().for_each(|g| {
                     g.1.remove(&field);
                 });

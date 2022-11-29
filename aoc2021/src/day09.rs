@@ -5,7 +5,7 @@ use std::io::Result as IoResult;
 
 fn get_val(arr: &Vec<Vec<usize>>, x: i32, y: i32) -> Option<&usize> {
     if x < 0 || y < 0 {
-        return None;
+        None
     } else {
         arr.get(y as usize)
             .and_then(|row: &Vec<usize>| row.get(x as usize))
@@ -18,12 +18,12 @@ fn lows(v: &Vec<Vec<usize>>) -> Vec<(usize, usize)> {
         let row = &v[y as usize];
         for x in 0..row.len() as i32 {
             let search = [
-                get_val(&v, x - 1, y),
-                get_val(&v, x, y + 1),
-                get_val(&v, x, y - 1),
-                get_val(&v, x + 1, y),
+                get_val(v, x - 1, y),
+                get_val(v, x, y + 1),
+                get_val(v, x, y - 1),
+                get_val(v, x + 1, y),
             ];
-            let m = search.into_iter().flat_map(|x| x).min();
+            let m = search.into_iter().flatten().min();
 
             if m.unwrap() > &v[y as usize][x as usize] {
                 low.push((x as usize, y as usize));
@@ -95,7 +95,7 @@ impl Day for Solution {
 
         basins.sort_by_key(|v| v.len());
         basins.reverse();
-        basins.iter().take(3).map(|v| v.len()).fold(1, |x, y| x * y)
+        basins.iter().take(3).map(|v| v.len()).product()
     }
 }
 

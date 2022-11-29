@@ -28,7 +28,7 @@ impl Day for Solution {
         r.lines()
             .map(|l| {
                 let l = l?;
-                let mut split = l.split(" ");
+                let mut split = l.split(' ');
 
                 let dir = match split.next().unwrap() {
                     "forward" => Dir::Forward,

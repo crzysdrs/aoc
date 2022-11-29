@@ -86,7 +86,7 @@ impl Day for Solution {
                         //.inspect(|d| println!("{:?} {}", d, v[d.y as usize][d.x as usize].to_char()))
                         .map(|p| v[p.y as usize][p.x as usize])
                         .fold(HashMap::new(), |mut state, c| {
-                            state.entry(c).and_modify(|x| *x = *x + 1).or_insert(1);
+                            state.entry(c).and_modify(|x| *x += 1).or_insert(1);
                             state
                         });
                     next[p.y as usize][p.x as usize] = match c {
@@ -156,7 +156,7 @@ impl Day for Solution {
                         })
                         .map(|p| v[p.y as usize][p.x as usize])
                         .fold(HashMap::new(), |mut state, c| {
-                            state.entry(c).and_modify(|x| *x = *x + 1).or_insert(1);
+                            state.entry(c).and_modify(|x| *x += 1).or_insert(1);
                             state
                         });
                     next[p.y as usize][p.x as usize] = match c {

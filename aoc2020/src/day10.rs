@@ -31,7 +31,7 @@ impl Day for Solution {
         let jolts = v.windows(2).map(|items| items[1] - items[0]).fold(
             HashMap::new(),
             |mut state, diff| {
-                state.entry(diff).and_modify(|x| *x = *x + 1).or_insert(1);
+                state.entry(diff).and_modify(|x| *x += 1).or_insert(1);
                 state
             },
         );
@@ -56,7 +56,7 @@ impl Day for Solution {
                         .collect::<Vec<_>>(),
                 )
             })
-            .filter(|(_, e)| e.len() > 0)
+            .filter(|(_, e)| !e.is_empty())
             .collect::<HashMap<_, _>>();
 
         let mut memo = HashMap::new();
@@ -67,7 +67,7 @@ impl Day for Solution {
 
 fn count_paths(memo: &mut HashMap<u32, usize>, adj: &HashMap<u32, Vec<u32>>, node: u32) -> usize {
     if let Some(count) = memo.get(&node) {
-        return *count;
+        *count
     } else if let Some(edges) = adj.get(&node) {
         let count = edges.iter().map(|e| count_paths(memo, adj, *e)).sum();
         memo.insert(node, count);

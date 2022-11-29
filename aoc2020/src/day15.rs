@@ -56,7 +56,7 @@ impl Day for Solution {
     {
         let line = r.lines().next().unwrap()?;
         Ok(line
-            .split(",")
+            .split(',')
             .map(|x| x.parse::<usize>().unwrap())
             .collect())
     }

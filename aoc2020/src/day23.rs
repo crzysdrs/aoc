@@ -98,7 +98,7 @@ impl Day for Solution {
         Ok(cups)
     }
     fn p1(v: &[Self::Input]) -> Self::Sol1 {
-        cups_score(&cups_game(100, &v))
+        cups_score(&cups_game(100, v))
     }
     fn p2(v: &[Self::Input]) -> Self::Sol2 {
         let mill = 1_000_000;

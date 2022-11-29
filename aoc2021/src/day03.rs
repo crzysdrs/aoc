@@ -14,7 +14,7 @@ impl Day for Solution {
     where
         R: std::io::BufRead,
     {
-        r.lines().map(|l| Ok(l?.to_string())).collect()
+        r.lines().collect()
     }
     fn p1(v: &Self::Input) -> Self::Sol1 {
         let len = v.len();
@@ -27,9 +27,9 @@ impl Day for Solution {
                 .count();
             println!("{} {}", count, len);
             if count >= len - count {
-                gamma.push_str("1");
+                gamma.push('1');
             } else {
-                gamma.push_str("0");
+                gamma.push('0');
             }
         }
         let gamma = usize::from_str_radix(&gamma, 2).unwrap();

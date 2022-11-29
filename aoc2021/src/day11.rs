@@ -5,7 +5,7 @@ use std::io::Result as IoResult;
 
 fn get_val(arr: &Vec<Vec<u32>>, x: i32, y: i32) -> Option<&u32> {
     if x < 0 || y < 0 {
-        return None;
+        None
     } else {
         arr.get(y as usize)
             .and_then(|row: &Vec<u32>| row.get(x as usize))
@@ -52,13 +52,13 @@ fn octo_step(_n: usize, width: usize, v: &mut Vec<Vec<u32>>) -> usize {
                 }
             }
             adj.iter().for_each(|(x, y)| {
-                if get_val(&v, *x, *y).is_some() {
+                if get_val(v, *x, *y).is_some() {
                     v[*y as usize][*x as usize] += 1;
                 }
             })
         }
 
-        if flashed.len() == 0 {
+        if flashed.is_empty() {
             break;
         }
     }

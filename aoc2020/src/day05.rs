@@ -41,7 +41,7 @@ fn build_seats<'a>(seats: &'a [Vec<Dir>]) -> impl Iterator<Item = Seat> + 'a {
                 col: 0..8,
             },
             |mut state, x| {
-                state.apply(&x);
+                state.apply(x);
                 state
             },
         )

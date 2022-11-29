@@ -28,7 +28,7 @@ fn find_allergens(v: &[Food]) -> Vec<(String, String)> {
         let found = maybe
             .iter()
             .filter(|(_k, v)| v.len() == 1)
-            .map(|(_k, v)| v.iter().nth(0).unwrap())
+            .map(|(_k, v)| v.iter().next().unwrap())
             .cloned()
             .collect::<HashSet<String>>();
 
@@ -42,7 +42,7 @@ fn find_allergens(v: &[Food]) -> Vec<(String, String)> {
 
     maybe
         .into_iter()
-        .map(|(k, v)| (k, v.into_iter().nth(0).unwrap()))
+        .map(|(k, v)| (k, v.into_iter().next().unwrap()))
         .collect()
 }
 
@@ -61,7 +61,7 @@ impl Day for Solution {
 
         let input = r
             .lines()
-            .flat_map(|l| l)
+            .flatten()
             .map(|l| {
                 let cap = split.captures(&l).unwrap();
                 let ingredients = cap
@@ -88,7 +88,7 @@ impl Day for Solution {
         Ok(input)
     }
     fn p1(v: &[Self::Input]) -> Self::Sol1 {
-        let allergens = find_allergens(&v)
+        let allergens = find_allergens(v)
             .into_iter()
             .map(|(_k, v)| v)
             .collect::<HashSet<_>>();
@@ -99,7 +99,7 @@ impl Day for Solution {
             .count()
     }
     fn p2(v: &[Self::Input]) -> Self::Sol2 {
-        let mut allergens = find_allergens(&v);
+        let mut allergens = find_allergens(v);
         allergens.sort_by_key(|(k, _v)| k.clone());
         let allergens = allergens.into_iter().map(|(_k, v)| v).collect::<Vec<_>>();
         allergens.join(",")

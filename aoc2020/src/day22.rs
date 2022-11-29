@@ -20,9 +20,9 @@ fn recursive_combat(game: u32, mut input: Input) -> (Input, Ordering) {
         //println!("Player 1's deck: {:?}", input.player1);
         //println!("Player 2's deck: {:?}", input.player2);
 
-        if input.player1.len() == 0 {
+        if input.player1.is_empty() {
             break (input, Ordering::Less);
-        } else if input.player2.len() == 0 {
+        } else if input.player2.is_empty() {
             break (input, Ordering::Greater);
         } else if state.contains(&(input.player1.clone(), input.player2.clone())) {
             break (input, Ordering::Greater);
@@ -37,16 +37,16 @@ fn recursive_combat(game: u32, mut input: Input) -> (Input, Ordering) {
 
         let order = if input.player1.len() >= p1 && input.player2.len() >= p2 {
             //println!("Playing a sub-game to determine the winnner... ");
-            let res = recursive_combat(
+            
+            //println!("...anyway, back to game {}.", game);
+            recursive_combat(
                 game + 1,
                 Input {
                     player1: input.player1[..p1].to_vec(),
                     player2: input.player2[..p2].to_vec(),
                 },
             )
-            .1;
-            //println!("...anyway, back to game {}.", game);
-            res
+            .1
         } else {
             p1.cmp(&p2)
         };
@@ -98,7 +98,7 @@ impl Day for Solution {
             .by_ref()
             .flatten()
             .skip(1)
-            .take_while(|l| l != "")
+            .take_while(|l| !l.is_empty())
             .map(|n| n.parse().unwrap())
             .collect();
 
@@ -106,7 +106,7 @@ impl Day for Solution {
             .by_ref()
             .flatten()
             .skip(1)
-            .take_while(|l| l != "")
+            .take_while(|l| !l.is_empty())
             .map(|n| n.parse().unwrap())
             .collect();
 
@@ -115,7 +115,7 @@ impl Day for Solution {
     fn p1(v: &[Self::Input]) -> Self::Sol1 {
         let mut input = v[0].clone();
         loop {
-            if input.player1.len() == 0 || input.player2.len() == 0 {
+            if input.player1.is_empty() || input.player2.is_empty() {
                 break;
             }
 

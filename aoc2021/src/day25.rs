@@ -34,7 +34,7 @@ impl std::fmt::Display for Floor {
             for x in c {
                 write!(f, "{}", x)?;
             }
-            writeln!(f, "")
+            writeln!(f)
         })
     }
 }
@@ -265,12 +265,12 @@ mod test {
         let floor = input.parse::<Floor>().unwrap();
         assert_eq!(floor.width, 10);
         assert_eq!(floor.height(), 9);
-        let test_floor = floor.iter().skip(0).next().unwrap();
+        let test_floor = floor.iter().next().unwrap();
         assert_eq!(test_floor.width, 10);
         assert_eq!(test_floor.height(), 9);
 
         assert_eq!(
-            floor.iter().skip(0).next().unwrap(),
+            floor.iter().next().unwrap(),
             "....>.>v.>\n\
              v.v>.>v.v.\n\
              >v>>..>v..\n\
@@ -285,7 +285,7 @@ mod test {
         );
 
         assert_eq!(
-            floor.iter().skip(9).next().unwrap(),
+            floor.iter().nth(9).unwrap(),
             "..>..>>vv.\n\
              v.....>>.v\n\
              ..v.v>>>v>\n\

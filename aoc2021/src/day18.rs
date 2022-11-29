@@ -61,13 +61,13 @@ impl std::iter::Sum<Self> for SnailFish {
         I: Iterator<Item = Self>,
     {
         let start = iter.next().unwrap();
-        let r = iter.fold(start, |mut state, rhs| {
+        
+        iter.fold(start, |mut state, rhs| {
             //println!("{:?} + {:?}", state, rhs);
-            state = state + rhs.clone();
+            state = state + rhs;
             //println!("= {:?}", state);
             state
-        });
-        r
+        })
     }
 }
 
@@ -124,9 +124,9 @@ impl Iterator for SnailFishReduce {
             match this {
                 SnailFishVal::Pair(sn) => match *sn {
                     SnailFish(SnailFishVal::Val(a), SnailFishVal::Val(b)) if depth >= 4 => {
-                        l.map(|l| l.add_right(a));
-                        r.map(|r| r.add_left(b));
-                        return Action::Stop(SnailFishVal::Val(0));
+                        if let Some(l) = l { l.add_right(a) }
+                        if let Some(r) = r { r.add_left(b) }
+                        Action::Stop(SnailFishVal::Val(0))
                     }
                     SnailFish(a, mut b) => {
                         let a = inner_reduce(pass, a, l, Some(&mut b), depth + 1);
@@ -145,16 +145,16 @@ impl Iterator for SnailFishReduce {
                             Action::Continue(v) => v,
                         };
 
-                        return Action::Continue(SnailFishVal::Pair(Box::new(SnailFish(a, b))));
+                        Action::Continue(SnailFishVal::Pair(Box::new(SnailFish(a, b))))
                     }
                 },
                 SnailFishVal::Val(a) if a >= 10 && matches!(pass, Pass::Split) => {
-                    return Action::Stop(SnailFishVal::Pair(Box::new(SnailFish(
+                    Action::Stop(SnailFishVal::Pair(Box::new(SnailFish(
                         SnailFishVal::Val(a / 2),
                         SnailFishVal::Val(a / 2 + a % 2),
-                    ))));
+                    ))))
                 }
-                SnailFishVal::Val(_) => return Action::Continue(this),
+                SnailFishVal::Val(_) => Action::Continue(this),
             }
         }
         self.sn.take().map(|sn| {

@@ -27,7 +27,7 @@ impl Scanner {
                     [p.z, p.x, p.y],
                 ];
 
-                let base: Vec<_> = permutes.into_iter().map(|p| Point3::from(p)).collect();
+                let base: Vec<_> = permutes.into_iter().map(Point3::from).collect();
                 let mut result = vec![];
                 result.extend(base.iter().flat_map(|p| {
                     [
@@ -108,9 +108,7 @@ fn find_map(scanners: &[Scanner]) -> Vec<Scanner> {
                             }
                         };
                         found
-                    })
-                    .filter(|x| x.is_some())
-                    .next()
+                    }).find(|x| x.is_some())
                     .flatten()
             })
             .find_first(|x| x.is_some())
@@ -148,7 +146,7 @@ impl Day for Solution {
                     .flatten()
                     .take_while(|l| !l.is_empty())
                     .map(|l| {
-                        let mut p = l.split(",").map(|p| p.parse::<i32>().unwrap());
+                        let mut p = l.split(',').map(|p| p.parse::<i32>().unwrap());
                         Point3 {
                             x: p.next().unwrap(),
                             y: p.next().unwrap(),
@@ -205,7 +203,7 @@ mod test {
     use super::*;
     #[test]
     fn test() {
-        use std::io::Read;
+        
         let mut input = std::io::Cursor::new(std::fs::read("test/day19.txt").unwrap());
         let input = Solution::process_input(std::io::BufReader::new(&mut input)).unwrap();
         assert_eq!(Solution::p1(&input), 79);

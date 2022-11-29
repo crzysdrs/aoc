@@ -5,7 +5,7 @@ use std::io::Result as IoResult;
 
 use cgmath::{Point2, Vector2};
 
-#[derive(PartialEq, Copy, Clone, Debug)]
+#[derive(PartialEq, Eq, Copy, Clone, Debug)]
 pub enum Dir {
     North,
     South,
@@ -13,7 +13,7 @@ pub enum Dir {
     West,
 }
 
-#[derive(PartialEq, Copy, Clone, Debug)]
+#[derive(PartialEq, Eq, Copy, Clone, Debug)]
 pub enum Rotate {
     Left,
     Right,
@@ -126,7 +126,7 @@ impl Day for Solution {
         r.lines()
             .map(|l| {
                 let l = l?;
-                let c = l.chars().nth(0).unwrap();
+                let c = l.chars().next().unwrap();
                 let count = l[1..].parse::<i32>().unwrap();
                 let instr = match c {
                     'N' | 'S' | 'E' | 'W' => {
@@ -161,7 +161,7 @@ impl Day for Solution {
         let last = v
             .iter()
             .scan(Ship::new(), |ship, instr| {
-                ship.run(&instr);
+                ship.run(instr);
                 Some(ship.pos)
             })
             .last()
@@ -173,7 +173,7 @@ impl Day for Solution {
         let last = v
             .iter()
             .scan(ShipWaypoint::new(), |ship, instr| {
-                ship.run(&instr);
+                ship.run(instr);
                 Some(ship.pos)
             })
             .last()

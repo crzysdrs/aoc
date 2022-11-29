@@ -7,7 +7,7 @@ use std::io::Result as IoResult;
 fn fill_line(grid: &mut HashMap<Point2<i32>, usize>, (p1, p2): (Point2<i32>, Point2<i32>)) {
     let v = (p1 - p2).map(|c| if c == 0 { 0 } else { c / c.abs() });
 
-    let mut cur = p2.clone();
+    let mut cur = p2;
     let end = p1;
     loop {
         grid.entry(cur).and_modify(|v| *v += 1).or_insert(1);

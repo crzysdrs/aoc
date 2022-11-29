@@ -183,14 +183,14 @@ impl Day for Solution {
         let v = v.to_vec();
         for (s, c) in v.into_iter().enumerate() {
             println!("{:?}", s);
-            if map.len() == 0 {
+            if map.is_empty() {
                 map.push(c);
             } else {
                 let mut cast = vec![c];
                 while let Some(c) = cast.pop() {
                     let found = map
                         .iter()
-                        .find_map(|x| if c.intersect(&x) { Some(x) } else { None })
+                        .find_map(|x| if c.intersect(x) { Some(x) } else { None })
                         .cloned();
                     if let Some(f) = found {
                         //println!("Found Intersection");

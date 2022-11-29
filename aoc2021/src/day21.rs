@@ -104,7 +104,8 @@ impl Day for Solution {
             p.space %= 10;
             p.score += p.space + 1;
 
-            let final_wins = if p.score >= 21 {
+            
+            if p.score >= 21 {
                 if pick {
                     (1, 0)
                 } else {
@@ -118,8 +119,7 @@ impl Day for Solution {
                     new.1 += last.1 * *c;
                 }
                 new
-            };
-            final_wins
+            }
         }
         let players = (
             Player {

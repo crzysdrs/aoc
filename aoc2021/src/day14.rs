@@ -26,8 +26,8 @@ fn run(v: &Polymer, steps: usize) -> usize {
             return r.clone();
         }
         // Lookup the inserted character for this problem
-        let (insert, _) = computed.get(&(lookup, 1)).unwrap().iter().nth(0).unwrap();
-        let insert = insert.clone();
+        let (insert, _) = computed.get(&(lookup, 1)).unwrap().iter().next().unwrap();
+        let insert = *insert;
 
         //Compute both the left
         let mut r1 = dp(computed, (lookup.0, insert), depth - 1);
@@ -42,7 +42,7 @@ fn run(v: &Polymer, steps: usize) -> usize {
         //Save the subproblem result.
         computed.insert((lookup, depth), r1.clone());
 
-        return r1;
+        r1
     }
 
     let mut computed = HashMap::new();
@@ -94,7 +94,7 @@ impl Day for Solution {
             .map(|l| {
                 let (l, r) = l.split_once(" -> ").unwrap();
                 (
-                    (l.chars().nth(0).unwrap(), l.chars().nth(1).unwrap()),
+                    (l.chars().next().unwrap(), l.chars().nth(1).unwrap()),
                     r.chars().next().unwrap(),
                 )
             })

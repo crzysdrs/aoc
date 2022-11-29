@@ -82,11 +82,11 @@ impl Instr {
         I: Iterator<Item = i32>,
     {
         match self {
-            Instr::Mul(l, r) => *alu.reg_mut(&l) = alu.reg(&l) * r.val(alu),
-            Instr::Add(l, r) => *alu.reg_mut(&l) = alu.reg(&l) + r.val(alu),
-            Instr::Div(l, r) => *alu.reg_mut(&l) = alu.reg(&l) / r.val(alu),
-            Instr::Mod(l, r) => *alu.reg_mut(&l) = alu.reg(&l) % r.val(alu),
-            Instr::Eq(l, r) => *alu.reg_mut(&l) = if *alu.reg(&l) == r.val(alu) { 1 } else { 0 },
+            Instr::Mul(l, r) => *alu.reg_mut(l) = alu.reg(l) * r.val(alu),
+            Instr::Add(l, r) => *alu.reg_mut(l) = alu.reg(l) + r.val(alu),
+            Instr::Div(l, r) => *alu.reg_mut(l) = alu.reg(l) / r.val(alu),
+            Instr::Mod(l, r) => *alu.reg_mut(l) = alu.reg(l) % r.val(alu),
+            Instr::Eq(l, r) => *alu.reg_mut(l) = if *alu.reg(l) == r.val(alu) { 1 } else { 0 },
             Instr::Inp(d) => {
                 *alu.reg_mut(d) = if let Some(i) = input.next() {
                     i
@@ -210,7 +210,7 @@ fn digits(v: &Vec<Instr>, max: bool) -> u64 {
     //Keep track of alu.z value after each step, and digits that led to it.
     let mut prev_z = HashMap::new();
     let mut alu = Alu::default();
-    let _ = alu.run(&v, std::iter::empty());
+    let _ = alu.run(v, std::iter::empty());
     prev_z.insert(alu, 0u64);
 
     for (i, range) in instr_ranges.iter().enumerate() {
