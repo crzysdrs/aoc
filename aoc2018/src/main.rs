@@ -1,22 +1,22 @@
 
-mod day1;
-mod day2;
-mod day3;
-mod day4;
-mod day5;
-mod day6;
+mod day01;
+mod day02;
+mod day03;
+mod day04;
+mod day05;
+mod day06;
 
 fn main() {
     if false {
-        day1::p1().expect("Failed in day1_p1");
-        day1::p2().expect("Failed in day1_p2");
-        day2::p1().expect("Failed in day1_p1");
-        day2::p2().expect("Failed in day1_p2");
-        day3::p1().expect("Failed in day3_p1");
-        day3::p2().expect("Failed in day3_p2");
-        day4::p1().expect("Failed in day4_p1");
-        day5::p1().expect("Failed in day5_p1");
-        day5::p2().expect("Failed in day5_p2");
+        day01::p1().expect("Failed in day1_p1");
+        day01::p2().expect("Failed in day1_p2");
+        day02::p1().expect("Failed in day1_p1");
+        day02::p2().expect("Failed in day1_p2");
+        day03::p1().expect("Failed in day3_p1");
+        day03::p2().expect("Failed in day3_p2");
+        day04::p1().expect("Failed in day4_p1");
+        day05::p1().expect("Failed in day5_p1");
+        day05::p2().expect("Failed in day5_p2");
     }
-    day6::p1().expect("Failed in day6_p1");
+    day06::p1().expect("Failed in day6_p1");
 }
