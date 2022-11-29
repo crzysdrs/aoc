@@ -26,7 +26,6 @@ impl Dir {
     }
 }
 
-
 fn point_dir(p: &Point2<i32>, d: &Dir) -> Point2<i32> {
     let mut p = p.clone();
     match d {
@@ -45,7 +44,6 @@ fn point_dir(p: &Point2<i32>, d: &Dir) -> Point2<i32> {
     }
     p
 }
-
 
 #[derive(Debug, FromPrimitive, ToPrimitive)]
 enum Status {

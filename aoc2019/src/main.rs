@@ -1,4 +1,12 @@
-mod day1;
+mod day01;
+mod day02;
+mod day03;
+mod day04;
+mod day05;
+mod day06;
+mod day07;
+mod day08;
+mod day09;
 mod day10;
 mod day11;
 mod day12;
@@ -15,45 +23,37 @@ mod day22;
 mod day23;
 mod day24;
 mod day25;
-mod day2;
-mod day3;
-mod day4;
-mod day5;
-mod day6;
-mod day7;
-mod day8;
-mod day9;
 
 mod intcode;
 
 fn main() -> std::io::Result<()> {
     if false {
-        day1::p1()?;
-        day1::p2()?;
+        day01::p1()?;
+        day01::p2()?;
 
-        day2::p1()?;
-        day2::p2()?;
+        day02::p1()?;
+        day02::p2()?;
 
-        day3::p1()?;
-        day3::p2()?;
+        day03::p1()?;
+        day03::p2()?;
 
-        day4::p1()?;
-        day4::p2()?;
+        day04::p1()?;
+        day04::p2()?;
 
-        day5::p1()?;
-        day5::p2()?;
+        day05::p1()?;
+        day05::p2()?;
 
-        day6::p1()?;
-        day6::p2()?;
+        day06::p1()?;
+        day06::p2()?;
 
-        day7::p1()?;
-        day7::p2()?;
+        day07::p1()?;
+        day07::p2()?;
 
-        day8::p1()?;
-        day8::p2()?;
+        day08::p1()?;
+        day08::p2()?;
 
-        day9::p1()?;
-        day9::p2()?;
+        day09::p1()?;
+        day09::p2()?;
 
         day10::p1()?;
         day10::p2()?;
@@ -90,23 +90,19 @@ fn main() -> std::io::Result<()> {
         day21::p1()?;
         day21::p2()?;
 
-        
         day22::p1()?;
         day22::p2()?;
 
-        
         day23::p1()?;
         day23::p2()?;
 
-        
-    
         day24::p1()?;
         day24::p2()?;
-        
+
         day25::p1()?;
-        day25::p2()?;        
+        day25::p2()?;
     }
-    
+
     //day22::p1()?;
     day22::p2()?;
 

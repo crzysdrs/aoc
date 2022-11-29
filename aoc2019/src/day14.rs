@@ -1,5 +1,5 @@
-use std::io::Result as IoResult;
 use std::collections::HashMap;
+use std::io::Result as IoResult;
 
 #[derive(Debug)]
 struct Reaction {

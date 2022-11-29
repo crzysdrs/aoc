@@ -21,7 +21,7 @@ impl IntCodeMachine {
             input: VecDeque::from(input),
             output: VecDeque::new(),
             rel: 0,
-            interactive : false,
+            interactive: false,
         }
     }
     pub fn new_console(code: Vec<isize>) -> IntCodeMachine {
@@ -32,7 +32,7 @@ impl IntCodeMachine {
             input: VecDeque::new(),
             output: VecDeque::new(),
             rel: 0,
-            interactive : true,
+            interactive: true,
         }
     }
     pub fn has_input(&self) -> bool {
@@ -81,11 +81,19 @@ impl IntCodeMachine {
                     self.halted = true;
                     break true;
                 }
-                i @ IntCode::Save(_) => {                    
+                i @ IntCode::Save(_) => {
                     if self.input.len() == 0 {
                         if self.interactive {
                             use std::io::Read;
-                            self.input.push_back(std::io::stdin().lock().bytes().take(1).next().unwrap().unwrap() as isize);
+                            self.input.push_back(
+                                std::io::stdin()
+                                    .lock()
+                                    .bytes()
+                                    .take(1)
+                                    .next()
+                                    .unwrap()
+                                    .unwrap() as isize,
+                            );
                         } else {
                             break false;
                         }

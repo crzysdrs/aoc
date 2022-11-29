@@ -29,7 +29,6 @@ use std::collections::HashMap;
 //     v
 // }
 
-
 #[allow(unused)]
 fn compute_phase2(input: String, repeat: usize, count: usize, offset: usize) -> String {
     let mut input = input;

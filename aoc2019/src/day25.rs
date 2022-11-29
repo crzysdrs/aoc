@@ -1,32 +1,36 @@
 use crate::intcode::IntCodeMachine;
-use std::io::Result as IoResult;
 use cgmath::{Point2, Vector2};
 use num_derive::{FromPrimitive, ToPrimitive};
 use num_traits::{FromPrimitive, ToPrimitive};
-use std::collections::{HashSet, HashMap};
+use std::collections::{HashMap, HashSet};
+use std::io::Result as IoResult;
 
-use std::convert::TryFrom;
 use itertools::Itertools;
+use std::convert::TryFrom;
 
 use regex::Regex;
 use std::fmt;
 
 impl fmt::Display for Direction {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", match self {
-            Direction::North => "north",
-            Direction::South => "south",
-            Direction::East => "east",
-            Direction::West => "west",
-        })
+        write!(
+            f,
+            "{}",
+            match self {
+                Direction::North => "north",
+                Direction::South => "south",
+                Direction::East => "east",
+                Direction::West => "west",
+            }
+        )
     }
 }
-#[derive(Debug,Copy,Clone)]
+#[derive(Debug, Copy, Clone)]
 enum Direction {
     North,
     South,
     East,
-    West
+    West,
 }
 
 impl Direction {
@@ -44,7 +48,7 @@ enum Cmd {
     Dir(Direction),
     Take(String),
     Drop(String),
-    Inv
+    Inv,
 }
 
 impl fmt::Display for Cmd {
@@ -58,14 +62,12 @@ impl fmt::Display for Cmd {
     }
 }
 
-#[derive(Debug,Clone)]
+#[derive(Debug, Clone)]
 struct Room {
     name: String,
     dirs: Vec<Direction>,
     items: Vec<String>,
 }
-   
-
 
 fn parse_room(room: String) -> Option<Room> {
     let mut dirs = false;
@@ -73,13 +75,11 @@ fn parse_room(room: String) -> Option<Room> {
     let mut r = None;
     for l in room.lines() {
         if l.len() > 2 && &l[..2] == "==" {
-            r = Some(
-                Room {
-                    name: l[3.. l.len() - 3].to_string(),
-                    dirs: vec![],
-                    items: vec![],
-                }
-            )
+            r = Some(Room {
+                name: l[3..l.len() - 3].to_string(),
+                dirs: vec![],
+                items: vec![],
+            })
         } else if l == "Doors here lead:" {
             dirs = true;
         } else if l == "Items here:" {
@@ -112,41 +112,55 @@ pub fn p1() -> IoResult<()> {
         .map(|x| x.parse::<isize>().expect("Valid usize"))
         .collect::<Vec<_>>();
 
-    let unsafe_items = 
-        [
-            "photons",
-            "escape pod",
-            "molten lava",
-            //"hypercube",
-            "infinite loop",
-            "giant electromagnet",
-        ].iter().map(|x| x.to_string()).collect::<HashSet<String>>();
-    let mut m = IntCodeMachine::new(codes, vec![]);    
+    let unsafe_items = [
+        "photons",
+        "escape pod",
+        "molten lava",
+        //"hypercube",
+        "infinite loop",
+        "giant electromagnet",
+    ]
+    .iter()
+    .map(|x| x.to_string())
+    .collect::<HashSet<String>>();
+    let mut m = IntCodeMachine::new(codes, vec![]);
     let mut rooms = vec![];
 
-    let seen : HashSet<String> = HashSet::new();
+    let seen: HashSet<String> = HashSet::new();
 
     let mut dir_stack = vec![];
-    
+
     m.run();
-    let room = parse_room(m.output().into_iter().map(|x| x as u8 as char).collect::<String>()).unwrap();
+    let room = parse_room(
+        m.output()
+            .into_iter()
+            .map(|x| x as u8 as char)
+            .collect::<String>(),
+    )
+    .unwrap();
 
     use petgraph::Graph;
     let mut deps = Graph::new();
     let idx = deps.add_node(room.name.clone());
-    let mut nodes : HashMap<String, _> = HashMap::new();
+    let mut nodes: HashMap<String, _> = HashMap::new();
     nodes.insert(room.name.clone(), idx);
-    
+
     for d in &room.dirs {
         let mut m = m.clone();
-        format!("{}\n", Cmd::Dir(*d)).chars().for_each(|x| m.feed_input(x as isize));        
+        format!("{}\n", Cmd::Dir(*d))
+            .chars()
+            .for_each(|x| m.feed_input(x as isize));
         dir_stack.push((m, *d, idx));
     }
     rooms.push(room);
-    
+
     while let Some((mut m, dir, idx)) = dir_stack.pop() {
         m.run();
-        let output = m.output().into_iter().map(|x| x as u8 as char).collect::<String>();
+        let output = m
+            .output()
+            .into_iter()
+            .map(|x| x as u8 as char)
+            .collect::<String>();
         //println!("Output: {}", output);
         let new_room = parse_room(output);
         println!("{:?} {:?} {:?}", dir, idx, new_room);
@@ -164,27 +178,49 @@ pub fn p1() -> IoResult<()> {
             if !seen {
                 for d in &r.dirs {
                     let mut m = m.clone();
-                    format!("{}\n", Cmd::Dir(*d)).chars().for_each(|x| m.feed_input(x as isize));
+                    format!("{}\n", Cmd::Dir(*d))
+                        .chars()
+                        .for_each(|x| m.feed_input(x as isize));
                     dir_stack.push((m, *d, new_idx));
                 }
             }
         }
     }
 
-    let items = rooms.iter().flat_map(|r| r.items.clone().into_iter().map(move |i| (r.name.clone(), i))).filter(
-        |(_, i)| unsafe_items.get(i).is_none()).collect::<Vec<_>>();
+    let items = rooms
+        .iter()
+        .flat_map(|r| {
+            r.items
+                .clone()
+                .into_iter()
+                .map(move |i| (r.name.clone(), i))
+        })
+        .filter(|(_, i)| unsafe_items.get(i).is_none())
+        .collect::<Vec<_>>();
     let mut cur_room = "Hull Breach".to_string();
     use petgraph::algo::astar;
     for (target_room, item) in &items {
         println!("Acquire {:?} {:?}", target_room, item);
-        let r = astar(&deps, *nodes.get(&cur_room).unwrap(), |finish| finish == *nodes.get(target_room).unwrap(), |e| 1, |_| 0);
+        let r = astar(
+            &deps,
+            *nodes.get(&cur_room).unwrap(),
+            |finish| finish == *nodes.get(target_room).unwrap(),
+            |e| 1,
+            |_| 0,
+        );
         //println!("{:?}", rooms);
         println!("{:?}", r);
         for node in r.unwrap().1.windows(2) {
-            let edge = deps.edge_weight(deps.find_edge(node[0], node[1]).unwrap()).unwrap();
-            format!("{}\n", Cmd::Dir(*edge)).chars().for_each(|x| m.feed_input(x as isize));
+            let edge = deps
+                .edge_weight(deps.find_edge(node[0], node[1]).unwrap())
+                .unwrap();
+            format!("{}\n", Cmd::Dir(*edge))
+                .chars()
+                .for_each(|x| m.feed_input(x as isize));
         }
-        format!("{}\n", Cmd::Take(item.to_string())).chars().for_each(|x| m.feed_input(x as isize));
+        format!("{}\n", Cmd::Take(item.to_string()))
+            .chars()
+            .for_each(|x| m.feed_input(x as isize));
         m.run();
         //let output = m.output().into_iter().map(|x| x as u8 as char).collect::<String>();
         //println!("Output {}", output);
@@ -193,23 +229,45 @@ pub fn p1() -> IoResult<()> {
 
     drop(m.output());
     let target_room = "Security Checkpoint".to_string();
-    let r = astar(&deps, *nodes.get(&cur_room).unwrap(), |finish| finish == *nodes.get(&target_room).unwrap(), |e| 1, |_| 0);
+    let r = astar(
+        &deps,
+        *nodes.get(&cur_room).unwrap(),
+        |finish| finish == *nodes.get(&target_room).unwrap(),
+        |e| 1,
+        |_| 0,
+    );
     for node in r.unwrap().1.windows(2) {
-        let edge = deps.edge_weight(deps.find_edge(node[0], node[1]).unwrap()).unwrap();
-        format!("{}\n", Cmd::Dir(*edge)).chars().for_each(|x| m.feed_input(x as isize));
+        let edge = deps
+            .edge_weight(deps.find_edge(node[0], node[1]).unwrap())
+            .unwrap();
+        format!("{}\n", Cmd::Dir(*edge))
+            .chars()
+            .for_each(|x| m.feed_input(x as isize));
     }
-    format!("{}\n", Cmd::Inv).chars().for_each(|x| m.feed_input(x as isize));
+    format!("{}\n", Cmd::Inv)
+        .chars()
+        .for_each(|x| m.feed_input(x as isize));
 
     let item_count = items.len();
     for i in 1..item_count {
         for combo in items.iter().combinations(i) {
             let mut m = m.clone();
-            combo.iter().for_each(|combo_item| format!("{}\n", Cmd::Drop(combo_item.1.to_string())).chars().for_each(|x| m.feed_input(x as isize)));
+            combo.iter().for_each(|combo_item| {
+                format!("{}\n", Cmd::Drop(combo_item.1.to_string()))
+                    .chars()
+                    .for_each(|x| m.feed_input(x as isize))
+            });
             m.run();
             drop(m.output());
-            format!("{}\n", Cmd::Dir(Direction::South)).chars().for_each(|x| m.feed_input(x as isize));
+            format!("{}\n", Cmd::Dir(Direction::South))
+                .chars()
+                .for_each(|x| m.feed_input(x as isize));
             m.run();
-            let output = m.output().into_iter().map(|x| x as u8 as char).collect::<String>();
+            let output = m
+                .output()
+                .into_iter()
+                .map(|x| x as u8 as char)
+                .collect::<String>();
             if let Some(r) = parse_room(output.clone()) {
                 if &r.name != "Security Checkpoint" {
                     println!("{}", output);
@@ -217,7 +275,7 @@ pub fn p1() -> IoResult<()> {
             }
         }
     }
-   
+
     Ok(())
 }
 
