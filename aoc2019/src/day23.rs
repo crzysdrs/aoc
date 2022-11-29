@@ -59,7 +59,7 @@ pub fn p1() -> IoResult<()> {
 pub fn p2() -> IoResult<()> {
     let codes = std::fs::read_to_string("input/day23.txt")?
         .trim()
-        .split(",")
+        .split(',')
         .map(|x| x.parse::<isize>().expect("Valid usize"))
         .collect::<Vec<_>>();
 

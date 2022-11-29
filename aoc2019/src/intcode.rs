@@ -83,7 +83,7 @@ impl IntCodeMachine {
                     break true;
                 }
                 i @ IntCode::Save(_) => {
-                    if self.input.len() == 0 {
+                    if self.input.is_empty() {
                         if self.interactive {
                             use std::io::Read;
                             self.input.push_back(
@@ -146,7 +146,7 @@ impl IntCodeVal {
                 if idx >= codes.len() {
                     0
                 } else {
-                    codes[usize::try_from(idx).unwrap()]
+                    codes[idx]
                 }
             }
         }
@@ -273,25 +273,11 @@ impl IntCode {
                 }
             }
             IntCode::LessThan(first, second, flag) => {
-                flag.write(
-                    codes,
-                    if first.read(codes) < second.read(codes) {
-                        1
-                    } else {
-                        0
-                    },
-                );
+                flag.write(codes, isize::from(first.read(codes) < second.read(codes)));
                 *ip += 4;
             }
             IntCode::Equals(first, second, flag) => {
-                flag.write(
-                    codes,
-                    if first.read(codes) == second.read(codes) {
-                        1
-                    } else {
-                        0
-                    },
-                );
+                flag.write(codes, isize::from(first.read(codes) == second.read(codes)));
                 *ip += 4;
             }
             IntCode::AdjustRel(new_rel) => {

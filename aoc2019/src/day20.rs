@@ -32,7 +32,7 @@ impl Dir {
 }
 
 fn point_dir(p: &Point2<i32>, d: &Dir) -> Point2<i32> {
-    let mut p = p.clone();
+    let mut p = *p;
     match d {
         Dir::North => {
             p.y += 1;
@@ -115,7 +115,7 @@ pub fn p1() -> IoResult<()> {
     //            U   P   P               ".to_string();
 
     let grid = s
-        .split("\n")
+        .split('\n')
         .enumerate()
         .flat_map(move |(y, l)| {
             l.chars()
@@ -303,7 +303,7 @@ pub fn p2() -> IoResult<()> {
     //            U   P   P               ".to_string();
 
     let grid = s
-        .split("\n")
+        .split('\n')
         .enumerate()
         .flat_map(move |(y, l)| {
             l.chars()
@@ -408,15 +408,12 @@ pub fn p2() -> IoResult<()> {
         recurse(outer, deps, grid, portal_edges, all_nodes, lower, max_depth);
         for (_k, v) in portal_edges.iter() {
             if v.len() == 2 {
-                let (outer, inner): (Vec<_>, Vec<_>) = v.iter().map(|x| *x).partition(outer);
-                match (
+                let (outer, inner): (Vec<_>, Vec<_>) = v.iter().copied().partition(outer);
+                if let (Some(lower), Some(this)) = (
                     all_nodes.get(&(lower, outer[0])),
                     all_nodes.get(&(depth, inner[0])),
                 ) {
-                    (Some(lower), Some(this)) => {
-                        deps.add_edge(*lower, *this, 1);
-                    }
-                    _ => {}
+                    deps.add_edge(*lower, *this, 1);
                 }
             }
         }

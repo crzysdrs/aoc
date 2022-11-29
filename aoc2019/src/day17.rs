@@ -246,7 +246,7 @@ pub fn p2() -> IoResult<()> {
     for i in &movements {
         print!("{},", i);
     }
-    println!("");
+    println!();
     let methods = [
         &movements[0..8],
         &movements[8..][..6],
@@ -257,7 +257,7 @@ pub fn p2() -> IoResult<()> {
         for i in *m {
             print!("{},", i);
         }
-        println!("");
+        println!();
     }
     println!("Main ish:");
     while i < movements.len() {
@@ -276,14 +276,14 @@ pub fn p2() -> IoResult<()> {
         }
     }
 
-    println!("");
+    println!();
     println!("A: ");
     for i in substring {
         print!("{},", i);
     }
     codes[0] = 2;
 
-    println!("");
+    println!();
     let routines = concat!(
         "A,B,A,B,C,B,C,A,B,C\n", //main
         "R,4,R,10,R,8,R,4\n",    //A

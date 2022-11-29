@@ -53,9 +53,9 @@ fn mutate_cards(cmds: String, len: usize) -> Vec<usize> {
             }
             Cmd::Cut(i) => {
                 if i > 0 {
-                    v.rotate_left(i.abs() as usize);
+                    v.rotate_left(i.unsigned_abs());
                 } else {
-                    v.rotate_right(i.abs() as usize);
+                    v.rotate_right(i.unsigned_abs());
                 }
             }
         }

@@ -64,7 +64,7 @@ fn draw_range(
 pub fn p1() -> IoResult<()> {
     let codes = std::fs::read_to_string("input/day19.txt")?
         .trim()
-        .split(",")
+        .split(',')
         .map(|x| x.parse::<isize>().expect("Valid usize"))
         .collect::<Vec<_>>();
 
@@ -107,7 +107,7 @@ pub fn p1() -> IoResult<()> {
 pub fn p2() -> IoResult<()> {
     let codes = std::fs::read_to_string("input/day19.txt")?
         .trim()
-        .split(",")
+        .split(',')
         .map(|x| x.parse::<isize>().expect("Valid usize"))
         .collect::<Vec<_>>();
 

@@ -207,7 +207,7 @@ fn min_dist(grid: &HashMap<Point2<i32>, char>) -> u32 {
             None => {
                 let mut reach_keys = Vec::new();
                 for s in starts.iter() {
-                    let dijk = dijkstra(&s, &grid, |c| traversable(c, &keys_collected));
+                    let dijk = dijkstra(s, grid, |c| traversable(c, &keys_collected));
                     reach_keys.extend(
                         key_pos
                             .iter()
@@ -226,7 +226,7 @@ fn min_dist(grid: &HashMap<Point2<i32>, char>) -> u32 {
             None => {
                 let mut key_dists = HashMap::new();
                 for (i, s) in starts.iter().enumerate() {
-                    let dijk = dijkstra(&s, &grid, |c| traversable(c, &keys_collected));
+                    let dijk = dijkstra(s, grid, |c| traversable(c, &keys_collected));
                     key_dists.extend(
                         key_pos
                             .iter()
@@ -258,7 +258,7 @@ fn min_dist(grid: &HashMap<Point2<i32>, char>) -> u32 {
             let mut new_keys = keys_collected.clone();
             new_keys.insert(*c);
             let mut path = path.clone();
-            path.extend(&[*c]);
+            path.extend([*c]);
             let mut starts = starts.clone();
             starts[*i] = *p;
             let new_steps = total_steps + d;

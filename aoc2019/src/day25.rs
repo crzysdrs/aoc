@@ -78,7 +78,7 @@ fn parse_room(room: String) -> Option<Room> {
             dirs = true;
         } else if l == "Items here:" {
             items = true;
-        } else if !l.is_empty() && l.chars().nth(0).unwrap() == '-' {
+        } else if !l.is_empty() && l.chars().next().unwrap() == '-' {
             if dirs {
                 let d = match &l[2..] {
                     "north" => Direction::North,
@@ -87,11 +87,15 @@ fn parse_room(room: String) -> Option<Room> {
                     "west" => Direction::West,
                     _ => panic!("Unhandled direction"),
                 };
-                r.as_mut().map(|x| x.dirs.push(d));
+                if let Some(x) = r.as_mut() {
+                    x.dirs.push(d);
+                }
             } else if items {
-                r.as_mut().map(|x| x.items.push(l[2..].to_string()));
+                if let Some(x) = r.as_mut() {
+                    x.items.push(l[2..].to_string());
+                }
             }
-        } else if l == "" {
+        } else if l.is_empty() {
             dirs = false;
             items = false;
         }
@@ -102,7 +106,7 @@ fn parse_room(room: String) -> Option<Room> {
 pub fn p1() -> IoResult<()> {
     let codes = std::fs::read_to_string("input/day25.txt")?
         .trim()
-        .split(",")
+        .split(',')
         .map(|x| x.parse::<isize>().expect("Valid usize"))
         .collect::<Vec<_>>();
 

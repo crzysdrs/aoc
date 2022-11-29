@@ -266,7 +266,7 @@ pub fn p2() -> IoResult<()> {
                 worklist.extend(adj(item));
             }
             let neighbors: u32 = adj(item)
-                .map(|x| if current.get(&x).is_some() { 1 } else { 0 })
+                .map(|x| u32::from(current.get(&x).is_some()))
                 .sum();
             match current.contains(&item) {
                 true if neighbors != 1 => {}
@@ -283,7 +283,7 @@ pub fn p2() -> IoResult<()> {
         draw_r(&current);
     }
 
-    println!("{}", current.iter().count());
+    println!("{}", current.len());
 
     Ok(())
 }

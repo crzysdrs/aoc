@@ -105,7 +105,7 @@ pub fn p1() -> IoResult<()> {
     .map(|x| *x as isize)
     .collect::<Vec<_>>();
 
-    let mut machine = IntCodeMachine::new(codes.clone(), cmds);
+    let mut machine = IntCodeMachine::new(codes, cmds);
 
     machine.run();
 
@@ -143,7 +143,7 @@ pub fn p2() -> IoResult<()> {
     .map(|x| *x as isize)
     .collect::<Vec<_>>();
 
-    let mut machine = IntCodeMachine::new(codes.clone(), cmds);
+    let mut machine = IntCodeMachine::new(codes, cmds);
 
     machine.run();
 
