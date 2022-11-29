@@ -1,4 +1,3 @@
-
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 pub fn p1() -> std::io::Result<()> {
