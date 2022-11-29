@@ -1,14 +1,6 @@
 use crate::intcode::IntCodeMachine;
-use cgmath::{Point2, Vector2};
-use num_derive::{FromPrimitive, ToPrimitive};
-use num_traits::{FromPrimitive, ToPrimitive};
 use std::collections::{HashMap, HashSet};
 use std::io::Result as IoResult;
-
-use itertools::Itertools;
-use std::convert::TryFrom;
-
-use std::fmt;
 
 #[derive(Debug)]
 struct Packet {
@@ -19,7 +11,7 @@ struct Packet {
 pub fn p1() -> IoResult<()> {
     let codes = std::fs::read_to_string("input/day23.txt")?
         .trim()
-        .split(",")
+        .split(',')
         .map(|x| x.parse::<isize>().expect("Valid usize"))
         .collect::<Vec<_>>();
 
@@ -93,11 +85,11 @@ pub fn p2() -> IoResult<()> {
             input.insert(p.m);
         }
 
-        if input.len() == 0 && machines.iter().all(|m| !m.has_input()) {
+        if input.is_empty() && machines.iter().all(|m| !m.has_input()) {
             let mut p = nat.take().unwrap();
             p.m = 0;
             *nat_packets.entry(p.y).or_insert(0) += 1;
-            if let Some(find) = nat_packets.iter().find(|(k, v)| **v == 2) {
+            if let Some(find) = nat_packets.iter().find(|(_k, v)| **v == 2) {
                 println!("{:?}", find);
                 break 'outer;
             }

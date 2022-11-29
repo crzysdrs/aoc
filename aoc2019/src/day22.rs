@@ -1,8 +1,6 @@
 use regex::Regex;
 use std::collections::VecDeque;
-use std::fs::File;
 use std::io::Result as IoResult;
-use std::io::{BufRead, BufReader, Read};
 
 enum Cmd {
     Cut(isize),
@@ -121,9 +119,10 @@ fn find_pos(cmds: String, shuffle: usize, len: usize) -> usize {
         })
         .unwrap();
 
+    #[allow(dead_code)]
     fn exp(x: &BigInt, n: &BigInt) -> BigInt {
         if *n == 0.to_bigint().unwrap() {
-            return 1.to_bigint().unwrap();
+            1.to_bigint().unwrap()
         } else if *n == 1.to_bigint().unwrap() {
             x.clone()
         } else if n.clone() % 2 == 0.to_bigint().unwrap() {
@@ -143,7 +142,6 @@ fn find_pos(cmds: String, shuffle: usize, len: usize) -> usize {
         let b = (&b * (&a_k - 1) * inv(&(&a - 1), &b_len)) % &b_len;
         (a_k, b)
     };
-    use std::convert::TryInto;
 
     // compute inverse
     let v = ((2020.to_bigint().unwrap() - &b) * inv(&a, &b_len)) % &b_len;

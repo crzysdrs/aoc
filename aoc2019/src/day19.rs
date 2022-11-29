@@ -1,12 +1,11 @@
 use crate::intcode::IntCodeMachine;
-use cgmath::{Point2, Vector2};
+use cgmath::Point2;
 use num_derive::{FromPrimitive, ToPrimitive};
-use num_traits::{FromPrimitive, ToPrimitive};
-use std::collections::{HashMap, HashSet};
+use num_traits::FromPrimitive;
+use std::collections::HashMap;
+use std::convert::TryFrom;
 use std::io::Result as IoResult;
 
-use itertools::Itertools;
-use std::convert::TryFrom;
 #[derive(Debug, FromPrimitive, ToPrimitive, PartialEq, Eq, Copy, Clone)]
 enum DroneState {
     Stationary = 0,
@@ -113,7 +112,7 @@ pub fn p2() -> IoResult<()> {
         .collect::<Vec<_>>();
 
     let mut ranges = vec![];
-    let mut last_y = 0;
+    let mut _last_y = 0;
     let desired = 100;
     //let mut old_y = 1028;
     let mut old_y = 0;
@@ -146,7 +145,7 @@ pub fn p2() -> IoResult<()> {
 
         ranges.push((x, top.1..bottom.1));
         if ranges.len() >= desired {
-            let (cur_x, source) = ranges.iter().rev().take(1).next().unwrap();
+            let (_cur_x, source) = ranges.iter().rev().take(1).next().unwrap();
             let (old_x, target) = ranges
                 .iter()
                 .rev()

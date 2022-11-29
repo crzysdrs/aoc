@@ -1,14 +1,7 @@
 use crate::intcode::IntCodeMachine;
-use cgmath::{Point2, Vector2};
-use num_derive::{FromPrimitive, ToPrimitive};
-use num_traits::{FromPrimitive, ToPrimitive};
-use std::collections::{HashMap, HashSet};
-use std::io::Result as IoResult;
-
 use itertools::Itertools;
-use std::convert::TryFrom;
-
 use std::fmt;
+use std::io::Result as IoResult;
 
 impl fmt::Display for SpringWrite {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -69,6 +62,7 @@ enum SpringRead {
     D,
     E,
     F,
+    #[allow(dead_code)]
     G,
     H,
     I,
@@ -87,7 +81,7 @@ enum Spring {
 pub fn p1() -> IoResult<()> {
     let codes = std::fs::read_to_string("input/day21.txt")?
         .trim()
-        .split(",")
+        .split(',')
         .map(|x| x.parse::<isize>().expect("Valid usize"))
         .collect::<Vec<_>>();
 
@@ -114,7 +108,6 @@ pub fn p1() -> IoResult<()> {
     let mut machine = IntCodeMachine::new(codes.clone(), cmds);
 
     machine.run();
-    use std::convert::TryFrom;
 
     //println!("{}", machine.output().into_iter().map(|x| x as u8 as char).collect::<String>());
     println!("{:?}", machine.output().into_iter().last().unwrap());
@@ -124,7 +117,7 @@ pub fn p1() -> IoResult<()> {
 pub fn p2() -> IoResult<()> {
     let codes = std::fs::read_to_string("input/day21.txt")?
         .trim()
-        .split(",")
+        .split(',')
         .map(|x| x.parse::<isize>().expect("Valid usize"))
         .collect::<Vec<_>>();
 
@@ -153,7 +146,6 @@ pub fn p2() -> IoResult<()> {
     let mut machine = IntCodeMachine::new(codes.clone(), cmds);
 
     machine.run();
-    use std::convert::TryFrom;
 
     //println!("{}", machine.output().into_iter().map(|x| x as u8 as char).collect::<String>());
     println!("{:?}", machine.output().into_iter().last().unwrap());

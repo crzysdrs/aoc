@@ -1,11 +1,7 @@
 use cgmath::{Point2, Vector2};
 use num_derive::{FromPrimitive, ToPrimitive};
-use num_traits::{FromPrimitive, ToPrimitive};
-use std::collections::VecDeque;
-use std::collections::{HashMap, HashSet};
-use std::fs::File;
+use std::collections::HashMap;
 use std::io::Result as IoResult;
-use std::io::{BufRead, BufReader, Read};
 
 #[derive(Debug, FromPrimitive, ToPrimitive, PartialEq, Eq, Copy, Clone)]
 enum Dir {
@@ -26,11 +22,12 @@ impl Dir {
             _ => panic!("Bad Direction"),
         }
     }
+    #[allow(dead_code)]
     fn rotate(&self, left: bool) -> Dir {
         let dirs = &[Dir::North, Dir::West, Dir::South, Dir::East];
         let cur = dirs.iter().position(|x| *x == *self).unwrap();
         let next = if left { cur + 1 } else { dirs.len() + cur - 1 } % dirs.len();
-        dirs[next].clone()
+        dirs[next]
     }
 }
 
@@ -56,7 +53,6 @@ fn point_dir(p: &Point2<i32>, d: &Dir) -> Point2<i32> {
 #[derive(Debug, Ord, PartialOrd, Eq, PartialEq, Clone)]
 enum Tile {
     Portal(String),
-    Wall,
     Empty,
 }
 pub fn p1() -> IoResult<()> {
@@ -152,7 +148,7 @@ pub fn p1() -> IoResult<()> {
                                         e => e,
                                     }
                                 });
-                                let s = s.iter().map(|(p, c)| c).collect::<String>();
+                                let s = s.iter().map(|(_p, c)| c).collect::<String>();
                                 return Some((Tile::Portal(s), vec![new_p]));
                             }
                         }
@@ -169,7 +165,7 @@ pub fn p1() -> IoResult<()> {
     portals.sort_by_key(|x| x.0.clone());
     let portal_edges = portals
         .into_iter()
-        .coalesce(|mut x, mut y| {
+        .coalesce(|mut x, y| {
             if x.0 == y.0 {
                 x.1.extend(y.1);
                 Ok(x)
@@ -181,14 +177,14 @@ pub fn p1() -> IoResult<()> {
 
     let empty = grid
         .iter()
-        .filter(|(k, v)| **v == '.')
-        .map(|(k, v)| (k, (deps.add_node(Tile::Empty))))
+        .filter(|(_k, v)| **v == '.')
+        .map(|(k, _v)| (k, (deps.add_node(Tile::Empty))))
         .collect::<HashMap<_, _>>();
 
-    let mut all_nodes = empty;
+    let all_nodes = empty;
 
     //println!("{:?}", all_nodes);
-    for (k, v) in grid.iter() {
+    for (k, _v) in grid.iter() {
         let east = point_dir(k, &Dir::East);
         let north = point_dir(k, &Dir::North);
 
@@ -201,7 +197,7 @@ pub fn p1() -> IoResult<()> {
         }
     }
 
-    for (k, v) in &portal_edges {
+    for (_k, v) in &portal_edges {
         if v.len() == 2 {
             deps.add_edge(
                 *all_nodes.get(&v[0]).unwrap(),
@@ -316,8 +312,8 @@ pub fn p2() -> IoResult<()> {
         })
         .collect::<HashMap<_, char>>();
 
-    let min_x = grid.keys().map(|p| p.x).min().unwrap();
-    let min_y = grid.keys().map(|p| p.y).min().unwrap();
+    let _min_x = grid.keys().map(|p| p.x).min().unwrap();
+    let _min_y = grid.keys().map(|p| p.y).min().unwrap();
     let max_x = grid.keys().map(|p| p.x).max().unwrap();
     let max_y = grid.keys().map(|p| p.y).max().unwrap();
 
@@ -344,7 +340,7 @@ pub fn p2() -> IoResult<()> {
                                         e => e,
                                     }
                                 });
-                                let s = s.iter().map(|(p, c)| c).collect::<String>();
+                                let s = s.iter().map(|(_p, c)| c).collect::<String>();
                                 return Some((Tile::Portal(s), vec![new_p]));
                             }
                         }
@@ -364,7 +360,7 @@ pub fn p2() -> IoResult<()> {
     portals.sort_by_key(|x| x.0.clone());
     let portal_edges = portals
         .into_iter()
-        .coalesce(|mut x, mut y| {
+        .coalesce(|mut x, y| {
             if x.0 == y.0 {
                 x.1.extend(y.1);
                 Ok(x)
@@ -390,12 +386,12 @@ pub fn p2() -> IoResult<()> {
 
         all_nodes.extend(
             grid.iter()
-                .filter(|(k, v)| **v == '.')
-                .map(|(k, v)| ((depth, *k), (deps.add_node(Tile::Empty)))),
+                .filter(|(_k, v)| **v == '.')
+                .map(|(k, _v)| ((depth, *k), (deps.add_node(Tile::Empty)))),
         );
 
         //println!("{:?}", all_nodes);
-        for (k, v) in grid.iter() {
+        for (k, _v) in grid.iter() {
             let east = point_dir(k, &Dir::East);
             let north = point_dir(k, &Dir::North);
 
@@ -410,7 +406,7 @@ pub fn p2() -> IoResult<()> {
 
         let lower = depth + 1;
         recurse(outer, deps, grid, portal_edges, all_nodes, lower, max_depth);
-        for (k, v) in portal_edges.iter() {
+        for (_k, v) in portal_edges.iter() {
             if v.len() == 2 {
                 let (outer, inner): (Vec<_>, Vec<_>) = v.iter().map(|x| *x).partition(outer);
                 match (

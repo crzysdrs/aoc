@@ -1,11 +1,8 @@
 use cgmath::{Point2, Vector2};
 use num_derive::{FromPrimitive, ToPrimitive};
-use num_traits::{FromPrimitive, ToPrimitive};
 use std::collections::VecDeque;
 use std::collections::{HashMap, HashSet};
-use std::fs::File;
 use std::io::Result as IoResult;
-use std::io::{BufRead, BufReader, Read};
 
 #[derive(Debug, FromPrimitive, ToPrimitive, PartialEq, Eq, Copy, Clone)]
 enum Dir {
@@ -26,6 +23,7 @@ impl Dir {
             _ => panic!("Bad Direction"),
         }
     }
+    #[allow(dead_code)]
     fn rotate(&self, left: bool) -> Dir {
         let dirs = &[Dir::North, Dir::West, Dir::South, Dir::East];
         let cur = dirs.iter().position(|x| *x == *self).unwrap();
@@ -69,13 +67,14 @@ fn draw(grid: &HashMap<Point2<i32>, char>) {
     }
 }
 
+#[allow(dead_code)]
 fn draw_dist(grid: &HashMap<Point2<i32>, u32>) {
     let min_x = grid.keys().map(|p| p.x).min().unwrap();
     let min_y = grid.keys().map(|p| p.y).min().unwrap();
     let max_x = grid.keys().map(|p| p.x).max().unwrap();
     let max_y = grid.keys().map(|p| p.y).max().unwrap();
 
-    for y in (min_y..=max_y) {
+    for y in min_y..=max_y {
         for x in min_x..=max_x {
             let p = grid.get(&Point2::new(x, y));
             print!("{}", if p.is_some() { "X" } else { " " },)
@@ -141,16 +140,16 @@ where
 
 fn min_dist(grid: &HashMap<Point2<i32>, char>) -> u32 {
     fn keys(grid: &HashMap<Point2<i32>, char>) -> impl Iterator<Item = (&Point2<i32>, &char)> {
-        grid.iter().filter(|(p, x)| ('a'..='z').contains(*x))
+        grid.iter().filter(|(_p, x)| ('a'..='z').contains(*x))
     }
     fn doors(grid: &HashMap<Point2<i32>, char>) -> impl Iterator<Item = (&Point2<i32>, &char)> {
-        grid.iter().filter(|(p, x)| ('A'..='Z').contains(*x))
+        grid.iter().filter(|(_p, x)| ('A'..='Z').contains(*x))
     }
 
     fn starts(grid: &HashMap<Point2<i32>, char>) -> Vec<Point2<i32>> {
         grid.iter()
-            .filter(|(p, x)| **x == '@')
-            .map(|(p, x)| *p)
+            .filter(|(_p, x)| **x == '@')
+            .map(|(p, _x)| *p)
             .collect()
     }
 
@@ -161,7 +160,8 @@ fn min_dist(grid: &HashMap<Point2<i32>, char>) -> u32 {
             _ => keys.contains(&x.to_ascii_lowercase()),
         }
     }
-    fn all_traversable(x: char, keys: &HashSet<char>) -> bool {
+    #[allow(dead_code)]
+    fn all_traversable(x: char, _keys: &HashSet<char>) -> bool {
         match x {
             '#' => false,
             'a'..='z' | '.' | '@' => true,
@@ -171,7 +171,7 @@ fn min_dist(grid: &HashMap<Point2<i32>, char>) -> u32 {
 
     let key_count = keys(&grid).count();
     let key_pos = keys(&grid).map(|(p, v)| (*p, *v)).collect::<Vec<_>>();
-    let door_pos = doors(&grid).map(|(p, v)| (*p, *v)).collect::<Vec<_>>();
+    let _door_pos = doors(&grid).map(|(p, v)| (*p, *v)).collect::<Vec<_>>();
     let key_lookup: HashMap<char, Point2<_>> = keys(&grid).map(|(p, v)| (*v, *p)).collect();
 
     println!(
@@ -214,7 +214,7 @@ fn min_dist(grid: &HashMap<Point2<i32>, char>) -> u32 {
                             .filter(|(p, c)| grid.get(p).unwrap() == c)
                             .map(|(p, c)| (dijk.get(p), *p, *c))
                             .filter(|(d, _, _)| d.is_some())
-                            .map(|(d, p, c)| c),
+                            .map(|(_d, _p, c)| c),
                     );
                 }
                 reachable.insert(sorted_keys.clone(), reach_keys);
@@ -280,14 +280,14 @@ fn min_dist(grid: &HashMap<Point2<i32>, char>) -> u32 {
 }
 
 pub fn p1() -> IoResult<()> {
-    let s = "########################
+    let _s = "########################
 #...............b.C.D.f#
 #.######################
 #.....@.a.B.c.d.A.e.F.g#
 ########################"
         .to_string();
 
-    let s = "#################
+    let _s = "#################
 #i.G..c...e..H.p#
 ########.########
 #j.A..b...f..D.o#
@@ -298,19 +298,19 @@ pub fn p1() -> IoResult<()> {
 #################"
         .to_string();
 
-    let s = "########################
+    let _s = "########################
 #@..............ac.GI.b#
 ###d#e#f################
 ###A#B#C################
 ###g#h#i################
 ########################"
         .to_string();
-    let s = "#########
+    let _s = "#########
 #b.A.@.a#
 #########"
         .to_string();
 
-    let s = "########################
+    let _s = "########################
 #f.D.E.e.C.b.A.@.a.B.c.#
 ######################.#
 #d.....................#
@@ -318,7 +318,7 @@ pub fn p1() -> IoResult<()> {
         .to_string();
     let s = std::fs::read_to_string("input/day18.txt")?;
     let grid = s
-        .split("\n")
+        .split('\n')
         .enumerate()
         .flat_map(move |(y, l)| {
             l.chars()
@@ -332,7 +332,7 @@ pub fn p1() -> IoResult<()> {
 }
 
 pub fn p2() -> IoResult<()> {
-    let s = "###############
+    let _s = "###############
 #d.ABC.#.....a#
 ######@#@######
 ###############
@@ -341,7 +341,7 @@ pub fn p2() -> IoResult<()> {
 ###############"
         .to_string();
 
-    let s = "#############
+    let _s = "#############
 #DcBa.#.GhKl#
 #.###@#@#I###
 #e#d#####j#k#
@@ -350,7 +350,7 @@ pub fn p2() -> IoResult<()> {
 #############"
         .to_string();
 
-    let s = "#############
+    let _s = "#############
 #g#f.D#..h#l#
 #F###e#E###.#
 #dCba@#@BcIJ#
@@ -363,7 +363,7 @@ pub fn p2() -> IoResult<()> {
 
     let s = std::fs::read_to_string("input/day18_2.txt")?;
     let grid = s
-        .split("\n")
+        .split('\n')
         .enumerate()
         .flat_map(move |(y, l)| {
             l.chars()

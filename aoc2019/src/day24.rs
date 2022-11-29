@@ -1,8 +1,6 @@
-use cgmath::{Point2, Vector2};
+use cgmath::Point2;
 use std::collections::HashSet;
-use std::fs::File;
 use std::io::Result as IoResult;
-use std::io::{BufRead, BufReader, Read};
 
 #[derive(Copy, Clone, Hash, Eq, PartialEq)]
 enum Tile {
@@ -221,7 +219,7 @@ pub fn p2() -> IoResult<()> {
     // #....".to_string();
     let mut current: HashSet<Item> = HashSet::new();
 
-    let mut tiles = s
+    let tiles = s
         .trim()
         .chars()
         .filter(|x| *x != '\n')

@@ -24,6 +24,7 @@ impl IntCodeMachine {
             interactive: false,
         }
     }
+    #[allow(dead_code)]
     pub fn new_console(code: Vec<isize>) -> IntCodeMachine {
         IntCodeMachine {
             ip: 0,

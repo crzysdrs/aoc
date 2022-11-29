@@ -1,15 +1,8 @@
 use crate::intcode::IntCodeMachine;
-use cgmath::{Point2, Vector2};
-use num_derive::{FromPrimitive, ToPrimitive};
-use num_traits::{FromPrimitive, ToPrimitive};
-use std::collections::{HashMap, HashSet};
-use std::io::Result as IoResult;
-
 use itertools::Itertools;
-use std::convert::TryFrom;
-
-use regex::Regex;
+use std::collections::{HashMap, HashSet};
 use std::fmt;
+use std::io::Result as IoResult;
 
 impl fmt::Display for Direction {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -34,6 +27,7 @@ enum Direction {
 }
 
 impl Direction {
+    #[allow(dead_code)]
     fn invert(&self) -> Direction {
         match self {
             Direction::North => Direction::South,
@@ -84,7 +78,7 @@ fn parse_room(room: String) -> Option<Room> {
             dirs = true;
         } else if l == "Items here:" {
             items = true;
-        } else if l.len() > 0 && l.chars().nth(0).unwrap() == '-' {
+        } else if !l.is_empty() && l.chars().nth(0).unwrap() == '-' {
             if dirs {
                 let d = match &l[2..] {
                     "north" => Direction::North,
@@ -93,9 +87,9 @@ fn parse_room(room: String) -> Option<Room> {
                     "west" => Direction::West,
                     _ => panic!("Unhandled direction"),
                 };
-                r.as_mut().map(|mut x| x.dirs.push(d));
+                r.as_mut().map(|x| x.dirs.push(d));
             } else if items {
-                r.as_mut().map(|mut x| x.items.push(l[2..].to_string()));
+                r.as_mut().map(|x| x.items.push(l[2..].to_string()));
             }
         } else if l == "" {
             dirs = false;
@@ -125,8 +119,6 @@ pub fn p1() -> IoResult<()> {
     .collect::<HashSet<String>>();
     let mut m = IntCodeMachine::new(codes, vec![]);
     let mut rooms = vec![];
-
-    let seen: HashSet<String> = HashSet::new();
 
     let mut dir_stack = vec![];
 
@@ -205,7 +197,7 @@ pub fn p1() -> IoResult<()> {
             &deps,
             *nodes.get(&cur_room).unwrap(),
             |finish| finish == *nodes.get(target_room).unwrap(),
-            |e| 1,
+            |_e| 1,
             |_| 0,
         );
         //println!("{:?}", rooms);
@@ -233,7 +225,7 @@ pub fn p1() -> IoResult<()> {
         &deps,
         *nodes.get(&cur_room).unwrap(),
         |finish| finish == *nodes.get(&target_room).unwrap(),
-        |e| 1,
+        |_e| 1,
         |_| 0,
     );
     for node in r.unwrap().1.windows(2) {
