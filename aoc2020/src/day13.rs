@@ -93,7 +93,8 @@ impl Day for Solution {
                     } else {
                         None
                     }
-                }).next()
+                })
+                .next()
                 .unwrap();
             (x_n, Bus(b0.1 .0 * b1.1 .0))
         });

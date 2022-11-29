@@ -33,7 +33,7 @@ impl Seat {
     }
 }
 
-fn build_seats<'a>(seats: &'a [Vec<Dir>]) -> impl Iterator<Item = Seat> + 'a {
+fn build_seats(seats: &[Vec<Dir>]) -> impl Iterator<Item = Seat> + '_ {
     seats.iter().map(|bsp| {
         bsp.iter().fold(
             Seat {

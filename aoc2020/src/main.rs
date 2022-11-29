@@ -44,6 +44,7 @@ where
     fn p2(_input: &[Self::Input]) -> Self::Sol2 {
         unimplemented!("Missing implementation of Day {} Part 2", Self::DAY)
     }
+    #[allow(clippy::type_complexity)]
     fn both() -> (Box<dyn Fn() -> IoResult<()>>, Box<dyn Fn() -> IoResult<()>>) {
         (Box::new(Self::run_p1), Box::new(Self::run_p2))
     }

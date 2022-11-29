@@ -129,13 +129,11 @@ impl Day for Solution {
                     .map(|mut float_v| {
                         let new_float = save_mask.iter().fold(0, |mut v, b| {
                             v <<= 1;
-                            match b {
-                                Bit::BX => {
-                                    v |= float_v & 1;
-                                    float_v >>= 1;
-                                }
-                                _ => {}
+                            if let Bit::BX = b {
+                                v |= float_v & 1;
+                                float_v >>= 1;
                             }
+
                             v
                         });
                         (addr & !float) | new_float

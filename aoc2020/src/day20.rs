@@ -113,9 +113,9 @@ impl Tile {
     }
     fn rot_right(&mut self) {
         let mut new = vec![vec![false; self.tile.len()]; self.tile.len()];
-        for x in 0..self.tile.len() {
+        for (x, item) in new.iter_mut().enumerate().take(self.tile.len()) {
             for y in 0..self.tile.len() {
-                new[x][self.tile.len() - 1 - y] = self.tile[y][x];
+                item[self.tile.len() - 1 - y] = self.tile[y][x];
             }
         }
         self.tile = new;

@@ -43,7 +43,8 @@ impl Solution {
                 };
                 preamble.insert(new_idx, *value);
                 (i, value, found.is_some())
-            }).find(|(_, _, f)| !(*f))
+            })
+            .find(|(_, _, f)| !(*f))
             .map(|(_, v, _)| *v)
             .unwrap()
     }

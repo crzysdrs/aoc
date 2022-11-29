@@ -14,7 +14,7 @@ pub enum Position {
 
 impl Position {
     #[allow(dead_code)]
-    fn to_char(&self) -> char {
+    fn to_char(self) -> char {
         match self {
             Position::Floor => '.',
             Position::OccupiedSeat => '#',

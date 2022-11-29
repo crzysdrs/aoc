@@ -11,7 +11,7 @@ pub struct Input {
 
 use std::cmp::Ordering;
 
-fn recursive_combat(game: u32, mut input: Input) -> (Input, Ordering) {
+fn recursive_combat(mut input: Input) -> (Input, Ordering) {
     let mut state: HashSet<(Vec<usize>, Vec<usize>)> = HashSet::new();
     //let mut round = 1;
     //println!(" === Game {} === ", game);
@@ -39,13 +39,10 @@ fn recursive_combat(game: u32, mut input: Input) -> (Input, Ordering) {
             //println!("Playing a sub-game to determine the winnner... ");
 
             //println!("...anyway, back to game {}.", game);
-            recursive_combat(
-                game + 1,
-                Input {
-                    player1: input.player1[..p1].to_vec(),
-                    player2: input.player2[..p2].to_vec(),
-                },
-            )
+            recursive_combat(Input {
+                player1: input.player1[..p1].to_vec(),
+                player2: input.player2[..p2].to_vec(),
+            })
             .1
         } else {
             p1.cmp(&p2)
@@ -155,7 +152,7 @@ impl Day for Solution {
         std::cmp::max(p1_score, p2_score)
     }
     fn p2(v: &[Self::Input]) -> Self::Sol2 {
-        let (input, _) = recursive_combat(1, v[0].clone());
+        let (input, _) = recursive_combat(v[0].clone());
 
         let p1_score = input
             .player1
