@@ -89,6 +89,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "aoc2022"
+version = "0.1.0"
+dependencies = [
+ "cgmath 0.18.0",
+ "clap",
+ "derive_more",
+ "enum-primitive-derive 0.2.2",
+ "itertools",
+ "nom 7.1.1",
+ "num 0.4.0",
+ "num-derive",
+ "num-traits 0.2.15",
+ "petgraph 0.6.2",
+ "rayon",
+ "regex",
+ "serde",
+ "serde_scan",
+]
+
+[[package]]
 name = "approx"
 version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
