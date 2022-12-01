@@ -12,15 +12,19 @@ impl Day for Solution {
 
     fn process_input1(s: &str) -> Self::Input1 {
         let mut elves = vec![];
-        let mut elf = vec![];
-        s.lines().for_each(|x| {
-            if x.is_empty() {
-                elves.push(elf.clone());
-                elf.clear();
-            } else {
-                elf.push(x.parse().unwrap());
+        let mut lines = s.lines();
+
+        loop {
+            let elf: Vec<_> = lines
+                .by_ref()
+                .take_while(|x| !x.is_empty())
+                .map(|x| x.parse().unwrap())
+                .collect();
+            if elf.is_empty() {
+                break;
             }
-        });
+            elves.push(elf)
+        }
         elves
     }
     fn process_input2(s: &str) -> Self::Input2 {
