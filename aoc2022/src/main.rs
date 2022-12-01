@@ -92,11 +92,11 @@ macro_rules! default_tests {
             use super::*;
             #[test]
             fn part1() {
-                assert_eq!(Solution::run_p1_path(Solution::input1()).unwrap(), $sol1);
+                assert_eq!(Solution::run_p1_path(&Solution::input1()).unwrap(), $sol1);
             }
             #[test]
             fn part2() {
-                assert_eq!(Solution::run_p2_path(Solution::input2()).unwrap(), $sol2);
+                assert_eq!(Solution::run_p2_path(&Solution::input2()).unwrap(), $sol2);
             }
         }
     };
@@ -141,16 +141,16 @@ macro_rules! path_tests {
             $(
                 #[test]
                 fn $name1() {
-                    let buf = std::fs::read_to_string(path).expect("valid input file");
-                    let v = Solution::process_input1($input1);
+                    let buf = std::fs::read_to_string($input1).expect("valid input file");
+                    let v = Solution::process_input1(&buf);
                     assert_eq!(Solution::p1(&v), $sol1);
                 }
             )*
             $(
                 #[test]
                 fn $name2() {
-                    let buf = std::fs::read_to_string(path).expect("valid input file");
-                    let v = Solution::process_input2(buf);
+                    let buf = std::fs::read_to_string($input2).expect("valid input file");
+                    let v = Solution::process_input2(&buf);
                     assert_eq!(Solution::p2(&v), $sol2);
                 }
             )*
@@ -158,7 +158,7 @@ macro_rules! path_tests {
     };
 }
 
-tests!(template);
+tests!(template, day01);
 
 fn main() -> std::io::Result<()> {
     let opts: Opts = Opts::parse();
