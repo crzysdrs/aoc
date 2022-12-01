@@ -11,12 +11,14 @@ impl Day for Solution {
     type Sol2 = u32;
 
     fn process_input1(s: &str) -> Self::Input1 {
-        let mut elves = vec![vec![]];
+        let mut elves = vec![];
+        let mut elf = vec![];
         s.lines().for_each(|x| {
             if x.is_empty() {
-                elves.push(vec![]);
+                elves.push(elf.clone());
+                elf.clear();
             } else {
-                elves.last_mut().unwrap().push(x.parse().unwrap())
+                elf.push(x.parse().unwrap());
             }
         });
         elves

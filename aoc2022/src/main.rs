@@ -136,7 +136,7 @@ macro_rules! path_tests {
         [$(($name2:ident, $input2:expr, $sol2:expr)),*]
     ) => {
         #[cfg(test)]
-        mod string_tests {
+        mod path_tests {
             use super::*;
             $(
                 #[test]
