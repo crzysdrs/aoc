@@ -14,6 +14,16 @@ pub enum WLD {
     Lose,
     Draw,
 }
+
+impl WLD {
+    fn score(&self) -> u32 {
+        match self {
+            WLD::Win => 6,
+            WLD::Draw => 3,
+            WLD::Lose => 0,
+        }
+    }
+}
 impl RPS {
     fn win(&self, other: &RPS) -> WLD {
         match (self, other) {
@@ -82,24 +92,11 @@ impl Day for Solution {
             .collect()
     }
     fn p1(v: &Self::Input1) -> Self::Sol1 {
-        v.iter()
-            .map(|(a, b)| {
-                (match b.win(a) {
-                    WLD::Win => 6,
-                    WLD::Draw => 3,
-                    WLD::Lose => 0,
-                }) + b.score()
-            })
-            .sum()
+        v.iter().map(|(a, b)| b.win(a).score() + b.score()).sum()
     }
     fn p2(v: &Self::Input2) -> Self::Sol2 {
         v.iter()
             .map(|(a, b)| {
-                let wld = match b {
-                    WLD::Win => 6,
-                    WLD::Draw => 3,
-                    WLD::Lose => 0,
-                };
                 let rsp = match b {
                     WLD::Win => match a {
                         RPS::Rock => RPS::Paper,
@@ -113,11 +110,14 @@ impl Day for Solution {
                         RPS::Scissors => RPS::Paper,
                     },
                 };
-                wld + rsp.score()
+                b.score() + rsp.score()
             })
             .sum()
     }
 }
 
 crate::default_tests!(11873, 12014);
-//crate::string_tests!([(foo_sol1, "hi1", 0)], [(foo_sol2, "hi2", 1)]);
+crate::path_tests!(
+    [(sol1, "test/day02.txt", 15)],
+    [(sol2, "test/day02.txt", 12)]
+);
