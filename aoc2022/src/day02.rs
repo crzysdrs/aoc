@@ -27,9 +27,7 @@ impl WLD {
 impl RPS {
     fn win(&self, other: &RPS) -> WLD {
         match (self, other) {
-            (Self::Rock, Self::Scissors) => WLD::Win,
-            (Self::Scissors, Self::Paper) => WLD::Win,
-            (Self::Paper, Self::Rock) => WLD::Win,
+            (a, b) if a.loses() == *b => WLD::Win,
             (a, b) if a == b => WLD::Draw,
             _ => WLD::Lose,
         }
@@ -39,6 +37,20 @@ impl RPS {
             Self::Rock => 1,
             Self::Paper => 2,
             Self::Scissors => 3,
+        }
+    }
+    fn beats(&self) -> RPS {
+        match self {
+            RPS::Rock => RPS::Paper,
+            RPS::Paper => RPS::Scissors,
+            RPS::Scissors => RPS::Rock,
+        }
+    }
+    fn loses(&self) -> RPS {
+        match self {
+            RPS::Rock => RPS::Scissors,
+            RPS::Paper => RPS::Rock,
+            RPS::Scissors => RPS::Paper,
         }
     }
 }
@@ -98,17 +110,9 @@ impl Day for Solution {
         v.iter()
             .map(|(a, b)| {
                 let rsp = match b {
-                    WLD::Win => match a {
-                        RPS::Rock => RPS::Paper,
-                        RPS::Paper => RPS::Scissors,
-                        RPS::Scissors => RPS::Rock,
-                    },
+                    WLD::Win => a.beats(),
                     WLD::Draw => *a,
-                    WLD::Lose => match a {
-                        RPS::Rock => RPS::Scissors,
-                        RPS::Paper => RPS::Rock,
-                        RPS::Scissors => RPS::Paper,
-                    },
+                    WLD::Lose => a.loses(),
                 };
                 b.score() + rsp.score()
             })
