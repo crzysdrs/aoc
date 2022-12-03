@@ -57,5 +57,8 @@ impl Day for Solution {
     }
 }
 
-//crate::default_tests!((), ());
-//crate::string_tests!([(foo_sol1, "hi1", 0)], [(foo_sol2, "hi2", 1)]);
+crate::default_tests!(8349, 2681);
+crate::path_tests!(
+    [(sol1, "test/day03.txt", 157)],
+    [(sol2, "test/day03.txt", 70)]
+);
