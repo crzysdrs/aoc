@@ -39,4 +39,18 @@ impl Day for Solution {
 }
 
 crate::default_tests!(1582, 3588);
-crate::string_tests!([(t1, "mjqjpqmgbljsphdztnvjfqwrcgsmlb", 7)], []);
+crate::string_tests!(
+    [
+        (t1, "mjqjpqmgbljsphdztnvjfqwrcgsmlb", 7),
+        (t2, "nppdvjthqldpwncqszvftbrmjlhg", 6),
+        (t3, "nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg", 10),
+        (t4, "zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw", 11)
+    ],
+    [
+        (t5, "mjqjpqmgbljsphdztnvjfqwrcgsmlb", 19),
+        (t6, "bvwbjplbgvbhsrlpgdmjqwftvncz", 23),
+        (t7, "nppdvjthqldpwncqszvftbrmjlhg", 23),
+        (t8, "nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg", 29),
+        (t9, "zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw", 26)
+    ]
+);
