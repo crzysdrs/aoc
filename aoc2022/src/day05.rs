@@ -77,8 +77,7 @@ impl Day for Solution {
 
         stacks
             .iter_mut()
-            .map(|s| s.pop())
-            .flatten()
+            .filter_map(|s| s.pop())
             .collect::<String>()
     }
     fn p2(v: &Self::Input2) -> Self::Sol2 {
@@ -94,8 +93,7 @@ impl Day for Solution {
 
         stacks
             .iter_mut()
-            .map(|s| s.pop())
-            .flatten()
+            .filter_map(|s| s.pop())
             .collect::<String>()
     }
 }

@@ -19,9 +19,7 @@ impl Day for Solution {
     fn p1(v: &Self::Input1) -> Self::Sol1 {
         let len = 4;
         v.windows(len)
-            .enumerate()
-            .filter(|(_, w)| w.iter().collect::<HashSet<_>>().iter().count() == w.len())
-            .next()
+            .enumerate().find(|(_, w)| w.iter().collect::<HashSet<_>>().len() == w.len())
             .unwrap()
             .0
             + len
@@ -29,9 +27,7 @@ impl Day for Solution {
     fn p2(v: &Self::Input2) -> Self::Sol2 {
         let len = 14;
         v.windows(len)
-            .enumerate()
-            .filter(|(_, w)| w.iter().collect::<HashSet<_>>().iter().count() == w.len())
-            .next()
+            .enumerate().find(|(_, w)| w.iter().collect::<HashSet<_>>().len() == w.len())
             .unwrap()
             .0
             + len
