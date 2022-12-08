@@ -107,12 +107,13 @@ impl Day for Solution {
                 }
             })
         }
+        let cols = &v.cols();
         (0..v.h)
             .flat_map(|y| {
                 (0..v.w).map(move |x| {
                     let h = v.pt(x, y);
                     let row = v.rows().nth(y).unwrap();
-                    let col = v.cols()[x].clone();
+                    let col = &cols[x];
                     let (l, r) = (&row[..x], &row[x + 1..]);
                     let (u, d) = (&col[..y], &col[y + 1..]);
                     let score = visible(h, l.iter().rev().copied()).count()
