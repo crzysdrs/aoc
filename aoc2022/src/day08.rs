@@ -2,7 +2,7 @@ use crate::Day;
 #[allow(unused_imports)]
 use std::collections::*;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct Grid {
     h: usize,
     w: usize,
