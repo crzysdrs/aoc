@@ -1,4 +1,5 @@
 use crate::Day;
+use itertools::Itertools;
 #[allow(unused_imports)]
 use std::collections::*;
 
@@ -15,6 +16,27 @@ impl Cmd {
             Self::Addx(_i32) => 2,
         }
     }
+}
+
+#[derive(Clone, Debug)]
+struct Cpu {
+    cycle: usize,
+    x: i32,
+}
+
+fn run_cpu(cmds: &[Cmd]) -> impl Iterator<Item = Cpu> + itertools::PeekingNext + '_ {
+    let mut cpu = Cpu { cycle: 0, x: 1 };
+
+    std::iter::once(cpu.clone())
+        .chain(cmds.iter().map(move |cmd| {
+            if let Cmd::Addx(v) = cmd {
+                cpu.x += v;
+            }
+            cpu.cycle += cmd.cycle_count();
+
+            cpu.clone()
+        }))
+        .peekable()
 }
 
 pub struct Solution {}
@@ -42,66 +64,38 @@ impl Day for Solution {
         Self::process_input1(s)
     }
     fn p1(v: &Self::Input1) -> Self::Sol1 {
-        #[derive(Clone, Debug)]
-        struct Cpu {
-            cycle: usize,
-            x: i32,
-        }
-        let mut cpu = Cpu { cycle: 0, x: 1 };
-        let v: Vec<_> = v
-            .iter()
-            .scan(cpu, |cpu, cmd| {
-                if let Cmd::Addx(v) = cmd {
-                    cpu.x += v;
-                }
-                cpu.cycle += cmd.cycle_count();
-                Some(cpu.clone())
+        let mut cpu_state = run_cpu(v);
+
+        (0..=220)
+            .skip(20)
+            .step_by(40)
+            .map_while(|x| {
+                cpu_state
+                    .by_ref()
+                    .peeking_take_while(|cpu| cpu.cycle < x)
+                    .last()
+                    .map(|cpu| cpu.x * x as i32)
             })
-            .collect();
-
-        let mut total = v.last().unwrap();
-        let mut pts = vec![];
-        for x in (0..total.cycle).skip(20).step_by(40) {
-            let found = v.binary_search_by_key(&x, |cpu| cpu.cycle);
-            match found {
-                Ok(pos) | Err(pos) => {
-                    let pos = pos.saturating_sub(1);
-                    println!("{:?}", &v[pos]);
-                    pts.push(v[pos].x * x as i32)
-                }
-            }
-        }
-
-        pts.iter().sum()
+            .sum()
     }
     fn p2(v: &Self::Input2) -> Self::Sol2 {
-        #[derive(Clone, Debug)]
-        struct Cpu {
-            cycle: usize,
-            x: i32,
-        }
-        let mut cpu = Cpu { cycle: 0, x: 1 };
-        let mut v: Vec<_> = std::iter::once(cpu.clone())
-            .chain(v.iter().scan(cpu, |cpu, cmd| {
-                match cmd {
-                    Cmd::Addx(v) => cpu.x += v,
-                    _ => {}
-                }
-                cpu.cycle += cmd.cycle_count();
-                Some(cpu.clone())
-            }))
-            .collect();
+        let mut cpu_state = run_cpu(v);
 
         let mut pixels = vec!['.'; 40 * 6];
 
+        let mut last = None;
         pixels.iter_mut().enumerate().for_each(|(crt_pos, p)| {
-            let found = v.binary_search_by_key(&(crt_pos + 1), |cpu| cpu.cycle);
-            match found {
-                Ok(pos) | Err(pos) => {
-                    let pos = pos.saturating_sub(1);
-                    if ((crt_pos % 40) as i32 - v[pos].x).abs() <= 1 {
-                        *p = '#';
-                    }
+            if let Some(cpu) = cpu_state
+                .by_ref()
+                .peeking_take_while(|cpu| cpu.cycle <= crt_pos)
+                .last()
+            {
+                last = Some(cpu);
+            }
+
+            if let Some(cpu) = &last {
+                if ((crt_pos % 40) as i32 - cpu.x).abs() <= 1 {
+                    *p = '#';
                 }
             }
         });
