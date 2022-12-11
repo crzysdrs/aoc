@@ -13,7 +13,7 @@ pub struct Monk {
 }
 
 impl Monk {
-    fn inspect(&mut self) -> Vec<(usize, usize)> {
+    fn inspect(&mut self, part2: bool) -> Vec<(usize, usize)> {
         self.start
             .drain(..)
             .map(|old| {
@@ -32,7 +32,9 @@ impl Monk {
                     "new = old * 2" => old * 2,
                     expr => unimplemented!("{:?}", expr),
                 };
-                new /= 3;
+                if !part2 {
+                    new /= 3;
+                }
 
                 if new % self.div_by == 0 {
                     (new, self.t)
@@ -125,7 +127,7 @@ impl Day for Solution {
         let mut monks = v.to_vec();
         for _ in 0..rounds {
             for m in 0..monks.len() {
-                let worries = monks[m].inspect();
+                let worries = monks[m].inspect(false);
                 for w in worries {
                     monks[w.1].start.push(w.0);
                 }
@@ -143,7 +145,7 @@ impl Day for Solution {
 
         for _ in 0..rounds {
             for m in 0..monks.len() {
-                let worries = monks[m].inspect();
+                let worries = monks[m].inspect(true);
                 for w in worries {
                     monks[w.1].start.push(w.0 % monks_mod);
                 }
