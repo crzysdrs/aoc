@@ -30,39 +30,9 @@ impl Monk {
                     "new = old + 4" => old + 4,
                     "new = old + 6" => old + 6,
                     "new = old * 2" => old * 2,
-                    expr => panic!("{:?}", expr),
+                    expr => unimplemented!("{:?}", expr),
                 };
                 new /= 3;
-
-                if new % self.div_by == 0 {
-                    (new, self.t)
-                } else {
-                    (new, self.f)
-                }
-            })
-            .collect()
-    }
-
-    fn inspect_p2(&mut self) -> Vec<(usize, usize)> {
-        self.start
-            .drain(..)
-            .map(|old| {
-                self.inspected += 1;
-                let mut new = match self.op.as_ref() {
-                    "new = old * 19" => old * 19,
-                    "new = old * 6" => old * 6,
-                    "new = old * old" => old * old,
-                    "new = old + 3" => old + 3,
-                    "new = old * 3" => old * 3,
-                    "new = old + 7" => old + 7,
-                    "new = old + 5" => old + 5,
-                    "new = old + 8" => old + 8,
-                    "new = old + 4" => old + 4,
-                    "new = old + 6" => old + 6,
-                    "new = old * 2" => old * 2,
-                    expr => panic!("{:?}", expr),
-                };
-                //new /= 3;
 
                 if new % self.div_by == 0 {
                     (new, self.t)
@@ -173,9 +143,7 @@ impl Day for Solution {
 
         for _ in 0..rounds {
             for m in 0..monks.len() {
-                //println!("{:?}", monks[m]);
-                let worries = monks[m].inspect_p2();
-                //println!("{:?}", worries);
+                let worries = monks[m].inspect();
                 for w in worries {
                     monks[w.1].start.push(w.0 % monks_mod);
                 }
