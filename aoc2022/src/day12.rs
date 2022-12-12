@@ -154,14 +154,15 @@ impl Day for Solution {
             .grid
             .iter()
             .enumerate()
-            .filter(|(_pos, v)| v.height() == 0)
-            .min_by_key(|(pos, _h)| {
-                if let Some(Some(steps)) = visited.get(&v.reverse(*pos)) {
-                    *steps
-                } else {
-                    std::usize::MAX
-                }
+            .filter(|(_pos, c)| c.height() == 0)
+            .flat_map(|(pos, _c)| {
+                visited
+                    .get(&v.reverse(pos))
+                    .copied()
+                    .flatten()
+                    .map(|steps| (pos, steps))
             })
+            .min_by_key(|(_pos, steps)| *steps)
             .unwrap();
 
         let p = v.reverse(offset.0);
