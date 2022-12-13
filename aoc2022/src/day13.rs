@@ -85,9 +85,7 @@ impl Day for Solution {
     fn p1(v: &Self::Input1) -> Self::Sol1 {
         v.iter()
             .zip(1..)
-            .filter(|((p1, p2), _pos)| {
-                matches!(p1.partial_cmp(p2), Some(Ordering::Less | Ordering::Equal))
-            })
+            .filter(|((p1, p2), _pos)| p1 <= p2)
             .map(|(_, pos)| pos)
             .sum()
     }
