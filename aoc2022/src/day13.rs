@@ -51,7 +51,7 @@ impl PartialOrd for Packet {
 
 impl PartialEq for Packet {
     fn eq(&self, other: &Self) -> bool {
-        self.partial_cmp(other).unwrap() == Ordering::Equal
+        self.cmp(other) == Ordering::Equal
     }
 }
 
