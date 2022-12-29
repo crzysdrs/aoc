@@ -157,7 +157,7 @@ impl Day for Solution {
                     | (Math2::BinOp(_, _, _), Math2::BinOp(_, _, _))
                     | (Math2::Human, Math2::Human) => unreachable!(),
                 },
-                Math2::Constant(v) => panic!(),
+                Math2::Constant(_v) => panic!(),
                 Math2::Human => val,
             }
         }
