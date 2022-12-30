@@ -29,6 +29,9 @@ impl From<Snafu> for i64 {
 
 impl From<i64> for Snafu {
     fn from(mut i: i64) -> Snafu {
+        if i == 0 {
+            return Snafu("0".to_string());
+        }
         let mut chars = vec![];
         while i > 0 {
             let b5 = i % 5;
