@@ -102,11 +102,10 @@ mod locals {
 
         tests.lines().for_each(|l| {
             let v: Vec<_> = l.split_whitespace().collect();
-            assert_eq!(i64::from(Snafu(v[1].to_string())), v[0].parse().unwrap());
-            assert_eq!(
-                Snafu(v[1].to_string()),
-                Snafu::from(v[0].parse::<i64>().unwrap())
-            );
+            let snafu = Snafu(v[1].to_string());
+            let num = v[0].parse().unwrap();
+            assert_eq!(i64::from(snafu.clone()), num);
+            assert_eq!(snafu, Snafu::from(num));
         });
     }
 }
