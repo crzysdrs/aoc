@@ -151,4 +151,4 @@ impl Day for Solution {
 }
 
 crate::default_tests!(4075, 950);
-//crate::string_tests!([(foo_sol1, "hi1", 0)], [(foo_sol2, "hi2", 1)]);
+crate::path_tests!([(t1, "test/day23.txt", 110)], [(t2, "test/day23.txt", 20)]);
