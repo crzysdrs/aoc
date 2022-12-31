@@ -119,7 +119,6 @@ impl Iterator for BasinIter {
 
 fn build_graph(
     basin: &Basin,
-    count: usize,
 ) -> (
     petgraph::Graph<(), ()>,
     petgraph::graph::NodeIndex,
@@ -141,11 +140,7 @@ fn build_graph(
         .unwrap();
 
     let all_basins: Vec<_> = std::iter::once(basin.clone())
-        .chain(
-            basin.iter(), // it loops after 300, but it takes more iterations to find a solution
-                          //.take_while(|b| b != basin)
-        )
-        .take(count)
+        .chain(basin.iter().take_while(|b| b != basin))
         .collect();
 
     println!("Generated {} basins", all_basins.len());
@@ -161,26 +156,29 @@ fn build_graph(
     let all: Vec<_> = all_basins.iter().zip(basin_indices.iter()).collect();
 
     println!("Building Graph");
-    all.windows(2).enumerate().for_each(|(_i, win)| {
-        let (b_0, idx_0) = win[0];
-        let (b_1, idx_1) = win[1];
-        b_0.spaces
-            .iter()
-            .enumerate()
-            .zip(idx_0.iter())
-            .filter(|((_i, b_space), _idx)| matches!(b_space, Space::Empty))
-            .for_each(|((i, _b_space), _idx)| {
-                let dirs = [Dir::N, Dir::S, Dir::E, Dir::W];
-                std::iter::once(b_0.reverse(i))
-                    .chain(dirs.iter().map(|d| b_0.reverse(i) + d.vector()))
-                    .filter(|p| b_1.offset(p).is_some())
-                    .for_each(|p| {
-                        if matches!(b_1.lookup(&p), Some(Space::Empty)) {
-                            graph.add_edge(idx_0[i], idx_1[b_1.offset(&p).unwrap()], ());
-                        }
-                    });
-            });
-    });
+    all.windows(2)
+        .chain(std::iter::once([*all.last().unwrap(), all[0]].as_slice()))
+        .enumerate()
+        .for_each(|(_i, win)| {
+            let (b_0, idx_0) = win[0];
+            let (b_1, idx_1) = win[1];
+            b_0.spaces
+                .iter()
+                .enumerate()
+                .zip(idx_0.iter())
+                .filter(|((_i, b_space), _idx)| matches!(b_space, Space::Empty))
+                .for_each(|((i, _b_space), _idx)| {
+                    let dirs = [Dir::N, Dir::S, Dir::E, Dir::W];
+                    std::iter::once(b_0.reverse(i))
+                        .chain(dirs.iter().map(|d| b_0.reverse(i) + d.vector()))
+                        .filter(|p| b_1.offset(p).is_some())
+                        .for_each(|p| {
+                            if matches!(b_1.lookup(&p), Some(Space::Empty)) {
+                                graph.add_edge(idx_0[i], idx_1[b_1.offset(&p).unwrap()], ());
+                            }
+                        });
+                });
+        });
 
     let finishes: HashSet<_> = all.iter().map(|(_b, b_idx)| b_idx[finish]).collect();
     let starts: HashSet<_> = all.iter().map(|(_b, b_idx)| b_idx[start]).collect();
@@ -248,7 +246,7 @@ impl Day for Solution {
         Self::process_input1(s)
     }
     fn p1(basin: &Self::Input2) -> Self::Sol2 {
-        let (graph, start_idx, _starts, finishes) = build_graph(basin, 1000);
+        let (graph, start_idx, _starts, finishes) = build_graph(basin);
 
         println!("Computing path");
         let path = astar(
@@ -263,7 +261,7 @@ impl Day for Solution {
         path.0
     }
     fn p2(basin: &Self::Input1) -> Self::Sol1 {
-        let (graph, start_idx, starts, finishes) = build_graph(basin, 1000);
+        let (graph, start_idx, starts, finishes) = build_graph(basin);
 
         println!("Computing path");
         let path1 = astar(
