@@ -52,13 +52,13 @@ impl Inventory {
         bp.robots
             .iter()
             .find(|x| x.typ == typ)
-            .map(|r| {
+            .and_then(|r| {
                 let compute = |have: u32, gen: u32, need: u32| {
                     if need == 0 {
                         Some(0)
                     } else if gen > 0 {
                         let rem = need.saturating_sub(have) % gen;
-                        Some((need.saturating_sub(have) / gen) + if rem > 0 { 1 } else { 0 })
+                        Some((need.saturating_sub(have) / gen) + u32::from(rem > 0))
                     } else {
                         None
                     }
@@ -74,7 +74,6 @@ impl Inventory {
                     None
                 }
             })
-            .flatten()
             .filter(|t| *t < self.minutes)
     }
     fn do_build(&mut self, bp: &Blueprint, typ: RobotType) {
@@ -142,8 +141,7 @@ fn run<'a>(
             let mut one_solution = false;
             all_robots
                 .iter()
-                .map(|r| item.when_can_build(bp, *r).map(|t| (r, t)))
-                .flatten()
+                .flat_map(|r| item.when_can_build(bp, *r).map(|t| (r, t)))
                 .filter(|(robot, _)| match robot {
                     RobotType::Clay => max_clay >= item.robot_clay,
                     RobotType::Ore => max_ore >= item.robot_ore,

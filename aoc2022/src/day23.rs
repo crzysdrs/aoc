@@ -73,7 +73,7 @@ fn compute(grid: &mut Grid, max_iterations: Option<usize>) -> usize {
         let proposals = grid
             .map
             .iter()
-            .map(|e| {
+            .flat_map(|e| {
                 if all
                     .iter()
                     .all(|d| grid.map.get(&(e + d.vector())).is_none())
@@ -92,7 +92,6 @@ fn compute(grid: &mut Grid, max_iterations: Option<usize>) -> usize {
                     })
                 }
             })
-            .flatten()
             .fold(HashMap::new(), |mut state, elf| {
                 state
                     .entry(elf.1)

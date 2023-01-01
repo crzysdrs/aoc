@@ -66,7 +66,7 @@ impl Day for Solution {
                 .zip((0..dist).chain((0..=dist).rev()))
                 .filter(|(y, _)| *y == target)
             {
-                let x_range = e.sensor.x - i as i32..=e.sensor.x + i as i32;
+                let x_range = e.sensor.x - i..=e.sensor.x + i;
                 //println!("{:?} {:?}", x_range, y_range);
                 for x in x_range {
                     map.entry(Point2::new(x, y)).or_insert(Map::Nothing);

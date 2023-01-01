@@ -49,7 +49,7 @@ impl core::str::FromStr for Grid {
 impl core::fmt::Display for Grid {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         for y in (0..self.size_y).rev() {
-            for x in (0..self.size_x) {
+            for x in 0..self.size_x {
                 write!(
                     f,
                     "{}",
@@ -68,9 +68,6 @@ impl core::fmt::Display for Grid {
 impl Grid {
     fn offset(&self, p: &Point2<i32>) -> usize {
         p.y as usize * self.size_x + p.x as usize
-    }
-    fn lookup(&self, p: &Point2<i32>) -> Obj {
-        self.vals[self.offset(p)]
     }
     fn reverse(&self, p: usize) -> Point2<i32> {
         Point2::new((p % self.size_x) as i32, (p / self.size_x) as i32)
@@ -182,7 +179,7 @@ impl Day for Solution {
         let mut g = Grid {
             size_x: 7,
             size_y: 1,
-            vals: vec![Obj::Empty; 1 * 7],
+            vals: vec![Obj::Empty; 7],
         };
 
         let t = tetrominoes();
@@ -191,10 +188,10 @@ impl Day for Solution {
 
         let mut jets = v.iter().cycle();
 
-        for (i, tetris) in t.take(2022).enumerate() {
+        for tetris in t.take(2022) {
             let top_y = g
                 .iter()
-                .filter(|(p, t)| **t == Obj::Rock)
+                .filter(|(_p, t)| **t == Obj::Rock)
                 .max_by_key(|(p, _)| p.y)
                 .map(|(p, _)| p.y + 1)
                 .unwrap_or(0);
@@ -232,7 +229,7 @@ impl Day for Solution {
         }
 
         g.iter()
-            .filter(|(p, t)| **t == Obj::Rock)
+            .filter(|(_p, t)| **t == Obj::Rock)
             .max_by_key(|(p, _)| p.y)
             .map(|(p, _)| p.y + 1)
             .unwrap_or(0) as usize
@@ -241,22 +238,18 @@ impl Day for Solution {
         let mut g = Grid {
             size_x: 7,
             size_y: 1,
-            vals: vec![Obj::Empty; 1 * 7],
+            vals: vec![Obj::Empty; 7],
         };
 
         let pieces = tetrominoes();
         //println!("{:?}", t);
-        let t = pieces.iter().cycle();
-
         let mut jets = v.iter().cycle();
         let mut jet_count = 0;
 
-        let mut prev = 0;
         let mut prev_seen = HashMap::new();
         let mut pattern = vec![];
 
         let max_pieces = 1000000000000;
-        let mut tetris_pieces = t.take(max_pieces).enumerate();
         let mut skip_done = None;
 
         let mut tetris_idx = 0usize;
@@ -268,7 +261,7 @@ impl Day for Solution {
             tetris_idx += 1;
             let top_y = g
                 .iter()
-                .filter(|(p, t)| **t == Obj::Rock)
+                .filter(|(_p, t)| **t == Obj::Rock)
                 .max_by_key(|(p, _)| p.y)
                 .map(|(p, _)| p.y + 1)
                 .unwrap_or(0);
@@ -342,7 +335,7 @@ impl Day for Solution {
         }
 
         g.iter()
-            .filter(|(p, t)| **t == Obj::Rock)
+            .filter(|(_p, t)| **t == Obj::Rock)
             .max_by_key(|(p, _)| p.y)
             .map(|(p, _)| p.y + 1)
             .unwrap_or(0) as usize

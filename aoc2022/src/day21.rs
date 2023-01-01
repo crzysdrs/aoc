@@ -12,10 +12,7 @@ pub enum Op {
 
 impl Op {
     fn comm(&self) -> bool {
-        match self {
-            Op::Mul | Op::Add => true,
-            _ => false,
-        }
+        matches!(self, Op::Mul | Op::Add)
     }
 
     fn rev(&self, a: i64, b: i64) -> i64 {
