@@ -10,6 +10,188 @@ pub struct Valve {
     flow: u32,
     tunnels: Vec<String>,
 }
+#[derive(Debug, PartialEq, Hash, Eq)]
+struct Best<const N: usize> {
+    locs: [usize; N],
+    minute: u8,
+    open: u64,
+}
+
+fn release_pressure<const N: usize>(v: &[Valve], minute: u32) -> u32 {
+    let mut best = HashMap::new();
+    let mut highest_score = 0;
+
+    use petgraph::Graph;
+    let mut graph = Graph::new_undirected();
+    let nodes: Vec<_> = v.iter().map(|_node| graph.add_node(v)).collect();
+    for (valve, n) in v.iter().zip(nodes.iter()) {
+        for e in &valve.tunnels {
+            let e = v.iter().find(|v| v.name == *e).unwrap();
+            graph.add_edge(*n, nodes[e.id], ());
+        }
+    }
+
+    let mut best_path = HashMap::new();
+    for valve in v {
+        for valve2 in v {
+            if valve.id == valve2.id {
+                continue;
+            }
+
+            let path = petgraph::algo::astar(
+                &graph,
+                nodes[valve.id],
+                |finish| finish == nodes[valve2.id],
+                |_e| 1,
+                |_| 0,
+            )
+            .unwrap();
+            best_path.insert(
+                (valve.id, valve2.id),
+                (
+                    nodes.iter().position(|id| *id == path.1[1]).unwrap(),
+                    path.0,
+                ),
+            );
+        }
+    }
+
+    let score = release_pressure_inner::<N>(
+        &mut highest_score,
+        &best_path,
+        &mut best,
+        v,
+        minute,
+        [0; N],
+        0,
+        0,
+    );
+
+    println!("{:?}", highest_score);
+    score
+}
+
+fn release_pressure_inner<'a, const N: usize>(
+    highest: &mut u32,
+    best_path: &HashMap<(usize, usize), (usize, usize)>,
+    best: &mut HashMap<Best<N>, u32>,
+    v: &'a [Valve],
+    minute: u32,
+    mut locs: [usize; N],
+    open: u64,
+    cur_score: u32,
+) -> u32 {
+    locs.sort();
+    let search = Best {
+        minute: minute as u8,
+        locs,
+        open,
+    };
+    let best_possible = cur_score
+        + v.iter()
+            .map(|v| {
+                if open & (1 << v.id) == 0 && v.flow > 0 {
+                    v.flow
+                        * (minute.saturating_sub(1).saturating_sub(
+                            locs.iter()
+                                .map(|l| best_path.get(&(*l, v.id)).map(|v| v.1).unwrap_or(0))
+                                .min()
+                                .unwrap_or(0) as u32,
+                        ))
+                } else {
+                    0
+                }
+            })
+            .sum::<u32>();
+
+    if best_possible <= *highest {
+        //println!("{} {} {} Culled", best_possible, highest, minute);
+        return best_possible;
+    } else if minute == 0 || v.iter().all(|v| open & (1 << v.id) != 0 || v.flow == 0) {
+        *highest = std::cmp::max(*highest, cur_score);
+        return cur_score;
+    }
+
+    let mut maybe_better_score = true;
+    best.entry(search)
+        .and_modify(|v| {
+            if *v < cur_score {
+                *v = cur_score;
+            } else {
+                maybe_better_score = false;
+            }
+        })
+        .or_insert(cur_score);
+
+    if !maybe_better_score {
+        return cur_score;
+    }
+
+    #[derive(Debug, Clone, PartialEq, Ord, Eq, PartialOrd)]
+    enum Move {
+        Open,
+        Tunnel(usize),
+    }
+    fn moves<'a>(
+        v: &'a [Valve],
+        loc: &'a Valve,
+        open: u64,
+        best_path: &HashMap<(usize, usize), (usize, usize)>,
+    ) -> impl Iterator<Item = Move> + Clone + 'a {
+        let mut choices: Vec<_> = v
+            .iter()
+            .filter(|v| open & (1 << v.id) == 0 && v.flow > 0)
+            .map(|v| {
+                if v.id == loc.id {
+                    Move::Open
+                } else {
+                    Move::Tunnel(best_path.get(&(loc.id, v.id)).copied().unwrap().0)
+                }
+            })
+            .collect();
+
+        choices.sort();
+        choices.dedup();
+        choices.into_iter()
+    }
+    use itertools::Itertools;
+    let score = locs
+        .iter()
+        .map(|loc| moves(v, &v[*loc], open, best_path))
+        .multi_cartesian_product()
+        .map(|moves| {
+            let mut open = open;
+            let mut score = cur_score;
+            let mut new_locs = [0; N];
+            for (i, (mov, loc)) in moves.iter().zip(locs.iter()).enumerate() {
+                new_locs[i] = match mov {
+                    Move::Open => {
+                        if (open & (1 << loc)) == 0 {
+                            open |= 1 << loc;
+                            score += v[*loc].flow * (minute - 1);
+                        }
+                        *loc
+                    }
+                    Move::Tunnel(u) => *u,
+                };
+            }
+
+            release_pressure_inner(
+                highest,
+                best_path,
+                best,
+                v,
+                minute - 1,
+                new_locs,
+                open,
+                score,
+            )
+        })
+        .max()
+        .unwrap_or(cur_score);
+
+    score
+}
 
 pub struct Solution {}
 impl Day for Solution {
@@ -44,184 +226,14 @@ impl Day for Solution {
         Self::process_input1(s)
     }
     fn p1(v: &Self::Input1) -> Self::Sol1 {
-        #[derive(Debug, PartialEq, Hash, Eq)]
-        struct Best {
-            loc: usize,
-            minute: u32,
-            open: u64,
-            do_open: bool,
-        }
-        let mut best = HashMap::new();
-
-        fn release_pressure<'a>(
-            best: &mut HashMap<Best, u32>,
-            v: &'a [Valve],
-            minute: u32,
-            loc: &'a Valve,
-            do_open: bool,
-            mut open: u64,
-        ) -> u32 {
-            if minute == 0 {
-                return 0;
-            } else if let Some(b) = best.get(&Best {
-                minute,
-                loc: loc.id,
-                open,
-                do_open,
-            }) {
-                return *b;
-            }
-            let orig_open = open;
-            let score = if do_open && (open & (1 << loc.id)) == 0 {
-                open |= 1 << loc.id;
-                loc.flow * minute + release_pressure(best, v, minute - 1, loc, false, open)
-            } else {
-                loc.tunnels
-                    .iter()
-                    .map(|tunnel| {
-                        let new_valve = v.iter().find(|x| x.name == *tunnel).unwrap();
-                        if new_valve.flow == 0 || (open & (1 << new_valve.id)) != 0 {
-                            release_pressure(best, v, minute - 1, new_valve, false, open)
-                        } else {
-                            std::cmp::max(
-                                release_pressure(best, v, minute - 1, new_valve, false, open),
-                                release_pressure(best, v, minute - 1, new_valve, true, open),
-                            )
-                        }
-                    })
-                    .max()
-                    .unwrap()
-            };
-
-            let new_score = score;
-            let new_best = Best {
-                minute,
-                loc: loc.id,
-                open: orig_open,
-                do_open,
-            };
-            //println!("{:?} {}", new_best, new_score);
-            assert!(best.get(&new_best).is_none());
-            best.insert(new_best, new_score);
-            new_score
-        }
-
-        let total = std::cmp::max(
-            release_pressure(&mut best, v, 29, &v[0], true, 0),
-            release_pressure(&mut best, v, 29, &v[0], false, 0),
-        );
-        total
+        release_pressure::<1>(v, 30)
     }
     fn p2(v: &Self::Input2) -> Self::Sol2 {
-        #[derive(Debug, PartialEq, Hash, Eq)]
-        struct Best {
-            loc: u8,
-            el_loc: u8,
-            minute: u8,
-            open: u64,
-        }
-        let mut best = HashMap::new();
-        let mut highest_score = 0;
-
-        fn release_pressure<'a>(
-            highest: &mut u32,
-            best: &mut HashMap<Best, u32>,
-            v: &'a [Valve],
-            minute: u32,
-            loc: &'a Valve,
-            el_loc: &'a Valve,
-            open: u64,
-        ) -> u32 {
-            let search = Best {
-                minute: minute as u8,
-                loc: std::cmp::min(loc.id, el_loc.id) as u8,
-                el_loc: std::cmp::max(loc.id, el_loc.id) as u8,
-                open,
-            };
-            if minute == 0 {
-                return 0;
-            } else if let Some(b) = best.get(&search) {
-                return *b;
-            } else if v.iter().all(|v| open & (1 << v.id) != 0 || v.flow == 0) {
-                return 0;
-            }
-
-            #[derive(Clone)]
-            enum Move {
-                Open,
-                Tunnel(usize),
-            }
-            fn moves<'a>(
-                v: &'a [Valve],
-                loc: &'a Valve,
-                open: u64,
-            ) -> impl Iterator<Item = Move> + Clone + 'a {
-                loc.tunnels
-                    .iter()
-                    .map(|tunnel| {
-                        let new_valve = v.iter().find(|x| x.name == *tunnel).unwrap();
-                        Move::Tunnel(new_valve.id)
-                    })
-                    .chain(std::iter::once(Move::Open).flat_map(move |o| {
-                        if loc.flow == 0 || (open & (1 << loc.id)) != 0 {
-                            None
-                        } else {
-                            Some(o)
-                        }
-                    }))
-            }
-            let human = moves(v, loc, open);
-            let elephant = moves(v, el_loc, open);
-            use itertools::Itertools;
-            let score = human
-                .cartesian_product(elephant)
-                .scan(0, |state, (human, elephant)| {
-                    let mut open = open;
-                    let mut score = 0;
-                    let hum_pos = match human {
-                        Move::Open => {
-                            if (open & (1 << loc.id)) == 0 {
-                                open |= 1 << loc.id;
-                                score += loc.flow * minute;
-                            }
-                            loc
-                        }
-                        Move::Tunnel(u) => &v[u],
-                    };
-
-                    let el_pos = match elephant {
-                        Move::Open => {
-                            if (open & (1 << el_loc.id)) == 0 {
-                                open |= 1 << el_loc.id;
-                                score += el_loc.flow * minute;
-                            }
-                            el_loc
-                        }
-                        Move::Tunnel(u) => &v[u],
-                    };
-
-                    *state = std::cmp::max(
-                        *state,
-                        score
-                            + release_pressure(highest, best, v, minute - 1, hum_pos, el_pos, open),
-                    );
-                    Some(*state)
-                })
-                .max()
-                .unwrap_or(0);
-
-            //println!("{:?} {}", new_best, new_score);
-            assert!(best.get(&search).is_none());
-            best.insert(search, score);
-            score
-        }
-
-        let total = release_pressure(&mut highest_score, &mut best, v, 25, &v[0], &v[0], 0);
-        total
+        release_pressure::<2>(v, 26)
     }
 }
 
-//crate::default_tests!((), ());
+crate::default_tests!(1641, 2261);
 crate::path_tests!(
     [(t1, "test/day16.txt", 1651)],
     [(t2, "test/day16.txt", 1707)]
