@@ -130,6 +130,16 @@ fn run<'a>(
                     best = Some(geodes);
                 }
                 continue;
+            } else if let Some(b) = &best {
+                if item.minutes < 10
+                    && item.geode
+                        + item.robot_geode * item.minutes
+                        + (1..item.minutes).product::<u32>()
+                        < *b
+                {
+                    // cull this branch
+                    continue;
+                }
             }
             let all_robots = [
                 RobotType::Ore,
