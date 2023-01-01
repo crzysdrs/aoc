@@ -131,11 +131,8 @@ fn run<'a>(
                 }
                 continue;
             } else if let Some(b) = &best {
-                if item.minutes < 10
-                    && item.geode
-                        + item.robot_geode * item.minutes
-                        + (1..item.minutes).product::<u32>()
-                        < *b
+                if item.geode + item.robot_geode * item.minutes + (1..item.minutes).sum::<u32>()
+                    < *b
                 {
                     // cull this branch
                     continue;
