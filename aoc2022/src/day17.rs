@@ -15,7 +15,7 @@ enum Obj {
     Empty,
 }
 
-#[derive(Debug)]
+#[derive(PartialEq, Debug)]
 struct Grid {
     size_x: usize,
     size_y: usize,
@@ -244,9 +244,9 @@ impl Day for Solution {
             vals: vec![Obj::Empty; 1 * 7],
         };
 
-        let t = tetrominoes();
+        let pieces = tetrominoes();
         //println!("{:?}", t);
-        let t = t.iter().cycle();
+        let t = pieces.iter().cycle();
 
         let mut jets = v.iter().cycle();
         let mut jet_count = 0;
@@ -255,7 +255,17 @@ impl Day for Solution {
         let mut prev_seen = HashMap::new();
         let mut pattern = vec![];
 
-        for (i, tetris) in t.take(1000000000000).enumerate() {
+        let max_pieces = 1000000000000;
+        let mut tetris_pieces = t.take(max_pieces).enumerate();
+        let mut skip_done = None;
+
+        let mut tetris_idx = 0usize;
+        loop {
+            if tetris_idx == max_pieces {
+                break;
+            }
+            let tetris = &pieces[tetris_idx % pieces.len()];
+            tetris_idx += 1;
             let top_y = g
                 .iter()
                 .filter(|(p, t)| **t == Obj::Rock)
@@ -269,19 +279,36 @@ impl Day for Solution {
             // if top_y > 0 && (0..7).all(|v| g.lookup(&Point2::new(v, top_y - 1)) == Obj::Rock) {
             //     println!("Fresh Start {i}");
             // }
-            let entry = prev_seen.entry(jet_count % v.len()).or_insert(top_y);
-            if jet_count > v.len() {
-                println!("{i}: {top_y} {}", top_y - *entry);
-                pattern.push(top_y - *entry);
-                for i in 2..pattern.len() / 2 {
+            let entry = prev_seen
+                .entry((jet_count % v.len(), tetris_idx % pieces.len()))
+                .or_insert((tetris_idx, top_y));
+            if skip_done.is_none() && jet_count > v.len() {
+                //println!("{i}: {top_y} {}", top_y - *entry);
+                pattern.push((tetris_idx - entry.0, top_y - entry.1));
+                for i in (2..pattern.len() / 2).rev() {
                     let (a, b) = pattern.split_at(pattern.len() - i);
                     let (_, a) = a.split_at(a.len() - i);
-                    if a == b {
-                        println!("Match {:?}", a)
-                    }
+                    if a == b && a.len() == 10 && a[0].0 != 0 {
+                        println!("{:?}", a);
+                        let skip_times = (max_pieces - tetris_idx) / a[0].0;
+                        println!(
+                            "Skipping {} {} at {}",
+                            a[0].0,
+                            skip_times * a[0].0,
+                            tetris_idx
+                        );
+
+                        //tetris_idx += skip_times * v.len() - 1;
+                        tetris_idx += skip_times * a[0].0;
+                        //let new_t = &pieces[tetris_idx % pieces.len()];
+                        //assert_eq!(new_t, tetris);
+                        skip_done = Some(skip_times * usize::try_from(a[0].1).unwrap());
+                        println!("Skipped {:?}", skip_done);
+                        break;
+                    };
                 }
             }
-            *entry = top_y;
+            *entry = (tetris_idx, top_y);
 
             assert!(g.test_place(tetris, top_left));
 
@@ -319,10 +346,11 @@ impl Day for Solution {
             .max_by_key(|(p, _)| p.y)
             .map(|(p, _)| p.y + 1)
             .unwrap_or(0) as usize
+            + skip_done.unwrap()
     }
 }
 
-//crate::default_tests!((), ());
+crate::default_tests!(3206, 1602881844347);
 crate::string_tests!(
     [(t1, ">>><<><>><<<>><>>><<<>>><<<><<<>><>><<>>", 3068)],
     [(
