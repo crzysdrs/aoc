@@ -6,3 +6,4 @@ members = [
         "aoc2021",
         "aoc2022",
 ]
+resolver="2"

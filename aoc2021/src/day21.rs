@@ -63,7 +63,7 @@ impl Day for Solution {
         let mut dice = (1usize..101).cycle();
         let mut die_rolls = 0;
         'done: loop {
-            for mut p in &mut players {
+            for p in &mut players {
                 let d = dice.by_ref().take(3).sum::<usize>();
                 die_rolls += 3;
                 p.space += d;
@@ -98,13 +98,12 @@ impl Day for Solution {
             roll: usize,
         ) -> (usize, usize) {
             let pick = turn % 2 == 0;
-            let mut p = if pick { &mut players.0 } else { &mut players.1 };
+            let p = if pick { &mut players.0 } else { &mut players.1 };
 
             p.space += roll;
             p.space %= 10;
             p.score += p.space + 1;
 
-            
             if p.score >= 21 {
                 if pick {
                     (1, 0)
