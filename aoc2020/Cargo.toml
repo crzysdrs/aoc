@@ -20,4 +20,4 @@ petgraph = "0.4.13"
 clap = {version = "3.2.22", features=["derive"]}
 derive_more = "0.99.11"
 rayon = "1.5.0"
-nom = "6.0.1"
+nom = "7.1.3"

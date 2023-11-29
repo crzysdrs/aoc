@@ -92,7 +92,7 @@ fn noprec_expr(input: &str) -> IResult<&str, Expr> {
 
     fold_many0(
         tuple((numop, alt((number, |s| paren_expr(s, noprec_expr))))),
-        start,
+        move || start.clone(),
         |state, (op, e)| Expr::Bin(Box::new(state), op, Box::new(e)),
     )(input)
 }
@@ -102,7 +102,7 @@ fn term(input: &str) -> IResult<&str, Expr> {
 
     fold_many0(
         tuple((high_numop, alt((number, |s| paren_expr(s, prec_expr))))),
-        start,
+        move || start.clone(),
         |state, (op, e)| Expr::Bin(Box::new(state), op, Box::new(e)),
     )(input)
 }
@@ -112,7 +112,7 @@ fn prec_expr(input: &str) -> IResult<&str, Expr> {
 
     fold_many0(
         tuple((low_numop, alt((term, |s| paren_expr(s, prec_expr))))),
-        start,
+        move || start.clone(),
         |state, (op, e)| Expr::Bin(Box::new(state), op, Box::new(e)),
     )(input)
 }
