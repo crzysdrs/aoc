@@ -32,26 +32,25 @@ impl Day for Solution {
     }
     fn process_input2(s: &str) -> Self::Input2 {
         let prefixes = [
-            "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
+            "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
         ];
         s.lines()
             .map(|mut x| {
                 let mut vals: Vec<u32> = vec![];
                 'outer: loop {
-                    if x.is_empty() {
-                        break 'outer;
-                    }
-                    for (i, p) in prefixes.iter().enumerate() {
-                        if let Some(suffix) = x.strip_prefix(p) {
-                            x = suffix;
-                            vals.push(u32::try_from(i).unwrap());
-                            continue 'outer;
-                        }
-                    }
                     let mut chars = x.chars();
-                    let c = chars.next().unwrap();
+                    let Some(c) = chars.next() else {
+                        break 'outer;
+                    };
+
                     if let Some(digit) = c.to_digit(10) {
                         vals.push(digit);
+                    } else {
+                        for (p, i) in prefixes.iter().zip(1..) {
+                            if x.starts_with(p) {
+                                vals.push(u32::try_from(i).unwrap());
+                            }
+                        }
                     }
                     x = chars.as_str();
                 }
@@ -68,7 +67,7 @@ impl Day for Solution {
     }
 }
 
-crate::default_tests!(54450, 54258);
+crate::default_tests!(54450, 54265);
 crate::string_tests!(
     [(
         sol1,
