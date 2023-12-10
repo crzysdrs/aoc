@@ -158,7 +158,7 @@ macro_rules! path_tests {
     };
 }
 
-tests!(template, day01, day02, day03, day04, day05, day06);
+tests!(template, day01, day02, day03, day04, day05, day06, day07);
 
 fn main() -> std::io::Result<()> {
     let opts: Opts = Opts::parse();

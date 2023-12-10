@@ -53,7 +53,7 @@ impl Day for Solution {
     }
 }
 
-//crate::default_tests!((), ());
+crate::default_tests!(633080, 20048741);
 crate::string_tests!(
     [(
         foo_sol1,
