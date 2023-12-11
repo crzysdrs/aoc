@@ -167,7 +167,7 @@ fn gcd(a: usize, b: usize) -> usize {
     }
 }
 
-//crate::default_tests!((), ());
+crate::default_tests!(12643, 13133452426987);
 crate::string_tests!(
     [(
         foo_sol1,
