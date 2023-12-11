@@ -253,7 +253,7 @@ impl Day for Solution {
     }
 }
 
-crate::default_tests!(253205868, 0);
+crate::default_tests!(253205868, 253907829);
 crate::string_tests!(
     [(
         foo_sol1,

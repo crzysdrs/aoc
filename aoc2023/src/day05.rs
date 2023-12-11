@@ -92,22 +92,18 @@ impl Day for Solution {
             let (xtox, _) = l.split_once(' ').unwrap();
             let (src, dst) = xtox.split_once("-to-").unwrap();
             let mut ranges = vec![];
-            loop {
-                if let Some(l) = lines.by_ref().next() {
-                    if l.is_empty() {
-                        break;
-                    }
-                    let v: Vec<_> = l
-                        .split_ascii_whitespace()
-                        .map(|x| x.parse().unwrap())
-                        .collect();
-                    ranges.push(Mapping {
-                        dest: v[0]..v[0] + v[2],
-                        source: v[1]..v[1] + v[2],
-                    });
-                } else {
+            while let Some(l) = lines.by_ref().next() {
+                if l.is_empty() {
                     break;
                 }
+                let v: Vec<_> = l
+                    .split_ascii_whitespace()
+                    .map(|x| x.parse().unwrap())
+                    .collect();
+                ranges.push(Mapping {
+                    dest: v[0]..v[0] + v[2],
+                    source: v[1]..v[1] + v[2],
+                });
             }
             ranges.sort_by_key(|v| v.source.start);
             maps.insert((src.to_string(), dst.to_string()), Map { mappings: ranges });
