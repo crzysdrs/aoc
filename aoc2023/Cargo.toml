@@ -21,3 +21,4 @@ clap = {version="3.2.1", features=["derive"]}
 derive_more = "0.99.17"
 rayon = "1.5.1"
 nom = "7.1.0"
+nalgebra = "0.32.3"
