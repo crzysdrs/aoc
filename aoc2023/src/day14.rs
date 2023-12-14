@@ -22,10 +22,6 @@ impl std::fmt::Display for Cell {
     }
 }
 
-pub trait ToString {
-    // Required method
-    fn to_string(&self) -> String;
-}
 pub struct Solution {}
 impl Day for Solution {
     const DAY: u32 = 14;
