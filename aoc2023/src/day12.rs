@@ -1,9 +1,8 @@
 use crate::Day;
-use itertools::Itertools;
 #[allow(unused_imports)]
 use std::collections::*;
 
-#[derive(PartialEq, Copy, Clone, Debug)]
+#[derive(PartialEq, Copy, Clone, Debug, Hash, Eq)]
 pub enum Spring {
     Unknown,
     Broken,
@@ -13,148 +12,69 @@ pub enum Spring {
 #[derive(Debug)]
 pub struct SpringVec(Vec<Spring>);
 
-impl SpringVec {
-    fn unknown_bits(&self) -> usize {
-        self.0.iter().filter(|s| **s == Spring::Unknown).count()
-    }
-    fn unknown_mask(&self) -> u128 {
-        self.0
-            .iter()
-            .enumerate()
-            .map(|(i, s)| if *s == Spring::Unknown { 1 << i } else { 0 })
-            .fold(0, |mut state, v| {
-                state |= v;
-                state
-            })
-    }
-    fn known_broken(&self) -> u128 {
-        self.0
-            .iter()
-            .enumerate()
-            .map(|(i, s)| if *s == Spring::Broken { 1 << i } else { 0 })
-            .fold(0, |mut state, v| {
-                state |= v;
-                state
-            })
-    }
-    fn find_all(&self, sections: &[usize]) -> usize {
-        let len = self.0.len();
-        let known = self.known_broken();
-        let unknown_mask = self.unknown_mask();
-
-        fn remain(
-            unknown_mask: u128,
-            known: u128,
-            incoming: u128,
-            sections: &[usize],
-            offset: usize,
-            len: usize,
-        ) -> usize {
-            if offset > 0 {
-                let width_mask = (1 << offset) - 1;
-
-                // println!("{:b}, {}, {}", incoming, offset, len);
-                // println!("{:b}", known);
-                // println!("KNown {:b}", known & width_mask);
-                // println!("Mine  {:b}", (incoming & !unknown_mask) & width_mask);
-                if (incoming & !unknown_mask) & width_mask != known & width_mask {
-                    //  println!("Stop");
-                    return 0;
-                } else {
-                    //    println!("Keep going");
-                }
-            }
-
-            let mut count = 0;
-            if !sections.is_empty() {
-                let start = if offset == 0 { 0 } else { 1 };
-                if len < sections.iter().sum::<usize>() + sections.len() - 1 {
-                    //println!("Bail");
-                    return count;
-                }
-                //println!("{:?}", start..(len - sections[0]));
-                for i in start..=(len - sections[0]) {
-                    let mut incoming = incoming;
-                    for j in 0..sections[0] {
-                        incoming |= 1 << (offset + j + i);
-                    }
-                    if len >= i + sections[0] {
-                        count += remain(
-                            unknown_mask,
-                            known,
-                            incoming,
-                            &sections[1..],
-                            offset + i + sections[0],
-                            len - i - sections[0],
-                        )
-                    }
-                }
-            } else {
-                //                println!("Valid? {:b}", incoming);
-                count += if incoming & !unknown_mask == known {
-                    1
-                } else {
-                    0
-                };
-            }
-            count
-        }
-        remain(unknown_mask, known, 0, sections, 0, len)
-    }
-    // fn valid(&self, bits: u64, sections: &[usize]) -> bool {
-    //     let mut bits_idx = 0;
-
-    //     let computed: Vec<_> = self
-    //         .0
-    //         .iter()
-    //         .map(|v| match v {
-    //             Spring::Unknown => {
-    //                 let n = if (bits & (1 << bits_idx)) != 0 {
-    //                     Spring::Broken
-    //                 } else {
-    //                     Spring::Ok
-    //                 };
-    //                 bits_idx += 1;
-    //                 n
-    //             }
-    //             v @ (Spring::Broken | Spring::Ok) => *v,
-    //         })
-    //         //.inspect(|v| println!("{:?}", v))
-    //         .group_by(|k| *k)
-    //         .into_iter()
-    //         .filter(|(k, _g)| *k == Spring::Broken)
-    //         .map(|(_k, g)| g.count())
-    //         .collect();
-
-    //     //println!("{:?}", computed);
-    //     sections == computed
-    // }
-}
-
-#[derive(Hash, Eq)]
+#[derive(Hash, PartialEq, Eq)]
 struct Key<'a> {
     spring: &'a [Spring],
     broken: &'a [usize],
 }
-fn p(seen: &mut HashMap<Key, usize>, spring:&[Spring], broken: &[usize]) -> usize {
-    let key =  &Key {
-        spring, broken
-    };
-    if let Some(v) =  seen.get(&key) {
-        return v;
-    } else if spring.is_empty() && !broken.is_empty() {
-        return 0;
+
+fn section_match(spring1: &[Spring], count: usize) -> Option<&[Spring]> {
+    if spring1.len() < count {
+        return None;
     }
 
-    if spring.iter().all(|v| v == Spring::Unknown || v == Spring::Broken) {
-        //base case?
-    } else {
-        for (_b, s) in spring.iter().group_by(|k| k == Spring::Unknown || v == Spring::Broken) 
-            .into_iter().filter(|(b, s)| b){
-                
-                    
-            }
+    let mut test = spring1.iter();
 
+    if test.by_ref().take(count).all(|s| match s {
+        Spring::Broken | Spring::Unknown => true,
+        Spring::Ok => false,
+    }) && test.by_ref().take(1).all(|s| match s {
+        Spring::Ok | Spring::Unknown => true,
+        Spring::Broken => false,
+    }) {
+        Some(test.as_slice())
+    } else {
+        None
+    }
+}
+
+fn valid_count<'a>(
+    seen: &mut HashMap<Key<'a>, usize>,
+    spring: &'a [Spring],
+    broken: &'a [usize],
+) -> usize {
+    //println!("{:?} {:?}", spring, broken);
+    let key = Key { spring, broken };
+    if let Some(v) = seen.get(&key) {
+        return *v;
+    } else if spring.is_empty() && !broken.is_empty() {
+        return 0;
+    } else if spring.is_empty() && broken.is_empty() {
+        return 1;
+    }
+
+    let count = match spring[0] {
+        Spring::Ok => valid_count(seen, &spring[1..], broken),
+        Spring::Unknown if broken.is_empty() => valid_count(seen, &spring[1..], broken),
+        Spring::Broken if broken.is_empty() => 0,
+        Spring::Broken => {
+            if let Some(rest) = section_match(spring, broken[0]) {
+                valid_count(seen, rest, &broken[1..])
+            } else {
+                0
+            }
+        }
+        Spring::Unknown => {
+            valid_count(seen, &spring[1..], broken)
+                + if let Some(rest) = section_match(spring, broken[0]) {
+                    valid_count(seen, rest, &broken[1..])
+                } else {
+                    0
+                }
+        }
+    };
+    seen.insert(key, count);
+    count
 }
 
 pub struct Solution {}
@@ -199,21 +119,19 @@ impl Day for Solution {
             .collect()
     }
     fn p1(v: &Self::Input1) -> Self::Sol1 {
-        todo!()
-        // v.iter()
-        //     .map(|e| {
-        //         let v = e.0.unknown_bits();
-        //         (0..(1 << v)).filter(|x| e.0.valid(*x as u64, &e.1)).count()
-        //     })
-        //     .sum()
+        v.iter()
+            .map(|e| {
+                let mut hash = HashMap::default();
+                valid_count(&mut hash, &e.0 .0, &e.1)
+            })
+            .sum()
     }
     fn p2(v: &Self::Input2) -> Self::Sol2 {
         use rayon::prelude::*;
         v.par_iter()
-            .enumerate()
-            .map(|(i, e)| {
-                println!("Hi {}", i);
-                e.0.find_all(&e.1)
+            .map(|e| {
+                let mut hash = HashMap::default();
+                valid_count(&mut hash, &e.0 .0, &e.1)
             })
             .sum()
     }
