@@ -124,9 +124,9 @@ impl Day for Solution {
     }
     fn p2(v: &Self::Input2) -> Self::Sol2 {
         let max_x = v.keys().max_by_key(|k| k.x).unwrap().x;
-        let max_y = v.keys().max_by_key(|k| k.y).unwrap().y;
+        let max_y = v.keys().min_by_key(|k| k.y).unwrap().y;
         let mut beams = vec![];
-        for x in 0..max_x {
+        for x in 0..=max_x {
             beams.push(Beam {
                 pos: Point2::new(x, 0),
                 dir: Vector2::new(0, -1),
@@ -138,7 +138,7 @@ impl Day for Solution {
             });
         }
 
-        for y in 0..max_y {
+        for y in max_y..=0 {
             beams.push(Beam {
                 pos: Point2::new(0, y),
                 dir: Vector2::new(1, 0),
