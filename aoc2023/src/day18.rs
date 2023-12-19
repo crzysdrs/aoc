@@ -3,17 +3,10 @@ use cgmath::{Point2, Vector2};
 #[allow(unused_imports)]
 use std::collections::*;
 
-enum Dir {
-    Up,
-    Down,
-    Left,
-    Right,
-}
-
 pub struct Dig {
     dir: Vector2<i32>,
     num: i32,
-    hex: String,
+    _hex: String,
 }
 
 const UP: Vector2<i32> = Vector2::new(0, 1);
@@ -45,7 +38,7 @@ impl Day for Solution {
                 Dig {
                     dir,
                     num,
-                    hex: hex.to_string(),
+                    _hex: hex.to_string(),
                 }
             })
             .collect()
@@ -69,7 +62,7 @@ impl Day for Solution {
                 Dig {
                     dir,
                     num,
-                    hex: hex.to_string(),
+                    _hex: hex.to_string(),
                 }
             })
             .collect()
@@ -81,7 +74,7 @@ impl Day for Solution {
         }
 
         impl Digger {
-            fn dig(&mut self, d: &Dig) -> impl Iterator<Item = Point2<i32>> {
+            fn dig(&mut self, d: &Dig) -> impl Iterator<Item = (Point2<i32>, Vector2<i32>)> {
                 self.dir = d.dir;
                 let mut pos = self.pos;
                 let dir = self.dir;
@@ -89,7 +82,7 @@ impl Day for Solution {
 
                 (0..d.num).map(move |_| {
                     pos += dir;
-                    pos
+                    (pos, dir)
                 })
             }
         }
@@ -99,32 +92,64 @@ impl Day for Solution {
             dir: UP,
         };
 
-        let pts: HashSet<_> = std::iter::once((0, 0).into())
-            .chain(v.iter().flat_map(|dig| digger.dig(dig)))
-            .collect();
+        let pts: HashMap<_, _> = v.iter().flat_map(|dig| digger.dig(dig)).collect();
 
-        let min_x = pts.iter().min_by_key(|p| p.x).unwrap().x;
-        let max_x = pts.iter().max_by_key(|p| p.x).unwrap().x;
+        let min_x = pts.keys().min_by_key(|p| p.x).unwrap().x;
+        let max_x = pts.keys().max_by_key(|p| p.x).unwrap().x;
 
-        let min_y = pts.iter().min_by_key(|p| p.y).unwrap().y;
-        let max_y = pts.iter().max_by_key(|p| p.y).unwrap().y;
+        let min_y = pts.keys().min_by_key(|p| p.y).unwrap().y;
+        let max_y = pts.keys().max_by_key(|p| p.y).unwrap().y;
 
-        let mut inside_count = 0;
+        println!("{:?}", (min_x, min_y));
+        println!("{:?}", (max_x, max_y));
+
+        let mut ys = pts.keys().fold(HashMap::new(), |mut h, p| {
+            h.entry(p.x).or_insert(vec![]).push(p.y);
+            h
+        });
+
+        let goto: HashMap<_, _> = pts.iter().map(|(k, v)| (k + v, k)).collect();
+
+        ys.values_mut().for_each(|v| v.sort());
+
+        let mut inside_count: usize = 0;
         for x in min_x..=max_x {
+            let ys = ys.get(&x).unwrap();
             let mut inside = false;
-            for y in min_y..=max_y {
-                let line = pts.contains(&(x, y).into()) && pts.contains(&(x - 1, y).into());
+            let mut last_line = None;
+            for y in ys.iter().copied() {
+                let pt = Point2::new(x, y);
+                let target = pts.get(&pt).copied().unwrap();
+                let real_next = Point2::new(0, 0) + v[0].dir;
+                let _next = goto.get(&pt).copied().unwrap_or(&real_next);
+                let _prev = pt + target;
+                let line = match pts.get(&(pt + LEFT)).copied() {
+                    Some(LEFT) => true,
+                    _ => false,
+                } || match pts.get(&(pt)).copied() {
+                    Some(RIGHT) => true,
+                    _ => false,
+                };
+                //&& (pts.contains(&(x - 1, y).into()) || pts.contains(&(x + 1, y).into()));
                 if line {
                     inside = !inside;
                 }
-                if !pts.contains(&(x, y).into()) && inside {
+                if line && !inside {
                     //println!("{:?}", (x, y));
-                    inside_count += i32::from(inside);
+                    inside_count += 1 + usize::try_from(y - last_line.unwrap()).unwrap();
+                    println!(
+                        "# {:?} {}",
+                        (x, last_line.unwrap()..y),
+                        1 + y - last_line.unwrap(),
+                    );
+                }
+                if line {
+                    last_line = Some(y);
                 }
             }
         }
 
-        usize::try_from(inside_count).unwrap() + pts.len()
+        inside_count
     }
     fn p2(v: &Self::Input2) -> Self::Sol2 {
         Self::p1(v)
