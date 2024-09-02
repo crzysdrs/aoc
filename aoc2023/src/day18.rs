@@ -1,5 +1,8 @@
 use crate::Day;
 use cgmath::{Point2, Vector2};
+use itertools::Itertools;
+use rayon::prelude::*;
+
 #[allow(unused_imports)]
 use std::collections::*;
 
@@ -74,15 +77,15 @@ impl Day for Solution {
         }
 
         impl Digger {
-            fn dig(&mut self, d: &Dig) -> impl Iterator<Item = (Point2<i32>, Vector2<i32>)> {
+            fn dig(&mut self, d: &Dig) -> impl Iterator<Item = Point2<i32>> {
+                assert!(self.dir != d.dir);
                 self.dir = d.dir;
                 let mut pos = self.pos;
                 let dir = self.dir;
                 self.pos += self.dir * d.num;
-
                 (0..d.num).map(move |_| {
                     pos += dir;
-                    (pos, dir)
+                    pos
                 })
             }
         }
@@ -92,62 +95,140 @@ impl Day for Solution {
             dir: UP,
         };
 
-        let pts: HashMap<_, _> = v.iter().flat_map(|dig| digger.dig(dig)).collect();
+        #[derive(Debug, Copy, Clone)]
+        struct LineSegment {
+            input: Vector2<i32>,
+            output: Vector2<i32>,
+        }
+        //let pts: HashMap<_, _> = v.iter().flat_map(|dig| digger.dig(dig)).collect();
+        let ordered_pts: Vec<_> = v.iter().flat_map(|dig| digger.dig(dig)).collect();
+        //println!("{:#?}", ordered_pts);
 
-        let min_x = pts.keys().min_by_key(|p| p.x).unwrap().x;
-        let max_x = pts.keys().max_by_key(|p| p.x).unwrap().x;
+        println!("Ordered points: {}", ordered_pts.len());
 
-        let min_y = pts.keys().min_by_key(|p| p.y).unwrap().y;
-        let max_y = pts.keys().max_by_key(|p| p.y).unwrap().y;
+        let goto: Vec<_> = ordered_pts
+            .iter()
+            .circular_tuple_windows()
+            .map(|(x, y, z)| {
+                (
+                    y,
+                    LineSegment {
+                        input: y - x,
+                        output: y - z,
+                    },
+                )
+            })
+            .filter(|(p, l)| match l {
+                LineSegment {
+                    input: UP | DOWN,
+                    output: UP | DOWN,
+                } => false,
+                _ => true,
+            })
+            .collect();
 
-        println!("{:?}", (min_x, min_y));
-        println!("{:?}", (max_x, max_y));
+        println!("Goto: {}", goto.len());
+        let goto: HashMap<_, _> = goto.into_iter().collect();
 
-        let mut ys = pts.keys().fold(HashMap::new(), |mut h, p| {
+        let min_x = ordered_pts.iter().min_by_key(|p| p.x).unwrap().x;
+        let max_x = ordered_pts.iter().max_by_key(|p| p.x).unwrap().x;
+        let mut ys = goto.keys().fold(HashMap::new(), |mut h, p| {
             h.entry(p.x).or_insert(vec![]).push(p.y);
             h
         });
 
-        let goto: HashMap<_, _> = pts.iter().map(|(k, v)| (k + v, k)).collect();
+        //let goto: HashMap<_, _> = pts.iter().map(|(k, v)| (k + v, k)).collect();
+        ys.par_iter_mut().for_each(|(_, v)| v.sort());
 
-        ys.values_mut().for_each(|v| v.sort());
+        let inside_count = (min_x..=max_x)
+            .into_par_iter()
+            .map(|x| {
+                let mut inside_count: usize = 0;
+                let ys = ys.get(&x).unwrap();
 
-        let mut inside_count: usize = 0;
-        for x in min_x..=max_x {
-            let ys = ys.get(&x).unwrap();
-            let mut inside = false;
-            let mut last_line = None;
-            for y in ys.iter().copied() {
-                let pt = Point2::new(x, y);
-                let target = pts.get(&pt).copied().unwrap();
-                let real_next = Point2::new(0, 0) + v[0].dir;
-                let _next = goto.get(&pt).copied().unwrap_or(&real_next);
-                let _prev = pt + target;
-                let line = match pts.get(&(pt + LEFT)).copied() {
-                    Some(LEFT) => true,
-                    _ => false,
-                } || match pts.get(&(pt)).copied() {
-                    Some(RIGHT) => true,
-                    _ => false,
-                };
-                //&& (pts.contains(&(x - 1, y).into()) || pts.contains(&(x + 1, y).into()));
-                if line {
-                    inside = !inside;
+                let mut inside = false;
+                let mut last_corner_dir = None;
+                let mut last_cross = None;
+
+                for y in ys.iter().copied() {
+                    let pt = Point2::new(x, y);
+                    //let target = pts.get(&pt).copied().unwrap();
+                    let next = goto.get(&pt).copied().unwrap();
+                    let old_inside = inside;
+                    match next {
+                        LineSegment {
+                            input: LEFT | RIGHT,
+                            output: LEFT | RIGHT,
+                        } => {
+                            //hit horizontal line
+                            inside = !inside;
+                            last_corner_dir = None;
+                            //println!("Horizontal {:?}", pt);
+                        }
+                        LineSegment {
+                            input: UP | DOWN,
+                            output: UP | DOWN,
+                        } => {
+                            //on vertical line
+                            //println!("Vertical {:?}", pt);
+                        }
+                        LineSegment {
+                            input: UP | DOWN,
+                            output: output @ (LEFT | RIGHT),
+                        } => {
+                            //println!("Corner {:?} : {:?}", pt, output);
+                            //corner
+                            match last_corner_dir {
+                                None => {
+                                    last_corner_dir = Some((old_inside, output));
+                                    inside = true
+                                }
+                                Some((old, last_corner)) => {
+                                    inside = if last_corner == output { old } else { !old };
+                                    last_corner_dir = None;
+                                }
+                            }
+                        }
+                        LineSegment {
+                            input: input @ (LEFT | RIGHT),
+                            output: UP | DOWN,
+                        } => {
+                            //println!("Corner {:?} : {:?}", pt, input);
+                            //corner
+                            match last_corner_dir {
+                                None => {
+                                    last_corner_dir = Some((old_inside, input));
+                                    inside = true;
+                                }
+                                Some((old, last_corner)) => {
+                                    inside = if last_corner == input { old } else { !old };
+                                    last_corner_dir = None;
+                                }
+                            }
+                        }
+                        d => panic!("Invalid vector {:?}", d),
+                    };
+                    if old_inside != inside {
+                        //println!("Line Transition {:?}", pt);
+                        match last_cross {
+                            None => {
+                                last_cross = Some(pt.y);
+                                //if !inside {
+                                //inside = !inside;
+                                //}
+                            }
+                            Some(last) => {
+                                let new = usize::try_from(pt.y - last).unwrap() + 1;
+                                inside_count += new;
+                                //println!("Counted {}", new);
+                                last_cross = None;
+                            }
+                        }
+                    }
                 }
-                if line && !inside {
-                    //println!("{:?}", (x, y));
-                    inside_count += 1 + usize::try_from(y - last_line.unwrap()).unwrap();
-                    println!(
-                        "# {:?} {}",
-                        (x, last_line.unwrap()..y),
-                        1 + y - last_line.unwrap(),
-                    );
-                }
-                if line {
-                    last_line = Some(y);
-                }
-            }
-        }
+                inside_count
+            })
+            .sum();
 
         inside_count
     }
