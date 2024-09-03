@@ -191,7 +191,7 @@ pub fn p1() -> IoResult<()> {
                 .into_iter()
                 .map(move |i| (r.name.clone(), i))
         })
-        .filter(|(_, i)| unsafe_items.get(i).is_none())
+        .filter(|(_, i)| !unsafe_items.contains(i))
         .collect::<Vec<_>>();
     let mut cur_room = "Hull Breach".to_string();
     use petgraph::algo::astar;

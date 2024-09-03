@@ -61,7 +61,7 @@ impl Day for Solution {
 
         let input = r
             .lines()
-            .flatten()
+            .map_while(Result::ok)
             .map(|l| {
                 let cap = split.captures(&l).unwrap();
                 let ingredients = cap

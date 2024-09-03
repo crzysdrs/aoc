@@ -51,7 +51,7 @@ impl Day for Solution {
 
         let yours: Vec<usize> = lines
             .by_ref()
-            .flatten()
+            .map_while(Result::ok)
             .nth(1)
             .unwrap()
             .split(',')
@@ -59,7 +59,7 @@ impl Day for Solution {
             .collect();
 
         let nearby: Vec<Vec<usize>> = lines
-            .flatten()
+            .map_while(Result::ok)
             .skip(2)
             .map(|l| l.split(',').map(|x| x.parse::<usize>().unwrap()).collect())
             .collect();

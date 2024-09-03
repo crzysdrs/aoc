@@ -215,7 +215,7 @@ pub fn p2() -> IoResult<()> {
     let movements = (0..)
         .map(|_| {
             let next = point_dir(&current, &dir);
-            if scaffolds.get(&current).is_some() {
+            if scaffolds.contains(&current) {
                 current = next;
                 Movement::Forward(1)
             } else if let Some('#') = grid.get(&next) {

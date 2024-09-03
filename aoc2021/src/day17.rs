@@ -19,7 +19,7 @@ impl Day for Solution {
     {
         let re = Regex::new(r"(-?[0-9]+)\.\.(-?[0-9]+)").unwrap();
 
-        let l = r.lines().flatten().next().unwrap();
+        let l = r.lines().map_while(Result::ok).next().unwrap();
 
         let m = re.captures_iter(&l).collect::<Vec<_>>();
 

@@ -29,11 +29,8 @@ impl Module {
         }
     }
     fn notify_input(&mut self, input: ModuleId) {
-        match self {
-            Module::Conjunction(h, _) => {
-                h.insert(input, Pulse::Low);
-            }
-            _ => {}
+        if let Module::Conjunction(h, _) = self {
+            h.insert(input, Pulse::Low);
         }
     }
     fn send(
@@ -144,8 +141,6 @@ impl Day for Solution {
         let broadcast = *ids.get("broadcaster").unwrap();
         let mut worklist = VecDeque::from([]);
 
-        let names: HashMap<_, _> = ids.iter().map(|(k, v)| (v, k)).collect();
-
         let mut high = 0;
         let mut low = 0;
         for _ in 0..1000 {
@@ -178,29 +173,56 @@ impl Day for Solution {
         let button = *ids.get("button").unwrap();
         let broadcast = *ids.get("broadcaster").unwrap();
         let rx = *ids.get("rx").unwrap();
+        let receiver = *ids.get("dh").unwrap();
         let mut worklist = VecDeque::from([]);
 
-        let names: HashMap<_, _> = ids.iter().map(|(k, v)| (v, k)).collect();
+        let inputs: Vec<_> = match modules.get(&receiver).unwrap() {
+            Module::Conjunction(inputs, _outputs) => inputs.keys().copied().collect(),
+            _ => panic!("wrong type"),
+        };
 
+        let mut cycles: HashMap<_, Vec<_>> = HashMap::new();
         let mut i = 0;
         loop {
-            if i % 100000 == 0 {
-                println!("{:?}", i);
-            }
             i += 1;
             worklist.push_back((button, broadcast, Pulse::Low));
+
+            fn gcd(mut a: usize, mut b: usize) -> usize {
+                while b != 0 {
+                    let t = b;
+                    b = a % b;
+                    a = t;
+                }
+                a
+            }
+            fn lcm(a: usize, b: usize) -> usize {
+                (a * b) / gcd(a, b)
+            }
+
+            if inputs.iter().all(|i| match cycles.get(i) {
+                Some(cs) => cs.len() >= 2,
+                _ => false,
+            }) {
+                return cycles
+                    .values()
+                    .map(|v| {
+                        let mut last = v.iter().rev().take(2);
+                        let l1 = last.next().unwrap();
+                        let l2 = last.next().unwrap();
+                        l1 - l2
+                    })
+                    .fold(1, lcm);
+            }
 
             while let Some((from, to, p)) = worklist.pop_front() {
                 if to == rx && p == Pulse::Low {
                     return i;
                 }
+                if to == receiver && p == Pulse::High {
+                    let e = cycles.entry(from).or_insert(vec![]);
+                    e.push(i);
+                }
 
-                // println!(
-                //     "{} -{:?}-> {}",
-                //     names.get(&from).unwrap(),
-                //     p,
-                //     names.get(&to).unwrap()
-                // );
                 if let Some(m) = modules.get_mut(&to) {
                     worklist.extend(m.send(to, from, p));
                 }
@@ -209,7 +231,7 @@ impl Day for Solution {
     }
 }
 
-//crate::default_tests!((), ());
+crate::default_tests!(763500168, 207652583562007);
 crate::string_tests!(
     [
         (
@@ -231,5 +253,5 @@ crate::string_tests!(
             11687500
         )
     ],
-    [(foo_sol2, "hi2", 1)]
+    []
 );

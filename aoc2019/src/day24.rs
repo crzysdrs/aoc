@@ -265,9 +265,7 @@ pub fn p2() -> IoResult<()> {
             if current.contains(&item) {
                 worklist.extend(adj(item));
             }
-            let neighbors: u32 = adj(item)
-                .map(|x| u32::from(current.get(&x).is_some()))
-                .sum();
+            let neighbors: u32 = adj(item).map(|x| u32::from(current.contains(&x))).sum();
             match current.contains(&item) {
                 true if neighbors != 1 => {}
                 false if neighbors == 1 || neighbors == 2 => {

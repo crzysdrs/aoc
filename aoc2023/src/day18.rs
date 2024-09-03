@@ -118,12 +118,14 @@ impl Day for Solution {
                     },
                 )
             })
-            .filter(|(p, l)| match l {
-                LineSegment {
-                    input: UP | DOWN,
-                    output: UP | DOWN,
-                } => false,
-                _ => true,
+            .filter(|(_p, l)| {
+                !matches!(
+                    l,
+                    LineSegment {
+                        input: UP | DOWN,
+                        output: UP | DOWN,
+                    }
+                )
             })
             .collect();
 
@@ -132,8 +134,8 @@ impl Day for Solution {
 
         let min_x = ordered_pts.iter().min_by_key(|p| p.x).unwrap().x;
         let max_x = ordered_pts.iter().max_by_key(|p| p.x).unwrap().x;
-        let mut ys = goto.keys().fold(HashMap::new(), |mut h, p| {
-            h.entry(p.x).or_insert(vec![]).push(p.y);
+        let mut ys = goto.keys().fold(HashMap::<_, Vec<_>>::new(), |mut h, p| {
+            h.entry(p.x).or_default().push(p.y);
             h
         });
 

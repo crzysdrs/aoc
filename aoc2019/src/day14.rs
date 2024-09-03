@@ -130,7 +130,7 @@ pub fn p2() -> IoResult<()> {
         })
         .collect::<Vec<_>>();
 
-    let mut lo = std::u64::MIN;
+    let mut lo = u64::MIN;
     let mut hi = 9999999999;
     while hi > lo {
         let mut extra = HashMap::new();

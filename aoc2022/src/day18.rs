@@ -92,15 +92,15 @@ impl Day for Solution {
             .collect();
 
         while let Some(w) = worklist.pop() {
-            if side.get(&w).is_some() {
+            if side.contains(&w) {
                 continue;
             }
             side.insert(w);
-            if all_dirs.iter().all(|d| set.get(&(w + d)).is_none()) {
+            if all_dirs.iter().all(|d| !set.contains(&(w + d))) {
                 continue;
             }
             worklist.extend(dirs.iter().flat_map(|d| {
-                if edges.get(&(w + d)).is_some() || set.get(&(w + d)).is_none() {
+                if edges.contains(&(w + d)) || !set.contains(&(w + d)) {
                     Some(w + d)
                 } else {
                     None

@@ -26,7 +26,7 @@ impl Day for Solution {
     where
         R: std::io::BufRead,
     {
-        let mut lines = r.lines().flatten();
+        let mut lines = r.lines().map_while(Result::ok);
         let p1 = lines
             .next()
             .unwrap()

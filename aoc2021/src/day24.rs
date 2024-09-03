@@ -258,7 +258,7 @@ impl Day for Solution {
     {
         let mut instr: Vec<_> = r
             .lines()
-            .flatten()
+            .map_while(Result::ok)
             .map(|l| l.parse().unwrap())
             .collect::<Vec<_>>();
 

@@ -72,7 +72,7 @@ impl Day for Solution {
                 if let Some(pos) = options
                     .iter()
                     .map(|dir| new_sand + dir)
-                    .find(|pos| sandbox.get(pos).is_none())
+                    .find(|pos| !sandbox.contains_key(pos))
                 {
                     if pos.y > lowest_stone.y {
                         break 'sand_done;
@@ -129,7 +129,7 @@ impl Day for Solution {
                     if pos.y >= lowest_stone.y + 2 {
                         false
                     } else {
-                        sandbox.get(pos).is_none()
+                        !sandbox.contains_key(pos)
                     }
                 });
                 if let Some(pos) = next_pos {

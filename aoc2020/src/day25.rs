@@ -19,7 +19,10 @@ impl Day for Solution {
     where
         R: std::io::BufRead,
     {
-        Ok(r.lines().flatten().map(|l| l.parse().unwrap()).collect())
+        Ok(r.lines()
+            .map_while(Result::ok)
+            .map(|l| l.parse().unwrap())
+            .collect())
     }
     fn p1(v: &[Self::Input]) -> Self::Sol1 {
         let mut loops = v

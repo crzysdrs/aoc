@@ -40,8 +40,11 @@ impl Rule {
         match &self.cond {
             Some(c) => {
                 let r = h.get(&c.rate).unwrap();
-                let meet = if c.gt { *r > c.val } else { *r < c.val };
-                meet
+                if c.gt {
+                    *r > c.val
+                } else {
+                    *r < c.val
+                }
             }
             None => true,
         }
@@ -142,7 +145,7 @@ impl Day for Solution {
                 use std::borrow::Cow;
                 let mut state: Cow<str> = "in".into();
                 while !["A".into(), "R".into()].contains(&state) {
-                    let new_state = v.0.get(state.as_ref()).unwrap().eval(&s).into();
+                    let new_state = v.0.get(state.as_ref()).unwrap().eval(s).into();
                     //println!("{} -> {}", state, new_state);
                     state = new_state;
                 }
@@ -184,7 +187,7 @@ impl Day for Solution {
             h_vec.sort_by_key(|h| h.0);
 
             let key = (state, h_vec);
-            if seen.get(&key).is_some() {
+            if seen.contains(&key) {
                 continue;
             }
             seen.insert(key);

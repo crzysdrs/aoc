@@ -13,7 +13,7 @@ pub enum Command {
 pub enum Log {
     Command(Command),
     File(usize, String),
-    Dir(String),
+    Dir,
 }
 
 fn dirs(v: &[Log]) -> HashMap<PathBuf, usize> {
@@ -35,7 +35,7 @@ fn dirs(v: &[Log]) -> HashMap<PathBuf, usize> {
             }
             Log::Command(Command::Ls) => None,
             Log::File(size, f) => Some((path.join(f), size)),
-            Log::Dir(_) => None,
+            Log::Dir => None,
         })
         .collect();
 
@@ -69,8 +69,8 @@ impl Day for Solution {
                     } else {
                         Log::Command(Command::Ls)
                     }
-                } else if let Some(dir) = l.strip_prefix("dir ") {
-                    Log::Dir(dir.to_string())
+                } else if let Some(_dir) = l.strip_prefix("dir ") {
+                    Log::Dir
                 } else {
                     let (size, file) = l.split_once(' ').unwrap();
                     Log::File(size.parse().unwrap(), file.to_string())

@@ -15,7 +15,7 @@ impl Day for Solution {
         R: std::io::BufRead,
     {
         Ok(r.lines()
-            .flatten()
+            .map_while(Result::ok)
             .map(|l| {
                 l.chars()
                     .map(|c| c.to_digit(10).unwrap() as usize)
@@ -39,7 +39,7 @@ impl Day for Solution {
             //println!("{:?}", q.len());
             let u = q
                 .iter()
-                .filter(|k| dist.get(k).is_some())
+                .filter(|k| dist.contains_key(k))
                 .min_by_key(|k| *dist.get(k).unwrap())
                 .unwrap();
             let u = *u;
@@ -57,7 +57,7 @@ impl Day for Solution {
                         let v = (*x, *y);
                         if q.contains(&v) {
                             let alt = dist.get(&u).unwrap() + input[v.1][v.0];
-                            if dist.get(&v).is_none() || alt < dist[&v] {
+                            if !dist.contains_key(&v) || alt < dist[&v] {
                                 *dist.entry(v).or_insert(alt) = alt;
                                 *prev.entry(v).or_insert(u) = u;
                             }
@@ -139,7 +139,7 @@ impl Day for Solution {
             // This is the slow operation, it should be a min heap or priority queue.
             let u = q
                 .iter()
-                .filter(|k| dist.get(k).is_some())
+                .filter(|k| dist.contains_key(k))
                 .min_by_key(|k| (*dist.get(k).unwrap(), (target.0 - k.0 + target.1 - k.1)));
             if u.is_none() {
                 break;
@@ -161,7 +161,7 @@ impl Day for Solution {
                         let v = (*x, *y);
                         if q.contains(&v) {
                             let alt = dist.get(&u).unwrap() + input[v.1][v.0];
-                            if dist.get(&v).is_none() || alt < dist[&v] {
+                            if !dist.contains_key(&v) || alt < dist[&v] {
                                 *dist.entry(v).or_insert(alt) = alt;
                                 *prev.entry(v).or_insert(u) = u;
                             }

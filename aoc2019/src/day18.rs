@@ -99,7 +99,7 @@ where
         .enumerate()
         .map(|(i, (p, _))| (*p, i))
         .collect::<HashMap<_, _>>();
-    let mut dist = vec![std::u32::MAX; grid.len()];
+    let mut dist = vec![u32::MAX; grid.len()];
 
     q.push_front((*lookup.get(start).unwrap(), *start));
     dist[*lookup.get(start).unwrap()] = 0;
@@ -134,7 +134,7 @@ where
     lookup
         .iter()
         .map(|(p, x)| (*p, dist[*x]))
-        .filter(|(p, x)| *x != std::u32::MAX)
+        .filter(|(p, x)| *x != u32::MAX)
         .collect()
 }
 
@@ -182,7 +182,7 @@ fn min_dist(grid: &HashMap<Point2<i32>, char>) -> u32 {
 
     let mut worklist = vec![(starts(grid), Vec::<char>::new(), HashSet::new(), 0)];
 
-    let mut min_dist = std::u32::MAX;
+    let mut min_dist = u32::MAX;
     let mut seen: HashMap<(Vec<Point2<_>>, Vec<char>), u32> = HashMap::new();
 
     let mut reachable: HashMap<Vec<char>, Vec<char>> = HashMap::new();
@@ -267,9 +267,7 @@ fn min_dist(grid: &HashMap<Point2<i32>, char>) -> u32 {
                 let mut new_keys = new_keys.iter().cloned().collect::<Vec<_>>();
                 new_keys.sort();
                 let lookup = (starts.clone(), new_keys);
-                if new_steps >= min_dist
-                    || *seen.get(&lookup).unwrap_or(&std::u32::MAX) <= new_steps
-                {
+                if new_steps >= min_dist || *seen.get(&lookup).unwrap_or(&u32::MAX) <= new_steps {
                     continue;
                 }
                 seen.insert(lookup, new_steps);

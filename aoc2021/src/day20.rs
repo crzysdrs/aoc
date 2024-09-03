@@ -58,7 +58,7 @@ impl Day for Solution {
     where
         R: std::io::BufRead,
     {
-        let mut lines = r.lines().flatten();
+        let mut lines = r.lines().map_while(Result::ok);
         let enhance = lines.next().unwrap();
         let enhance: Vec<_> = enhance.chars().map(|x| x == '#').collect();
 

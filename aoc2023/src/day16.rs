@@ -66,7 +66,7 @@ fn beam_sim(beam: Beam, v: &HashMap<Point2<i32>, Cell>) -> usize {
 
     //println!("{:?}", beams);
     while let Some(mut beam) = beams.pop() {
-        if seen.get(&beam).is_some() {
+        if seen.contains(&beam) {
             continue;
         }
         seen.insert(beam.clone());

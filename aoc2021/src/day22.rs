@@ -118,7 +118,7 @@ impl Day for Solution {
         R: std::io::BufRead,
     {
         Ok(r.lines()
-            .flatten()
+            .map_while(Result::ok)
             .map(|l| {
                 let (on, suffix) = if let Some(suffix) = l.strip_prefix("on ") {
                     (true, suffix)
@@ -167,11 +167,13 @@ impl Day for Solution {
         // map.values().filter(|x| **x).count()
 
         let v = v
-            .iter().filter(|&c| {
+            .iter()
+            .filter(|&c| {
                 [c.x.clone(), c.y.clone(), c.z.clone()]
                     .into_iter()
                     .all(|r| r.start >= -50 && r.start <= 50 && r.end >= -51 && r.end <= 51)
-            }).cloned()
+            })
+            .cloned()
             .collect();
         Self::p2(&v)
     }

@@ -54,7 +54,7 @@ impl Day for Solution {
     {
         let dir = Regex::new("e|se|sw|w|nw|ne").unwrap();
         Ok(r.lines()
-            .flatten()
+            .map_while(Result::ok)
             .map(|l| {
                 dir.captures_iter(&l)
                     .map(|d| match d.get(0).unwrap().as_str() {

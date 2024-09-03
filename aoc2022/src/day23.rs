@@ -74,16 +74,13 @@ fn compute(grid: &mut Grid, max_iterations: Option<usize>) -> usize {
             .map
             .iter()
             .flat_map(|e| {
-                if all
-                    .iter()
-                    .all(|d| grid.map.get(&(e + d.vector())).is_none())
-                {
+                if all.iter().all(|d| !grid.map.contains(&(e + d.vector()))) {
                     None
                 } else {
                     cardinals.iter().find_map(|(c, choices)| {
                         if !choices
                             .iter()
-                            .any(|choice| grid.map.get(&(*e + choice.vector())).is_some())
+                            .any(|choice| grid.map.contains(&(*e + choice.vector())))
                         {
                             Some((*e, e + c.vector()))
                         } else {

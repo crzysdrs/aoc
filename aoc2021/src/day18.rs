@@ -61,7 +61,7 @@ impl std::iter::Sum<Self> for SnailFish {
         I: Iterator<Item = Self>,
     {
         let start = iter.next().unwrap();
-        
+
         iter.fold(start, |mut state, rhs| {
             //println!("{:?} + {:?}", state, rhs);
             state = state + rhs;
@@ -124,8 +124,12 @@ impl Iterator for SnailFishReduce {
             match this {
                 SnailFishVal::Pair(sn) => match *sn {
                     SnailFish(SnailFishVal::Val(a), SnailFishVal::Val(b)) if depth >= 4 => {
-                        if let Some(l) = l { l.add_right(a) }
-                        if let Some(r) = r { r.add_left(b) }
+                        if let Some(l) = l {
+                            l.add_right(a)
+                        }
+                        if let Some(r) = r {
+                            r.add_left(b)
+                        }
                         Action::Stop(SnailFishVal::Val(0))
                     }
                     SnailFish(a, mut b) => {
@@ -229,7 +233,7 @@ impl Day for Solution {
         R: std::io::BufRead,
     {
         Ok(r.lines()
-            .flatten()
+            .map_while(Result::ok)
             .map(|l| l.parse::<SnailFish>().unwrap())
             .collect())
     }

@@ -12,7 +12,7 @@ fn get_val(arr: &[Vec<usize>], x: i32, y: i32) -> Option<&usize> {
     }
 }
 
-fn lows(v: &Vec<Vec<usize>>) -> Vec<(usize, usize)> {
+fn lows(v: &[Vec<usize>]) -> Vec<(usize, usize)> {
     let mut low = vec![];
     for y in 0..v.len() as i32 {
         let row = &v[y as usize];

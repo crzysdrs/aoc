@@ -43,10 +43,10 @@ fn shared_path(conns: &[(String, String)]) -> usize {
         up.entry(b.clone()).or_insert_with(|| a.clone());
     });
 
-    let mut you = std::iter::successors(up.get(&"YOU".to_string()), |v| up.get(&(*v).clone()))
-        .collect::<Vec<_>>();
-    let mut san = std::iter::successors(up.get(&"SAN".to_string()), |v| up.get(&(*v).clone()))
-        .collect::<Vec<_>>();
+    let mut you =
+        std::iter::successors(up.get("YOU"), |v| up.get(&(*v).clone())).collect::<Vec<_>>();
+    let mut san =
+        std::iter::successors(up.get("SAN"), |v| up.get(&(*v).clone())).collect::<Vec<_>>();
 
     you.reverse();
     san.reverse();

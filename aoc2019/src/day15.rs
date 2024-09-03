@@ -106,10 +106,10 @@ fn dijkstra(start: &Point2<i32>, grid: &HashMap<Point2<i32>, Tile>) -> HashMap<P
         let min = q
             .iter()
             .enumerate()
-            .min_by_key(|(_i, k)| *dist.entry(***k).or_insert(std::u32::MAX))
+            .min_by_key(|(_i, k)| *dist.entry(***k).or_insert(u32::MAX))
             .map(|(k, v)| (k, **v))
             .unwrap();
-        let min_dist = *dist.entry(min.1).or_insert(std::u32::MAX);
+        let min_dist = *dist.entry(min.1).or_insert(u32::MAX);
         let _v = q.remove(min.0);
         let dirs = [Dir::North, Dir::South, Dir::East, Dir::West];
         for d in dirs.iter() {
@@ -170,7 +170,7 @@ where
             let dirs = [Dir::North, Dir::South, Dir::East, Dir::West];
             for d in dirs.iter() {
                 let new_pt = point_dir(&pos, d);
-                if grid.get(&new_pt).is_none() {
+                if !grid.contains_key(&new_pt) {
                     worklist.push_back((depth + 1, m.clone(), pos, new_pt));
                 }
             }
@@ -186,7 +186,7 @@ pub fn p1() -> IoResult<()> {
         .collect::<Vec<_>>();
     let m = IntCodeMachine::new(codes, vec![]);
 
-    let mut min_d = std::u32::MAX;
+    let mut min_d = u32::MAX;
     let grid = bfs(m, Point2::new(0, 0), |d, _l, _m, s| {
         if let Status::AtOxygen = s {
             min_d = std::cmp::min(d, min_d);

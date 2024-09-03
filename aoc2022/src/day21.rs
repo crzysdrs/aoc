@@ -98,7 +98,7 @@ impl Day for Solution {
                 return *v;
             }
             for m in v {
-                if vals.get(&m.name).is_some() {
+                if vals.contains_key(&m.name) {
                     continue;
                 }
                 let new_val = match &m.math {
