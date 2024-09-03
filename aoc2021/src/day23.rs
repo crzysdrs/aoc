@@ -251,7 +251,7 @@ impl FromStr for Burrow {
         let rooms = groups
             .into_iter()
             .map(|(_key, group)| group.cloned().collect::<Vec<_>>())
-            .zip([Amp::Amber, Amp::Bronze, Amp::Copper, Amp::Desert].into_iter())
+            .zip([Amp::Amber, Amp::Bronze, Amp::Copper, Amp::Desert])
             .map(|(x, y)| (y, x))
             .collect();
 
@@ -265,9 +265,7 @@ fn run(v: Burrow) -> usize {
 
     let mut ungraph = UnGraph::<Point2<i32>, _>::new_undirected();
     let node_indices = v
-        .burrow
-        .iter()
-        .map(|(p, _b)| (*p, ungraph.add_node(*p)))
+        .burrow.keys().map(|p| (*p, ungraph.add_node(*p)))
         .collect::<HashMap<_, _>>();
 
     node_indices.iter().for_each(|(p, n1)| {

@@ -47,7 +47,7 @@ pub fn p1() -> IoResult<()> {
             })
             .collect::<Vec<_>>();
 
-        packets.extend(out.chunks(3).into_iter().map(|g| Packet {
+        packets.extend(out.chunks(3).map(|g| Packet {
             m: g[0] as usize,
             x: g[1],
             y: g[2],
@@ -111,7 +111,7 @@ pub fn p2() -> IoResult<()> {
             })
             .collect::<Vec<_>>();
 
-        packets.extend(out.chunks(3).into_iter().map(|g| Packet {
+        packets.extend(out.chunks(3).map(|g| Packet {
             m: g[0] as usize,
             x: g[1],
             y: g[2],

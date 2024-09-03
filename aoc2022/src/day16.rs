@@ -71,11 +71,11 @@ fn release_pressure<const N: usize>(v: &[Valve], minute: u32) -> u32 {
     score
 }
 
-fn release_pressure_inner<'a, const N: usize>(
+fn release_pressure_inner<const N: usize>(
     highest: &mut u32,
     best_path: &HashMap<(usize, usize), (usize, usize)>,
     best: &mut HashMap<Best<N>, u32>,
-    v: &'a [Valve],
+    v: &[Valve],
     minute: u32,
     mut locs: [usize; N],
     open: u64,

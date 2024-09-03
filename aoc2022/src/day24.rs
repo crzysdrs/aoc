@@ -149,8 +149,7 @@ fn build_graph(
 
     let basin_indices: Vec<Vec<_>> = all_basins
         .iter()
-        .enumerate()
-        .map(|(_t, b)| b.spaces.iter().map(|_x| graph.add_node(())).collect())
+        .map(|b| b.spaces.iter().map(|_x| graph.add_node(())).collect())
         .collect();
 
     let all: Vec<_> = all_basins.iter().zip(basin_indices.iter()).collect();
@@ -158,8 +157,7 @@ fn build_graph(
     println!("Building Graph");
     all.windows(2)
         .chain(std::iter::once([*all.last().unwrap(), all[0]].as_slice()))
-        .enumerate()
-        .for_each(|(_i, win)| {
+        .for_each(|win| {
             let (b_0, idx_0) = win[0];
             let (b_1, idx_1) = win[1];
             b_0.spaces

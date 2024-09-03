@@ -24,7 +24,7 @@ struct Cpu {
     x: i32,
 }
 
-fn run_cpu(cmds: &[Cmd]) -> impl Iterator<Item = Cpu> + itertools::PeekingNext + '_ {
+fn run_cpu(cmds: &[Cmd]) -> impl itertools::PeekingNext<Item = Cpu> + '_ {
     let mut cpu = Cpu { cycle: 0, x: 1 };
 
     std::iter::once(cpu.clone())

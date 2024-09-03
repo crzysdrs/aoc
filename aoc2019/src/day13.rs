@@ -29,7 +29,6 @@ pub fn p1() -> IoResult<()> {
     let grid = m
         .output()
         .chunks(3)
-        .into_iter()
         .map(|c| (Point2::new(c[0], c[1]), Tile::from_isize(c[2]).unwrap()))
         .collect::<HashMap<_, _>>();
 
@@ -64,7 +63,7 @@ pub fn p2() -> IoResult<()> {
     loop {
         assert!(!m.halted());
         m.run();
-        grid.extend(m.output().chunks(3).into_iter().flat_map(|c| {
+        grid.extend(m.output().chunks(3).flat_map(|c| {
             let p = Point2::new(c[0], c[1]);
             if p == score_point {
                 final_score = Some(c[2]);

@@ -35,7 +35,7 @@ impl Day for Solution {
         // Algorithm computes same as p1, but more cleverly.
         let mut pop = [0; 9];
         for x in v {
-            pop[*x as usize] += 1;
+            pop[*x] += 1;
         }
         for _ in 0..256 {
             pop[7] += pop[0];

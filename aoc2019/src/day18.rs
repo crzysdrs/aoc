@@ -140,10 +140,10 @@ where
 
 fn min_dist(grid: &HashMap<Point2<i32>, char>) -> u32 {
     fn keys(grid: &HashMap<Point2<i32>, char>) -> impl Iterator<Item = (&Point2<i32>, &char)> {
-        grid.iter().filter(|(_p, x)| ('a'..='z').contains(*x))
+        grid.iter().filter(|(_p, x)| x.is_ascii_lowercase())
     }
     fn doors(grid: &HashMap<Point2<i32>, char>) -> impl Iterator<Item = (&Point2<i32>, &char)> {
-        grid.iter().filter(|(_p, x)| ('A'..='Z').contains(*x))
+        grid.iter().filter(|(_p, x)| x.is_ascii_uppercase())
     }
 
     fn starts(grid: &HashMap<Point2<i32>, char>) -> Vec<Point2<i32>> {

@@ -30,9 +30,8 @@ impl Day for Solution {
         r.lines()
             .map(|l| {
                 let l = l?;
-                let bags = bag
+                let mut bags = bag
                     .captures_iter(&l)
-                    .into_iter()
                     .filter(|b| b[2].to_string() != "no")
                     .map(|b| {
                         (

@@ -241,7 +241,7 @@ fn digits(v: &Vec<Instr>, max: bool) -> u64 {
         println!("{} Prev Z: {:?}", i, prev_z.len());
     }
 
-    let remain = prev_z.iter().map(|(_alu, digits)| digits);
+    let remain = prev_z.values();
     *if max { remain.max() } else { remain.min() }.unwrap()
 }
 

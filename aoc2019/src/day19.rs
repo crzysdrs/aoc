@@ -47,7 +47,7 @@ fn draw_range(
     for y in y_range {
         print!("{} ", y);
         for x in x_range.clone() {
-            let p = grid.get(&Point2::new(x as isize, y as isize));
+            let p = grid.get(&Point2::new(x, y));
             print!(
                 "{}",
                 match p {

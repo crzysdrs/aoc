@@ -130,7 +130,6 @@ impl Day for Solution {
                         .skip(2)
                         .collect::<String>()
                         .split("..")
-                        .into_iter()
                         .map(|x| x.parse::<i64>().unwrap())
                         .collect::<Vec<_>>()
                 });
@@ -168,13 +167,11 @@ impl Day for Solution {
         // map.values().filter(|x| **x).count()
 
         let v = v
-            .iter()
-            .cloned()
-            .filter(|c| {
+            .iter().filter(|&c| {
                 [c.x.clone(), c.y.clone(), c.z.clone()]
                     .into_iter()
                     .all(|r| r.start >= -50 && r.start <= 50 && r.end >= -51 && r.end <= 51)
-            })
+            }).cloned()
             .collect();
         Self::p2(&v)
     }

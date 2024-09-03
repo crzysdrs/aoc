@@ -85,8 +85,8 @@ impl Day for Solution {
                                 if let Some(p) = v.strip_prefix('#') {
                                     p.len() == 6
                                         && p.chars()
-                                            .map(|x| {
-                                                ('a'..='f').contains(&x) || ('0'..='9').contains(&x)
+                                            .map(|x: char| {
+                                                ('a'..='f').contains(&x) || x.is_ascii_digit()
                                             })
                                             .all(|x| x)
                                 } else {
@@ -99,7 +99,7 @@ impl Day for Solution {
                             }
                             ("pid", Some(v)) => {
                                 v.len() == 9
-                                    && v.chars().map(|x| ('0'..='9').contains(&x)).all(|x| x)
+                                    && v.chars().map(|x: char| x.is_ascii_digit()).all(|x| x)
                             }
                             ("cid", _) => true,
                             (_, _) => false,

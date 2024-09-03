@@ -115,7 +115,7 @@ fn draw_wire(w: &[Wire], space: Space, hm: &mut HashMap<Point, HashMap<Space, u3
             while iter_pt != target {
                 c += 1;
                 iter_pt = iter_pt.add(&dir_pt);
-                let e = hm.entry(iter_pt).or_insert_with(HashMap::new);
+                let e = hm.entry(iter_pt).or_default();
                 e.entry(space).or_insert(c);
             }
             *pt = (target, c);

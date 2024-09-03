@@ -102,7 +102,7 @@ pub fn p2() -> IoResult<()> {
         }
         pos = dir.mv(pos);
     }
-    let tile_pos: Vec<_> = panel.iter().map(|(k, _v)| k).collect();
+    let tile_pos: Vec<_> = panel.keys().collect();
     let min_x: (i32, i32) = **tile_pos.iter().min_by_key(|(x, _y)| x).unwrap();
     let min_y = **tile_pos.iter().min_by_key(|(_x, y)| y).unwrap();
     let max_x = **tile_pos.iter().max_by_key(|(x, _y)| x).unwrap();

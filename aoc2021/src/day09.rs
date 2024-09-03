@@ -84,7 +84,7 @@ impl Day for Solution {
                     search_basin.extend(
                         search
                             .iter()
-                            .flat_map(|s| get_val(v, s.0 as i32, s.1 as i32).map(|v| (s, v)))
+                            .flat_map(|s| get_val(v, s.0, s.1).map(|v| (s, v)))
                             .filter(|(_, v)| **v < 9 && *v > l)
                             .map(|(p, _)| (p.0 as usize, p.1 as usize)),
                     );
