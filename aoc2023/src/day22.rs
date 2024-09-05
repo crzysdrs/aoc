@@ -1,5 +1,6 @@
 use crate::Day;
 use cgmath::Point3;
+use rayon::prelude::*;
 #[allow(unused_imports)]
 use std::collections::*;
 
@@ -88,7 +89,7 @@ pub struct Solution {}
 impl Day for Solution {
     const DAY: u32 = 22;
     type Input1 = Vec<Brick>;
-    type Input2 = ();
+    type Input2 = Vec<Brick>;
     type Sol1 = usize;
     type Sol2 = usize;
 
@@ -111,8 +112,8 @@ impl Day for Solution {
             })
             .collect()
     }
-    fn process_input2(_s: &str) -> Self::Input2 {
-        unimplemented!()
+    fn process_input2(s: &str) -> Self::Input2 {
+        Self::process_input1(s)
     }
     fn p1(v: &Self::Input1) -> Self::Sol1 {
         fn settle(bricks: &mut [Brick]) -> bool {
@@ -175,8 +176,76 @@ impl Day for Solution {
         }
         count
     }
-    fn p2(_v: &Self::Input2) -> Self::Sol2 {
-        unimplemented!()
+    fn p2(v: &Self::Input2) -> Self::Sol2 {
+        fn settle(bricks: &mut [Brick]) -> usize {
+            let mut new_bricks = vec![];
+            let mut moved = 0;
+            for (i, b) in bricks.iter().enumerate() {
+                let mut min_z = 1;
+                let cur_min_z = std::cmp::min(b.start.z, b.end.z);
+                for (j, b2) in bricks.iter().enumerate().filter(|(j, _)| i != *j) {
+                    let max_z = std::cmp::max(b2.start.z, b2.end.z);
+
+                    if max_z < cur_min_z && b.xy_intersect(b2) {
+                        //println!("{:?} {:?}", max_z, b);
+                        min_z = std::cmp::max(min_z, max_z + 1);
+                    };
+                }
+                let offset = if b.start.z == cur_min_z {
+                    b.start.z - min_z
+                } else {
+                    b.end.z - min_z
+                };
+                //println!("{} {:?}", i, offset);
+                if offset > 0 {
+                    moved += 1;
+                }
+                new_bricks.push(Brick {
+                    start: Point3 {
+                        z: b.start.z - offset,
+                        ..b.start
+                    },
+                    end: Point3 {
+                        z: b.end.z - offset,
+                        ..b.end
+                    },
+                })
+            }
+            if moved != 0 {
+                bricks.clone_from_slice(&new_bricks);
+            }
+            moved
+        }
+        let mut bricks = v.clone();
+        //println!("{:?}", bricks);
+        'bricks: loop {
+            let moved = settle(&mut bricks);
+            if moved == 0 {
+                break 'bricks;
+            }
+        }
+        bricks
+            .par_iter()
+            .enumerate()
+            .map(|(i, b)| {
+                let mut new = bricks.clone();
+                new.retain(|b2| *b2 != *b);
+                let old = new.clone();
+                loop {
+                    let moved = settle(&mut new);
+                    if moved == 0 {
+                        break;
+                    }
+                }
+                let moved = new
+                    .iter()
+                    .zip(old.iter())
+                    .filter(|(b1, b2)| b1 != b2)
+                    .count();
+                println!("{}: {:?}", i, moved);
+                moved
+            })
+            .sum()
     }
 }
 
@@ -193,7 +262,15 @@ crate::string_tests!(
 1,1,8~1,1,9",
         5
     )],
-    [
-        //(foo_sol2, "hi2", 1)
-    ]
+    [(
+        foo_sol2,
+        "1,0,1~1,2,1
+0,0,2~2,0,2
+0,2,3~2,2,3
+0,0,4~0,2,4
+2,0,5~2,2,5
+0,1,6~2,1,6
+1,1,8~1,1,9",
+        7
+    )]
 );
