@@ -33,7 +33,7 @@ impl Day for Solution {
 
         let v = v
             .into_iter()
-            .group_by(|e| !e.is_empty())
+            .chunk_by(|e| !e.is_empty())
             .into_iter()
             .map(|(_k, v)| v.into_iter().flatten().collect::<HashMap<_, _>>())
             .collect();

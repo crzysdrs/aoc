@@ -246,7 +246,7 @@ impl FromStr for Burrow {
             .collect::<Vec<_>>();
         rooms.sort_by_key(|p| (p.x, p.y));
 
-        let groups = rooms.iter().group_by(|p| p.x);
+        let groups = rooms.iter().chunk_by(|p| p.x);
 
         let rooms = groups
             .into_iter()
@@ -265,7 +265,9 @@ fn run(v: Burrow) -> usize {
 
     let mut ungraph = UnGraph::<Point2<i32>, _>::new_undirected();
     let node_indices = v
-        .burrow.keys().map(|p| (*p, ungraph.add_node(*p)))
+        .burrow
+        .keys()
+        .map(|p| (*p, ungraph.add_node(*p)))
         .collect::<HashMap<_, _>>();
 
     node_indices.iter().for_each(|(p, n1)| {

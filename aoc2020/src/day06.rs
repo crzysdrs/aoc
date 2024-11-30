@@ -16,7 +16,7 @@ impl Day for Solution {
     {
         Ok(r.lines()
             .flat_map(|l| Result::<_, std::io::Error>::Ok(l?.chars().collect()))
-            .group_by(|h: &HashSet<_>| !h.is_empty())
+            .chunk_by(|h: &HashSet<_>| !h.is_empty())
             .into_iter()
             .filter(|(k, _v)| *k)
             .map(|(_k, v)| {

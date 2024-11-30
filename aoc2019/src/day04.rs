@@ -15,7 +15,7 @@ fn validate(v: u32, p2: bool) -> bool {
         .all(|i| i)
         && digits
             .iter()
-            .group_by(|x| **x)
+            .chunk_by(|x| **x)
             .into_iter()
             .map(|(_key, group)| {
                 if p2 {
