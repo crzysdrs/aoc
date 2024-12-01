@@ -25,22 +25,39 @@ impl Day for Solution {
         let (mut l, mut r): (Vec<_>, Vec<_>) = v.iter().cloned().unzip();
         l.sort();
         r.sort();
-        let sum = l
-            .iter()
+        l.iter()
             .zip(r.iter())
-            .map(|(l, r)| l.abs_diff(*r))
-            .sum::<u32>();
-        usize::try_from(sum).unwrap()
+            .map(|(l, r)| usize::try_from(l.abs_diff(*r)).unwrap())
+            .sum::<usize>()
     }
     fn p2(v: &Self::Input2) -> Self::Sol2 {
-        let (mut l, mut r): (Vec<_>, Vec<_>) = v.iter().cloned().unzip();
-        let mut s = 0;
-        for x in l {
-            s += usize::try_from(x).unwrap() * r.iter().filter(|r| **r == x).count();
-        }
-        s
+        let (l, r): (Vec<_>, Vec<_>) = v.iter().cloned().unzip();
+        l.iter()
+            .map(|l| usize::try_from(*l).unwrap() * r.iter().filter(|r| **r == *l).count())
+            .sum()
     }
 }
 
-//crate::default_tests!((), ());
-//crate::string_tests!([(foo_sol1, "hi1", 0)], [(foo_sol2, "hi2", 1)]);
+crate::default_tests!(3714264, 18805872);
+crate::string_tests!(
+    [(
+        foo_sol1,
+        "3   4
+4   3
+2   5
+1   3
+3   9
+3   3",
+        11
+    )],
+    [(
+        foo_sol2,
+        "3   4
+4   3
+2   5
+1   3
+3   9
+3   3",
+        31
+    )]
+);
