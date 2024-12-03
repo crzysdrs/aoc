@@ -159,7 +159,7 @@ macro_rules! path_tests {
 }
 
 tests! {
-    template, day01, day02
+    template, day01, day02, day03
 }
 
 fn main() -> std::io::Result<()> {
