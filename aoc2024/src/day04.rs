@@ -57,25 +57,22 @@ impl Day for Solution {
         let mut count = 0;
         for y in 0..v.len() {
             for x in 0..v[y].len() {
-                if v[y][x] == Letter::X {
-                    let pos = Point2::new(x as i32, y as i32);
-                    for d in dirs {
-                        let mut all_seen = true;
-                        for (l, i) in [Letter::M, Letter::A, Letter::S].iter().zip(1..) {
-                            let new = pos + d.map(|c| i * c as i32);
-                            if new.x < 0 || new.y < 0 {
-                                all_seen = false;
-                            } else {
-                                let new = Point2::new(new.x as usize, new.y as usize);
-                                if v.get(new.y).and_then(|v| v.get(new.x)) == Some(l) {
-                                } else {
-                                    all_seen = false;
-                                }
+                let pos = Point2::new(x as i32, y as i32);
+                for d in dirs {
+                    if [Letter::X, Letter::M, Letter::A, Letter::S]
+                        .iter()
+                        .enumerate()
+                        .map(|(i, l)| (pos + d.map(|c| i as i32 * c), l))
+                        .all(|(pos, l)| {
+                            if pos.x < 0 || pos.y < 0 {
+                                return false;
                             }
-                        }
-                        if all_seen {
-                            count += 1;
-                        }
+                            let new = Point2::new(pos.x as usize, pos.y as usize);
+                            let new_l = v.get(new.y).and_then(|v| v.get(new.x));
+                            new_l == Some(l)
+                        })
+                    {
+                        count += 1;
                     }
                 }
             }
@@ -90,26 +87,22 @@ impl Day for Solution {
 
         for y in 0..v.len() {
             for x in 0..v[y].len() {
-                if v[y][x] == Letter::M {
-                    let pos = Point2::new(x as i32, y as i32);
-                    for d in dirs {
-                        let mut all_seen = true;
-                        for (l, i) in [Letter::A, Letter::S].iter().zip(1..) {
-                            let new = pos + d.map(|c| i * c as i32);
-                            if new.x < 0 || new.y < 0 {
-                                all_seen = false;
-                            } else {
-                                let new = Point2::new(new.x as usize, new.y as usize);
-                                if v.get(new.y).and_then(|v| v.get(new.x)) == Some(l) {
-                                } else {
-                                    all_seen = false;
-                                }
+                let pos = Point2::new(x as i32, y as i32);
+                for d in dirs {
+                    if [Letter::M, Letter::A, Letter::S]
+                        .iter()
+                        .enumerate()
+                        .map(|(i, l)| (pos + d.map(|c| i as i32 * c), l))
+                        .all(|(pos, l)| {
+                            if pos.x < 0 || pos.y < 0 {
+                                return false;
                             }
-                        }
-
-                        if all_seen {
-                            letter_a.entry(pos + d).and_modify(|a| *a += 1).or_insert(1);
-                        }
+                            let new = Point2::new(pos.x as usize, pos.y as usize);
+                            let new_l = v.get(new.y).and_then(|v| v.get(new.x));
+                            new_l == Some(l)
+                        })
+                    {
+                        letter_a.entry(pos + d).and_modify(|a| *a += 1).or_insert(1);
                     }
                 }
             }
