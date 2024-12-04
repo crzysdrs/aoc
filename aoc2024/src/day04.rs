@@ -108,7 +108,7 @@ impl Day for Solution {
             }
         }
 
-        letter_a.values().filter(|v| *v / 2 > 0).count()
+        letter_a.values().filter(|v| **v == 2).count()
     }
 }
 
