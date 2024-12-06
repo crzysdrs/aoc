@@ -2,7 +2,6 @@ use crate::Day;
 use cgmath::{Point2, Vector2};
 #[allow(unused_imports)]
 use std::collections::*;
-use std::rc::Rc;
 
 #[derive(Copy, Clone, PartialEq)]
 pub enum Pos {
@@ -19,7 +18,41 @@ struct Guard {
     pos: Point2<i32>,
     dir: Vector2<i32>,
 }
+struct GuardIter<'a> {
+    guard: &'a mut Guard,
+    start: bool,
+    w: usize,
+    v: &'a HashMap<Point2<i32>, Pos>,
+}
+
+impl Iterator for GuardIter<'_> {
+    type Item = Guard;
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.start {
+            self.start = false;
+            return Some(self.guard.clone());
+        }
+        let next = self.guard.next_pos();
+        if next.x >= self.w as i32 || next.y >= self.w as i32 || next.x < 0 || next.y < 0 {
+            return None;
+        } else if self.v.get(&next) == Some(&Pos::Wall) {
+            self.guard.turn_right();
+        } else {
+            self.guard.move_next();
+        }
+        Some(self.guard.clone())
+    }
+}
+
 impl Guard {
+    fn iter<'a>(&'a mut self, w: usize, v: &'a HashMap<Point2<i32>, Pos>) -> GuardIter<'a> {
+        GuardIter {
+            guard: self,
+            start: true,
+            v,
+            w,
+        }
+    }
     fn next_pos(&self) -> Point2<i32> {
         self.pos + self.dir
     }
@@ -34,25 +67,6 @@ impl Guard {
             LEFT => UP,
             _ => panic!(),
         };
-    }
-
-    fn run(&mut self, v: &HashMap<Point2<i32>, Pos>, w: usize) -> bool {
-        let mut seen = HashSet::new();
-
-        loop {
-            if seen.get(self).is_some() {
-                return true;
-            }
-            seen.insert(self.clone());
-            let next = self.next_pos();
-            if next.x >= w as i32 || next.y >= w as i32 || next.x < 0 || next.y < 0 {
-                return false;
-            } else if v.get(&next) == Some(&Pos::Wall) {
-                self.turn_right();
-            } else {
-                self.move_next();
-            }
-        }
     }
 }
 
@@ -87,53 +101,26 @@ impl Day for Solution {
         Self::process_input1(s)
     }
     fn p1((w, v): &Self::Input1) -> Self::Sol1 {
-        let (guard_pos, _) = v.iter().find(|(k, v)| **v == Pos::Guard).unwrap();
+        let (guard_pos, _) = v.iter().find(|(_k, v)| **v == Pos::Guard).unwrap();
 
         let mut g = Guard {
             pos: *guard_pos,
             dir: UP,
         };
 
-        let mut seen = HashSet::new();
-        seen.insert(*guard_pos);
-
-        loop {
-            let next = g.next_pos();
-            if next.x >= *w as i32 || next.y >= *w as i32 || next.x < 0 || next.y < 0 {
-                break;
-            } else if v.get(&next) == Some(&Pos::Wall) {
-                g.turn_right();
-            } else {
-                seen.insert(next);
-                g.move_next();
-            }
-        }
-
-        seen.iter().count()
+        let seen: HashSet<_> = g.iter(*w, v).map(|g| g.pos).collect();
+        seen.len()
     }
     fn p2((w, v): &Self::Input2) -> Self::Sol2 {
-        let (guard_pos, _) = v.iter().find(|(k, v)| **v == Pos::Guard).unwrap();
+        let (guard_pos, _) = v.iter().find(|(_k, v)| **v == Pos::Guard).unwrap();
 
         let mut g = Guard {
             pos: *guard_pos,
             dir: UP,
         };
 
-        let mut seen = Vec::new();
+        let seen: Vec<_> = g.iter(*w, v).collect();
 
-        loop {
-            seen.push(g.clone());
-            let next = g.next_pos();
-            if next.x >= *w as i32 || next.y >= *w as i32 || next.x < 0 || next.y < 0 {
-                break;
-            } else if v.get(&next) == Some(&Pos::Wall) {
-                g.turn_right();
-            } else {
-                g.move_next();
-            }
-        }
-
-        // Not 1971
         let set: HashSet<_> = seen
             .iter()
             .enumerate()
@@ -152,7 +139,20 @@ impl Day for Solution {
                 }
                 let mut v = v.clone();
                 v.insert(maybe_obstruct.clone(), Pos::Wall);
-                if new_g.run(&v, *w) {
+                let mut iter = new_g.iter(*w, &v);
+                let mut seen = HashSet::new();
+                let looped = loop {
+                    if let Some(g) = iter.next() {
+                        if seen.get(&g).is_some() {
+                            break true;
+                        }
+                        seen.insert(g);
+                    } else {
+                        break false;
+                    }
+                };
+
+                if looped {
                     Some(maybe_obstruct)
                 } else {
                     None
@@ -164,7 +164,7 @@ impl Day for Solution {
     }
 }
 
-//crate::default_tests!((), ());
+crate::default_tests!(5162, 1909);
 crate::string_tests!(
     [(
         foo_sol1,
