@@ -59,15 +59,24 @@ impl Day for Solution {
         v.iter()
             .filter(|v| {
                 for x in 0..3usize.pow((v.values.len() - 1) as u32) {
-                    let result = v.values.iter().skip(1).enumerate().fold(
+                    let op_choice = (0..).scan(x, |state, _c| {
+                        let op = *state % 3;
+                        *state /= 3;
+                        Some(op)
+                    });
+                    let result = v.values.iter().skip(1).zip(op_choice).fold(
                         v.values[0],
-                        |mut state, (idx, v)| {
-                            let op = (x / 3usize.pow(idx as u32)) % 3;
+                        |mut state, (val, op)| {
+                            // optimization to stop computing if it's bigger than the target.
+                            if state > v.test {
+                                return state;
+                            }
+                            //let op = (x / 3usize.pow(idx as u32)) % 3;
                             match op {
-                                0 => state *= v,
-                                1 => state += v,
+                                0 => state *= val,
+                                1 => state += val,
                                 2 => {
-                                    state = state * 10usize.pow(v.ilog10() + 1) + v;
+                                    state = state * 10usize.pow(val.ilog10() + 1) + val;
                                 }
                                 _ => panic!(),
                             }
