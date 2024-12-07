@@ -66,7 +66,9 @@ impl Day for Solution {
                             match op {
                                 0 => state *= v,
                                 1 => state += v,
-                                2 => state = format!("{}{}", state, v).parse().unwrap(),
+                                2 => {
+                                    state = state * 10usize.pow(v.ilog10() + 1) + v;
+                                }
                                 _ => panic!(),
                             }
                             state
@@ -83,5 +85,32 @@ impl Day for Solution {
     }
 }
 
-//crate::default_tests!((), ());
-//crate::string_tests!([(foo_sol1, "hi1", 0)], [(foo_sol2, "hi2", 1)]);
+crate::default_tests!(21572148763543, 581941094529163);
+crate::string_tests!(
+    [(
+        foo_sol1,
+        "190: 10 19
+3267: 81 40 27
+83: 17 5
+156: 15 6
+7290: 6 8 6 15
+161011: 16 10 13
+192: 17 8 14
+21037: 9 7 18 13
+292: 11 6 16 20",
+        3749
+    )],
+    [(
+        foo_sol2,
+        "190: 10 19
+3267: 81 40 27
+83: 17 5
+156: 15 6
+7290: 6 8 6 15
+161011: 16 10 13
+192: 17 8 14
+21037: 9 7 18 13
+292: 11 6 16 20",
+        11387
+    )]
+);
