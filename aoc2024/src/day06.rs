@@ -159,7 +159,6 @@ impl Day for Solution {
                 }
             })
             .collect();
-        //println!("{:?}", set);
         set.len()
     }
 }
