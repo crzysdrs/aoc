@@ -58,7 +58,7 @@ impl Day for Solution {
     fn p2(v: &Self::Input2) -> Self::Sol2 {
         v.iter()
             .filter(|v| {
-                for x in 0..3usize.pow((v.values.len() - 1) as u32) {
+                (0..3usize.pow((v.values.len() - 1) as u32)).any(|x| {
                     let op_choice = (0..).scan(x, |state, _c| {
                         let op = *state % 3;
                         *state /= 3;
@@ -83,11 +83,8 @@ impl Day for Solution {
                             state
                         },
                     );
-                    if result == v.test {
-                        return true;
-                    }
-                }
-                false
+                    result == v.test
+                })
             })
             .map(|v| v.test)
             .sum()
