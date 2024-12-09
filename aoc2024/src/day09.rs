@@ -99,7 +99,6 @@ impl Day for Solution {
     }
     fn p2(v: &Self::Input2) -> Self::Sol2 {
         let map = (*v).clone();
-        let mut disk = vec![];
 
         #[derive(Debug)]
         struct DiskPlace {
@@ -156,18 +155,15 @@ impl Day for Solution {
             }
         }
 
-        for p in &placed {
-            disk.extend(std::iter::repeat(None).take(p.offset - disk.len()));
-            assert!(p.offset == disk.len());
-            disk.extend(std::iter::repeat(Some(p.block.id)).take(p.block.files));
-        }
-        disk.iter()
-            .enumerate()
-            .flat_map(|(i, b)| {
-                let v = (*b)?;
-                Some((i, v))
+        placed
+            .iter()
+            .map(|p| {
+                std::iter::repeat(p.block.id)
+                    .take(p.block.files)
+                    .zip(p.offset..)
+                    .map(|(v, i)| v * i)
+                    .sum::<usize>()
             })
-            .map(|(i, b)| i * b)
             .sum()
     }
 }
