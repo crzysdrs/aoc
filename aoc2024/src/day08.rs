@@ -1,5 +1,5 @@
 use crate::Day;
-use cgmath::{Point2, Vector2};
+use cgmath::Point2;
 #[allow(unused_imports)]
 use std::collections::*;
 
@@ -42,7 +42,6 @@ impl Day for Solution {
             .iter()
             .flat_map(|(k, v)| match v {
                 Pos::Antenna(n) => Some((n, k)),
-                _ => panic!(),
             })
             .fold(HashMap::<char, Vec<Point2<i32>>>::new(), |mut state, v| {
                 state
@@ -53,7 +52,7 @@ impl Day for Solution {
             });
 
         let mut pairs = vec![];
-        for (n, l) in &nodes {
+        for (_n, l) in &nodes {
             for n1 in l {
                 for n2 in l {
                     if n1 == n2 {
@@ -80,7 +79,6 @@ impl Day for Solution {
             .iter()
             .flat_map(|(k, v)| match v {
                 Pos::Antenna(n) => Some((n, k)),
-                _ => panic!(),
             })
             .fold(HashMap::<char, Vec<Point2<i32>>>::new(), |mut state, v| {
                 state
@@ -91,7 +89,7 @@ impl Day for Solution {
             });
 
         let mut pairs = vec![];
-        for (n, l) in &nodes {
+        for (_n, l) in &nodes {
             for n1 in l {
                 for n2 in l {
                     if n1 == n2 {

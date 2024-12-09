@@ -98,10 +98,8 @@ impl Day for Solution {
         disk.iter().enumerate().map(|(i, b)| i * b).sum()
     }
     fn p2(v: &Self::Input2) -> Self::Sol2 {
-        let mut map = (*v).clone();
+        let map = (*v).clone();
         let mut disk = vec![];
-
-        let mut map_iter = map.iter_mut();
 
         #[derive(Debug)]
         struct DiskPlace {
@@ -127,12 +125,11 @@ impl Day for Solution {
 
         let mut pos = placed.len() - 1;
         loop {
-            println!("{}", pos);
-            if pos == 0 {
-                break;
-            }
             if placed[pos].moved {
                 pos -= 1;
+                if pos == 0 {
+                    break;
+                }
                 continue;
             }
             placed[pos].moved = true;
@@ -154,8 +151,6 @@ impl Day for Solution {
                     },
                 };
 
-                println!("New place {:?}", new_place);
-
                 let _ = placed.remove(pos);
                 placed.insert(i + 1, new_place);
             }
@@ -174,13 +169,10 @@ impl Day for Solution {
             })
             .map(|(i, b)| i * b)
             .sum()
-
-        // too high: 9713797862968
-        // too high: 6239783431260
     }
 }
 
-//crate::default_tests!((), ());
+crate::default_tests!(6211348208140, 6239783302560);
 crate::string_tests!(
     [(foo_sol1, "2333133121414131402", 1928)],
     [(foo_sol2, "2333133121414131402", 2858)]
