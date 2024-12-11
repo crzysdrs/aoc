@@ -9,12 +9,11 @@ impl Stone {
     fn blink(self) -> (Stone, Option<Stone>) {
         if self.0 == 0 {
             return (Stone(1), None);
-        } else if self.0.to_string().len() % 2 == 0 {
-            let new = self.0.to_string();
-            let (l, r) = new.split_at(new.len() / 2);
-            let new1 = Stone(l.parse().unwrap());
-            let new = Stone(r.parse().unwrap());
-            return (new1, Some(new));
+        } else if self.0.ilog10() % 2 == 1 {
+            let len = self.0.ilog10() + 1;
+            let l = Stone(self.0 / 10usize.pow(len / 2));
+            let r = Stone(self.0 % 10usize.pow(len / 2));
+            return (l, Some(r));
         } else {
             return (Stone(self.0 * 2024), None);
         }
