@@ -4,17 +4,17 @@ use regex::Regex;
 #[allow(unused_imports)]
 use std::collections::*;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct Arcade {
-    button_a: Vector2<i32>,
-    button_b: Vector2<i32>,
-    prize: Point2<i32>,
+    button_a: Vector2<usize>,
+    button_b: Vector2<usize>,
+    prize: Point2<usize>,
 }
 pub struct Solution {}
 impl Day for Solution {
     const DAY: u32 = 13;
     type Input1 = Vec<Arcade>;
-    type Input2 = ();
+    type Input2 = Vec<Arcade>;
     type Sol1 = usize;
     type Sol2 = usize;
 
@@ -48,8 +48,8 @@ impl Day for Solution {
 
         arcade
     }
-    fn process_input2(_s: &str) -> Self::Input2 {
-        unimplemented!()
+    fn process_input2(s: &str) -> Self::Input2 {
+        Self::process_input1(s)
     }
     fn p1(v: &Self::Input1) -> Self::Sol1 {
         v.iter()
@@ -74,12 +74,60 @@ impl Day for Solution {
             })
             .sum()
     }
-    fn p2(_v: &Self::Input2) -> Self::Sol2 {
-        unimplemented!()
+    fn p2(v: &Self::Input2) -> Self::Sol2 {
+        let mut v = v.clone();
+        v.iter_mut().for_each(|a| {
+            let offset = 10000000000000;
+            a.prize.x += offset;
+            a.prize.y += offset;
+        });
+
+        v.iter()
+            .map(|arcade| {
+                let lcm = arcade.button_a.y;
+                let eq1 = [
+                    lcm * arcade.button_a.x,
+                    lcm * arcade.button_b.x,
+                    lcm * arcade.prize.x,
+                ];
+                let lcm = arcade.button_a.x;
+                let eq2 = [
+                    lcm * arcade.button_a.y,
+                    lcm * arcade.button_b.y,
+                    lcm * arcade.prize.y,
+                ];
+
+                assert_eq!(eq1[0] - eq2[0], 0);
+
+                let choice = if (eq1[2] >= eq2[2]) && (eq1[1] >= eq2[1]) {
+                    let b = (eq1[2] - eq2[2]) / (eq1[1] - eq2[1]);
+                    Some(b)
+                } else if (eq1[2] <= eq2[2]) && (eq1[1] <= eq2[1]) {
+                    let b = (eq2[2] - eq1[2]) / (eq2[1] - eq1[1]);
+                    Some(b)
+                } else {
+                    None
+                };
+
+                if let Some(b) = choice {
+                    // arcade.prize.x  = a * arcade.button_a.x + b * arcade_button_b.x;
+                    if arcade.prize.x > b * arcade.button_b.x {
+                        let a = (arcade.prize.x - b * arcade.button_b.x) / arcade.button_a.x;
+
+                        if arcade.prize.x == a * arcade.button_a.x + b * arcade.button_b.x
+                            && arcade.prize.y == a * arcade.button_a.y + b * arcade.button_b.y
+                        {
+                            return a * 3 + b;
+                        }
+                    }
+                }
+                0
+            })
+            .sum()
     }
 }
 
-//crate::default_tests!((), ());
+crate::default_tests!(31552, 95273925552482);
 crate::string_tests!(
     [(
         foo_sol1,
@@ -100,5 +148,23 @@ Button B: X+27, Y+71
 Prize: X=18641, Y=10279",
         480
     )],
-    [(foo_sol2, "hi2", 1)]
+    [(
+        foo_sol2,
+        "Button A: X+94, Y+34
+Button B: X+22, Y+67
+Prize: X=8400, Y=5400
+
+Button A: X+26, Y+66
+Button B: X+67, Y+21
+Prize: X=12748, Y=12176
+
+Button A: X+17, Y+86
+Button B: X+84, Y+37
+Prize: X=7870, Y=6450
+
+Button A: X+69, Y+23
+Button B: X+27, Y+71
+Prize: X=18641, Y=10279",
+        875318608908
+    )]
 );
