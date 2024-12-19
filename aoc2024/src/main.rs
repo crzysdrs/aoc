@@ -159,7 +159,8 @@ macro_rules! path_tests {
 }
 
 tests! {
-    template, day01, day02, day03, day04, day05, day06, day07, day08, day09, day10, day11, day12, day13
+    template, day01, day02, day03, day04, day05, day06, day07, day08, day09, day10, day11, day12, day13,
+    day17
 }
 
 fn main() -> std::io::Result<()> {
