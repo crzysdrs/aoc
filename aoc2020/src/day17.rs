@@ -89,7 +89,7 @@ impl Day for Solution {
 
             next = actives
                 .iter()
-                .filter(|(_, &count)| count == 2 || count == 3)
+                .filter(|&(_, &count)| count == 2 || count == 3)
                 .flat_map(|(p, &v)| match current.get(p).unwrap_or(&Cube::Inactive) {
                     Cube::Inactive if v == 3 => Some((*p, Cube::Active)),
                     Cube::Active if v == 2 || v == 3 => Some((*p, Cube::Active)),
@@ -155,7 +155,7 @@ impl Day for Solution {
 
             next = actives
                 .iter()
-                .filter(|(_, &count)| count == 2 || count == 3)
+                .filter(|&(_, &count)| count == 2 || count == 3)
                 .flat_map(|(p, &v)| match current.get(p).unwrap_or(&Cube::Inactive) {
                     Cube::Inactive if v == 3 => Some((*p, Cube::Active)),
                     Cube::Active if v == 2 || v == 3 => Some((*p, Cube::Active)),

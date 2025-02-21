@@ -53,12 +53,12 @@ impl Inventory {
             .iter()
             .find(|x| x.typ == typ)
             .and_then(|r| {
-                let compute = |have: u32, gen: u32, need: u32| {
+                let compute = |have: u32, r#gen: u32, need: u32| {
                     if need == 0 {
                         Some(0)
-                    } else if gen > 0 {
-                        let rem = need.saturating_sub(have) % gen;
-                        Some((need.saturating_sub(have) / gen) + u32::from(rem > 0))
+                    } else if r#gen > 0 {
+                        let rem = need.saturating_sub(have) % r#gen;
+                        Some((need.saturating_sub(have) / r#gen) + u32::from(rem > 0))
                     } else {
                         None
                     }

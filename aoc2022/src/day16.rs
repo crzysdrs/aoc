@@ -137,7 +137,7 @@ fn release_pressure_inner<const N: usize>(
         loc: &'a Valve,
         open: u64,
         best_path: &HashMap<(usize, usize), (usize, usize)>,
-    ) -> impl Iterator<Item = Move> + Clone + 'a {
+    ) -> impl Iterator<Item = Move> + Clone + use<'a> {
         let mut choices: Vec<_> = v
             .iter()
             .filter(|v| open & (1 << v.id) == 0 && v.flow > 0)

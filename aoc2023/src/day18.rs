@@ -77,7 +77,7 @@ impl Day for Solution {
         }
 
         impl Digger {
-            fn dig(&mut self, d: &Dig) -> impl Iterator<Item = Point2<i32>> {
+            fn dig(&mut self, d: &Dig) -> impl Iterator<Item = Point2<i32>> + use<> {
                 assert!(self.dir != d.dir);
                 self.dir = d.dir;
                 let mut pos = self.pos;

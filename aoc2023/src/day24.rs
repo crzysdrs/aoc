@@ -1,5 +1,5 @@
 use crate::Day;
-use cgmath::{Point2, Point3, Vector2, Vector3};
+use cgmath::{Point2, Point3, Vector3};
 
 #[derive(PartialEq, Debug)]
 struct Line {
