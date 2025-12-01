@@ -83,7 +83,7 @@ impl Day for Solution {
             .map(|l| {
                 Ok(l?
                     .chars()
-                    .map(|x| (x.to_string().parse().unwrap()))
+                    .map(|x| x.to_string().parse().unwrap())
                     .collect())
             })
             .collect()

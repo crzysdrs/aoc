@@ -24,6 +24,7 @@ impl Line {
         let b = p2.y as f32 - m * p2.x as f32;
         Line { m, b }
     }
+    #[allow(unused)]
     fn intersect(&self, p: &Line) -> Intersect {
         // m1 x + b1 = m2 x + b2
         // m1 x + b1 - b2 = m2 x
@@ -47,6 +48,7 @@ fn truncate_z<T>(p: Point3<T>) -> Point2<T> {
     Point2::new(p.x, p.y)
 }
 
+#[allow(unused)]
 fn truncate_x<T>(p: Point3<T>) -> Point2<T> {
     Point2::new(p.y, p.z)
 }
@@ -136,6 +138,7 @@ impl Day for Solution {
         }
 
         impl Line3d {
+            #[allow(unused)]
             fn intersect(&self, other: &Line3d) -> bool {
                 let l_xy_1 = Line::from_points(truncate_z(self.b), truncate_z(self.b + self.m));
                 let l_xy_2 = Line::from_points(truncate_z(other.b), truncate_z(other.b + other.m));
@@ -148,7 +151,7 @@ impl Day for Solution {
                     _ => false,
                 }
             }
-
+            #[allow(unused)]
             fn at_t(&self, t: i64) -> Point3<i64> {
                 self.b + self.m * t
             }

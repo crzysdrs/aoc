@@ -28,10 +28,10 @@ impl Indices {
         self.idx[idx].prev = at;
         self.idx[idx].next = old_next;
     }
-    fn iter(&self) -> IndexIter {
+    fn iter(&self) -> IndexIter<'_> {
         self.iter_at(0)
     }
-    fn iter_at(&self, at: usize) -> IndexIter {
+    fn iter_at(&self, at: usize) -> IndexIter<'_> {
         IndexIter {
             idx: self,
             cur_idx: at % self.idx.len(),
