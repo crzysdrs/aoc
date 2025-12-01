@@ -7,5 +7,6 @@ members = [
         "aoc2022",
         "aoc2023",
         "aoc2024",
+        "aoc2025",
 ]
 resolver="2"
