@@ -46,7 +46,6 @@ impl Day for Solution {
             .sum()
     }
     fn p2(v: &Self::Input2) -> Self::Sol2 {
-        let mut peices = vec![];
         v.iter()
             .map(|range| {
                 let mut count = 0;
@@ -54,21 +53,29 @@ impl Day for Solution {
                     let b10 = v.ilog10() + 1;
                     'next: for split in (1..b10).filter(|i| b10 % i == 0) {
                         let mut num = v;
-                        peices.clear();
 
+                        let mut first = None;
                         for _ in 0..b10 / split {
                             let peice = num % 10usize.pow(split);
-                            peices.push(peice);
+                            match first {
+                                Some(p) if p == peice => {
+                                    // good
+                                }
+                                Some(_p) => {
+                                    // doesn't match
+                                    continue 'next;
+                                }
+                                None => {
+                                    first = Some(peice);
+                                }
+                            }
                             num /= 10usize.pow(split);
                         }
                         //println!("b10: {} split: {} {} {:?}", b10, split, v, peices);
-                        assert_eq!(peices.len(), (b10 / split) as usize);
                         //println!("{:?} {} {}", v, l, r);
-                        if peices.iter().all(|x| x == peices.first().unwrap()) {
-                            //println!("HIT");
-                            count += v;
-                            break 'next;
-                        }
+
+                        count += v;
+                        break 'next;
                     }
                 }
                 count
