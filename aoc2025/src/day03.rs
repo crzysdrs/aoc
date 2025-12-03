@@ -3,6 +3,28 @@ use crate::Day;
 use std::collections::*;
 
 pub struct Solution {}
+
+fn best(real: &mut HashMap<(usize, usize), usize>, count: usize, bank: &[u32]) -> usize {
+    let val = if let Some(found) = real.get(&(count, bank.len())) {
+        return *found;
+    } else if count == 0 {
+        0
+    } else if count > bank.len() {
+        0
+    } else if bank.is_empty() {
+        0
+    } else {
+        let (cur_bank, rest) = bank.split_at(1);
+        let choose_this =
+            cur_bank[0] as usize * 10usize.pow(count as u32 - 1) + best(real, count - 1, rest);
+        let dont_choose_this = best(real, count, rest);
+
+        std::cmp::max(choose_this, dont_choose_this)
+    };
+    real.insert((count, bank.len()), val);
+    val
+}
+
 impl Day for Solution {
     const DAY: u32 = 3;
     type Input1 = Vec<Vec<u32>>;
@@ -21,42 +43,12 @@ impl Day for Solution {
     fn p1(v: &Self::Input1) -> Self::Sol1 {
         v.iter()
             .map(|b| {
-                let mut best = None;
-                for (i, v) in b.iter().enumerate() {
-                    for (j, v2) in b[i + 1..].iter().enumerate() {
-                        let test = (v * 10 + v2) as usize;
-                        match best {
-                            Some(b) if b <= test => best = Some(test),
-                            None => best = Some(test),
-                            _ => {}
-                        }
-                    }
-                }
-                best.unwrap()
+                let mut real = HashMap::new();
+                best(&mut real, 2, b)
             })
             .sum()
     }
     fn p2(v: &Self::Input2) -> Self::Sol2 {
-        fn best(real: &mut HashMap<(usize, usize), usize>, count: usize, bank: &[u32]) -> usize {
-            let val = if let Some(found) = real.get(&(count, bank.len())) {
-                return *found;
-            } else if count == 0 {
-                0
-            } else if count > bank.len() {
-                0
-            } else if bank.is_empty() {
-                0
-            } else {
-                let (cur_bank, rest) = bank.split_at(1);
-                let choose_this = cur_bank[0] as usize * 10usize.pow(count as u32 - 1)
-                    + best(real, count - 1, rest);
-                let dont_choose_this = best(real, count, rest);
-
-                std::cmp::max(choose_this, dont_choose_this)
-            };
-            real.insert((count, bank.len()), val);
-            val
-        }
         v.iter()
             .map(|b| {
                 let mut real = HashMap::new();
