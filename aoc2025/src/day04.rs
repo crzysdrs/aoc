@@ -1,13 +1,68 @@
 use crate::Day;
-use cgmath::{Point2, Vector2};
+use cgmath::Point2;
 #[allow(unused_imports)]
 use std::collections::*;
+use std::ops::Range;
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub struct Grid<T> {
     grid: Vec<T>,
     height: usize,
     width: usize,
+}
+
+struct GridPoints<'a, T> {
+    grid: &'a Grid<T>,
+    idx: usize,
+}
+
+impl<'a, T> GridPoints<'a, T> {
+    fn new(grid: &'a Grid<T>) -> Self {
+        Self { grid, idx: 0 }
+    }
+}
+
+impl<'a, T> Iterator for GridPoints<'a, T> {
+    type Item = (Point2<i32>, &'a T);
+    fn next(&mut self) -> Option<Self::Item> {
+        let v = self.grid.grid.get(self.idx)?;
+        let old_idx = self.idx;
+        self.idx += 1;
+
+        Some((
+            Point2::new(
+                (old_idx % self.grid.width) as i32,
+                (old_idx / self.grid.width) as i32,
+            ),
+            v,
+        ))
+    }
+}
+
+struct SubGrid<'a, T> {
+    grid: &'a Grid<T>,
+    x_range: Range<i32>,
+    y_range: Range<i32>,
+    pt: Point2<i32>,
+}
+
+impl<'a, T> Iterator for SubGrid<'a, T> {
+    type Item = (Point2<i32>, Option<&'a T>);
+    fn next(&mut self) -> Option<Self::Item> {
+        let old_pt = self.pt;
+        let next = if self.x_range.contains(&self.pt.x) && self.y_range.contains(&self.pt.y) {
+            Some(self.grid.get(&self.pt))
+        } else {
+            None
+        }?;
+        self.pt.x += 1;
+        if !self.x_range.contains(&self.pt.x) {
+            self.pt.x = self.x_range.start;
+            self.pt.y += 1;
+        }
+
+        Some((old_pt, next))
+    }
 }
 
 impl<T> Grid<T> {
@@ -16,6 +71,17 @@ impl<T> Grid<T> {
             grid,
             height,
             width,
+        }
+    }
+    fn iter_pts(&self) -> GridPoints<'_, T> {
+        GridPoints::new(self)
+    }
+    fn iter_subgrid(&self, x: Range<i32>, y: Range<i32>) -> SubGrid<'_, T> {
+        SubGrid {
+            grid: self,
+            x_range: x.clone(),
+            y_range: y.clone(),
+            pt: Point2::new(x.start, y.start),
         }
     }
     fn get_mut(&mut self, v: &Point2<i32>) -> Option<&mut T> {
@@ -66,7 +132,7 @@ where
     }
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, PartialEq)]
 pub enum Space {
     Empty,
     Paper,
@@ -113,63 +179,42 @@ impl Day for Solution {
         Self::process_input1(s)
     }
     fn p1(v: &Self::Input1) -> Self::Sol1 {
-        let mut count = 0;
-        for x in 0..v.width {
-            for y in 0..v.height {
-                let p = Point2::new(x as i32, y as i32);
-                if let Some(Space::Paper) = v.get(&p) {
-                    let mut paper = 0;
-                    for i in -1..=1 {
-                        for j in -1..=1 {
-                            let vec = Vector2::new(i, j);
-                            let p2 = p + vec;
-                            if let Some(Space::Paper) = v.get(&p2) {
-                                paper += 1;
-                            }
-                        }
-                    }
-                    if paper < 5 {
-                        count += 1;
-                    }
-                }
-            }
-        }
-        count
+        v.iter_pts()
+            .filter(|(_, v)| matches!(v, Space::Paper))
+            .map(|(p, _)| {
+                v.iter_subgrid(p.x - 1..p.x + 2, p.y - 1..p.y + 2)
+                    .filter(|(_, val)| matches!(val, Some(Space::Paper)))
+                    .count()
+            })
+            .filter(|v| *v < 5)
+            .count()
     }
     fn p2(v: &Self::Input2) -> Self::Sol2 {
         let mut v = v.clone();
         let mut count = 0;
         loop {
-            let mut pass = 0;
             let mut new = v.clone();
-            for x in 0..v.width {
-                for y in 0..v.height {
-                    let p = Point2::new(x as i32, y as i32);
-                    if let Some(Space::Paper) = v.get(&p) {
-                        let mut paper = 0;
-                        for i in -1..=1 {
-                            for j in -1..=1 {
-                                let vec = Vector2::new(i, j);
-                                let p2 = p + vec;
-                                if let Some(Space::Paper) = v.get(&p2) {
-                                    paper += 1;
-                                }
-                            }
-                        }
-                        if paper < 5 {
-                            pass += 1;
-                            count += 1;
-                            if let Some(v) = new.get_mut(&p) {
-                                *v = Space::Empty;
-                            }
-                        }
+            v.iter_pts()
+                .filter(|(_, v)| matches!(v, Space::Paper))
+                .map(|(p, _)| {
+                    let paper = v
+                        .iter_subgrid(p.x - 1..p.x + 2, p.y - 1..p.y + 2)
+                        .filter(|(_, val)| matches!(val, Some(Space::Paper)))
+                        .count();
+
+                    (p, paper)
+                })
+                .filter(|(_p, paper)| *paper < 5)
+                .for_each(|(p, _)| {
+                    if let Some(v) = new.get_mut(&p) {
+                        count += 1;
+                        *v = Space::Empty;
                     }
-                }
-            }
-            if pass == 0 {
+                });
+            if new == v {
                 break;
             }
-            std::mem::swap(&mut v, &mut new);
+            std::mem::swap(&mut new, &mut v);
         }
         count
     }
