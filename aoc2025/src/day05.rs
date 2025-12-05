@@ -45,12 +45,9 @@ impl Day for Solution {
                             || r2.contains(r.start())
                             || r2.contains(r.end()))
                     {
-                        ranges.push(
-                            std::cmp::min(*r.start(), *r2.start())
-                                ..=std::cmp::max(*r.end(), *r2.end()),
-                        );
-
-                        ranges.swap_remove(i);
+                        let start = std::cmp::min(*r.start(), *r2.start());
+                        let end = std::cmp::max(*r.end(), *r2.end());
+                        ranges[i] = start..=end;
                         ranges.swap_remove(j + i + 1);
                         hit = true;
                         break 'again;
