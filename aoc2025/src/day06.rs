@@ -8,6 +8,7 @@ pub enum Op {
     Mult,
     Plus,
 }
+
 pub struct Solution {}
 impl Day for Solution {
     const DAY: u32 = 6;
@@ -42,12 +43,24 @@ impl Day for Solution {
         (items, ops)
     }
     fn process_input2(s: &str) -> Self::Input2 {
+        let ops: Vec<_> = s
+            .lines()
+            .last()
+            .unwrap()
+            .split_whitespace()
+            .map(|s| match s {
+                "*" => Op::Mult,
+                "+" => Op::Plus,
+                _ => panic!(),
+            })
+            .collect();
+
         let lines: Vec<_> = s.lines().map(|v| v.as_bytes().to_vec()).collect();
 
         let mut new_lines = vec![];
         for n in 0..lines[0].len() {
             let mut new_line = vec![];
-            for line in &lines {
+            for line in lines.iter().take(lines.len() - 1) {
                 new_line.push(line[n]);
             }
             new_lines.push(new_line);
@@ -58,29 +71,10 @@ impl Day for Solution {
             .map(|v| str::from_utf8(v).unwrap())
             .collect();
 
-        let mut ops = vec![];
-        let mut vals: Vec<Vec<u64>> = vec![];
-
-        lines
+        let vals = lines
             .split(|v| v.chars().all(|c| c.is_whitespace()))
-            .enumerate()
-            .for_each(|(i, s)| {
-                if vals.len() <= i {
-                    vals.push(vec![]);
-                }
-                for v in s {
-                    let val = if let Some(s) = v.strip_suffix('*') {
-                        ops.push(Op::Mult);
-                        s
-                    } else if let Some(s) = v.strip_suffix('+') {
-                        ops.push(Op::Plus);
-                        s
-                    } else {
-                        v
-                    };
-                    vals[i].push(val.trim().parse().unwrap());
-                }
-            });
+            .map(|s| s.iter().map(|v| v.trim().parse().unwrap()).collect())
+            .collect();
 
         (vals, ops)
     }
