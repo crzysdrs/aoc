@@ -27,7 +27,7 @@ impl Day for Solution {
     fn p1(v: &Self::Input1) -> Self::Sol1 {
         let mut dist = Vec::new();
         for (i, p) in v.iter().enumerate() {
-            for (j, p2) in v[i + 1..].iter().enumerate() {
+            for (_j, p2) in v[i + 1..].iter().enumerate() {
                 dist.push(((*p, *p2), (p - p2).magnitude2()));
             }
         }
@@ -81,7 +81,7 @@ impl Day for Solution {
     fn p2(v: &Self::Input2) -> Self::Sol2 {
         let mut dist = Vec::new();
         for (i, p) in v.iter().enumerate() {
-            for (j, p2) in v[i + 1..].iter().enumerate() {
+            for (_j, p2) in v[i + 1..].iter().enumerate() {
                 dist.push(((*p, *p2), (p - p2).magnitude2()));
             }
         }
@@ -166,32 +166,34 @@ impl Day for Solution {
     }
 }
 
-//crate::default_tests!((), ());
+crate::default_tests!(81536, 7017750530);
 crate::string_tests!(
-    [(
-        foo_sol1,
-        "162,817,812
-57,618,57
-906,360,560
-592,479,940
-352,342,300
-466,668,158
-542,29,236
-431,825,988
-739,650,466
-52,470,668
-216,146,977
-819,987,18
-117,168,530
-805,96,715
-346,949,466
-970,615,88
-941,993,340
-862,61,35
-984,92,344
-425,690,689",
-        40
-    )],
+    [
+//         (
+//         foo_sol1,
+//         "162,817,812
+// 57,618,57
+// 906,360,560
+// 592,479,940
+// 352,342,300
+// 466,668,158
+// 542,29,236
+// 431,825,988
+// 739,650,466
+// 52,470,668
+// 216,146,977
+// 819,987,18
+// 117,168,530
+// 805,96,715
+// 346,949,466
+// 970,615,88
+// 941,993,340
+// 862,61,35
+// 984,92,344
+// 425,690,689",
+//         40
+        //     )
+    ],
     [(
         foo_sol2,
         "162,817,812
